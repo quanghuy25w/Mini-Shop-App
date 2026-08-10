@@ -1,6 +1,3 @@
-/* Hallmark · macrostructure: Stat-Led · tone: premium-clean · anchor hue: cyan-blue */
-/* pre-emit critique: P5 H5 E5 S5 R4 V5 */
-
 /* ─────────────────────────────────────────
    SHARED WRAPPER
 ───────────────────────────────────────── */
@@ -66,7 +63,6 @@
    HOME PAGE
 ───────────────────────────────────────── */
 
-/* Dark Hero Band */
 .hero {
   background-color: var(--hero-bg);
   border-radius: var(--r-xl);

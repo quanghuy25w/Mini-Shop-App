@@ -53,7 +53,7 @@ function Home() {
           <div className="hero__image-wrap">
             <img
               src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=800&q=80"
-              alt="Sản phẩm sữa LaCté"
+              alt="Sản phẩm sữa NutriMilk"
             />
             <div className="hero__badge">
               <span className="hero__badge-dot" />

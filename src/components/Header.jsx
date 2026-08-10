@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Droplets, ShoppingCart } from 'lucide-react';
+import { Milk, ShoppingCart } from 'lucide-react';
 import './Header.css';
 
 function Header() {
@@ -10,8 +10,8 @@ function Header() {
     <header className="header">
       <div className="header__container">
         <NavLink to="/" className="header__logo">
-          <Droplets className="header__logo-icon" size={22} strokeWidth={2.2} />
-          LaCté
+          <Milk className="header__logo-icon" size={24} color="#2563eb" strokeWidth={2.2} />
+          NutriMilk
         </NavLink>
 
         <nav className="header__nav">

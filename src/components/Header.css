@@ -1,8 +1,4 @@
-/* Hallmark · macrostructure: Stat-Led · tone: premium-clean · anchor hue: cyan-blue */
 
-/* ─────────────────────────────────────────
-   HEADER  — dark navy bar
-───────────────────────────────────────── */
 .header {
   position: sticky;
   top: 0;
@@ -33,10 +29,10 @@
   color: oklch(97% 0.005 220);
   letter-spacing: -0.4px;
 }
-.header__logo-icon { color: var(--accent-light); }
+.header__logo-icon { color: #2563eb; }
 .header__logo:hover { opacity: 0.85; }
 
-/* Nav links */
+
 .header__nav {
   display: flex;
   align-items: center;
