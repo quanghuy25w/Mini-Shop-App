@@ -1,32 +1,27 @@
 import { NavLink } from 'react-router-dom';
-import { ShoppingBag, ShoppingCart, Store, Home } from 'lucide-react';
+import { Droplets, ShoppingCart } from 'lucide-react';
 import './Header.css';
 
 function Header() {
-  const navClass = ({ isActive }) => (isActive ? 'nav-link active' : 'nav-link');
+  const navClass = ({ isActive }) =>
+    isActive ? 'header__nav-link active' : 'header__nav-link';
 
   return (
     <header className="header">
-      <div className="header__inner">
+      <div className="header__container">
         <NavLink to="/" className="header__logo">
-          <ShoppingBag size={20} strokeWidth={2.5} />
-          <span>Mini<strong>Shop</strong></span>
+          <Droplets className="header__logo-icon" size={22} strokeWidth={2.2} />
+          LaCté
         </NavLink>
 
         <nav className="header__nav">
-          <NavLink to="/" end className={navClass}>
-            <Home size={15} />
-            Trang Chủ
-          </NavLink>
-          <NavLink to="/products" className={navClass}>
-            <Store size={15} />
-            Sản Phẩm
-          </NavLink>
-          <NavLink to="/cart" className={navClass}>
-            <ShoppingCart size={15} />
-            Giỏ Hàng
-          </NavLink>
+          <NavLink to="/" end className={navClass}>Trang Chủ</NavLink>
+          <NavLink to="/products" className={navClass}>Sản Phẩm</NavLink>
         </nav>
+
+        <NavLink to="/cart" className="header__cart" aria-label="Giỏ hàng">
+          <ShoppingCart size={20} strokeWidth={1.8} />
+        </NavLink>
       </div>
     </header>
   );

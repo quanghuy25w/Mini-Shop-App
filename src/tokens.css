@@ -1,0 +1,57 @@
+/* Hallmark · macrostructure: Stat-Led · tone: premium-clean · anchor hue: cyan-blue */
+/* pre-emit critique: P5 H5 E5 S5 R4 V5 */
+
+:root {
+  /* ── Paper / Surface ── */
+  --paper:       oklch(98% 0.005 220);   /* off-white, hint of cool */
+  --paper-2:     oklch(95% 0.008 220);   /* card bg */
+  --paper-3:     oklch(91% 0.010 220);   /* input, hover */
+
+  /* ── Ink ── */
+  --ink:         oklch(18% 0.015 250);   /* near-black, blue-shifted */
+  --ink-2:       oklch(42% 0.012 240);   /* body text */
+  --ink-3:       oklch(62% 0.008 230);   /* muted */
+
+  /* ── Accent — Steel Blue ── */
+  --accent:      oklch(52% 0.16 236);
+  --accent-h:    oklch(46% 0.16 236);    /* hover */
+  --accent-m:    oklch(52% 0.16 236 / 0.12); /* muted bg */
+  --accent-light:oklch(88% 0.08 226);   /* soft accent bg on dark */
+
+  /* ── Dark Hero surface ── */
+  --hero-bg:     oklch(22% 0.025 258);   /* deep navy */
+  --hero-bg-2:   oklch(27% 0.022 255);   /* card on dark */
+  --hero-border: oklch(35% 0.018 250);   /* border on dark */
+
+  /* ── Semantic ── */
+  --success:     oklch(62% 0.16 158);
+  --danger:      oklch(59% 0.20 25);
+  --warn:        oklch(78% 0.14 80);
+
+  /* ── Border ── */
+  --border:      oklch(88% 0.008 220);
+  --border-dark: oklch(30% 0.018 250);
+
+  /* ── Typography ── */
+  --font-d: 'Space Grotesk', sans-serif;
+  --font-b: 'Inter', sans-serif;
+
+  /* ── Spacing (4-pt scale) ── */
+  --sp-1: 4px;   --sp-2: 8px;  --sp-3: 12px;
+  --sp-4: 16px;  --sp-5: 20px; --sp-6: 24px;
+  --sp-8: 32px;  --sp-10: 40px;--sp-12: 48px;
+  --sp-16: 64px; --sp-20: 80px;--sp-24: 96px;
+
+  /* ── Type scale ── */
+  --t-xs: 0.72rem; --t-sm: 0.85rem; --t-base: 1rem;
+  --t-lg: 1.125rem;--t-xl: 1.25rem; --t-2xl: 1.5rem;
+  --t-3xl: 1.875rem;--t-4xl: 2.5rem; --t-5xl: 3.5rem;
+
+  /* ── Radius ── */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 24px;
+
+  /* ── Motion ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.4, 0, 1, 1);
+  --fast: 140ms; --base: 260ms; --slow: 420ms;
+}

@@ -1,14 +1,17 @@
+import React from 'react';
 import './Footer.css';
 
-function Footer() {
+const Footer = () => {
   return (
     <footer className="footer">
-      <div className="footer__inner">
-        <p className="footer__brand">🛍️ MiniShop</p>
-        <p className="footer__copy">© {new Date().getFullYear()} MiniShop. All rights reserved.</p>
+      <div className="footer__container">
+        <div className="footer__brand">LaCté</div>
+        <div className="footer__copyright">
+          © {new Date().getFullYear()} LaCté. All rights reserved.
+        </div>
       </div>
     </footer>
   );
-}
+};
 
 export default Footer;
