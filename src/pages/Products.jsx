@@ -3,12 +3,12 @@ import { ShoppingCart } from 'lucide-react';
 import './Pages.css';
 
 export const MOCK_PRODUCTS = [
-  { id: 1, name: 'Sữa Tươi Vinamilk 100% 1L',  price: 32000,  tag: 'Bán chạy', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80', unit: 'hộp', brand: 'Vinamilk' },
-  { id: 2, name: 'Sữa Bột Nan Optipro 800g',     price: 425000, tag: 'Mới',      image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=500&q=80', unit: 'hộp', brand: 'Nestlé' },
-  { id: 3, name: 'Phô Mai Con Bò Cười 200g',     price: 89000,  tag: '',         image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=500&q=80', unit: 'hộp', brand: 'Bel' },
-  { id: 4, name: 'Sữa Chua Vinamilk Probi',      price: 18000,  tag: 'Sale',     image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500&q=80', unit: 'hộp', brand: 'Vinamilk' },
-  { id: 5, name: 'Bơ Lạt Anchor 250g',           price: 145000, tag: '',         image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=500&q=80', unit: 'hộp', brand: 'Anchor' },
-  { id: 6, name: 'Sữa Đặc Ông Thọ 380g',         price: 35000,  tag: '',         image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=500&q=80', unit: 'lon',  brand: 'Vinamilk' },
+  { id: 1, name: 'Sữa Tươi Vinamilk 100% 1L',  price: 32000,  tag: 'Bán chạy', image: 'https://cdn.tgdd.vn/Products/Images/2386/79312/bhx/sua-tuoi-tiet-trung-co-duong-vinamilk-100-sua-tuoi-hop-1-lit-202403281405411648.jpg', unit: 'hộp', brand: 'Vinamilk' },
+  { id: 2, name: 'Sữa Bột Nan Optipro 800g',     price: 425000, tag: 'Mới',      image: 'https://cdn.kidsplaza.vn/_next/image?url=https%3A%2F%2Fcdn-v2.kidsplaza.vn%2Fmedia%2Fwysiwyg%2Fproduct%2Fsuabotchobe%2Fsua-nan%2Fsua-nan-optipro-plus-so-1-5hmo-800g-cho-be-0-6-thang-tuoi-1.jpg&w=828&q=75', unit: 'hộp', brand: 'Nestlé' },
+  { id: 3, name: 'Phô Mai Con Bò Cười 200g',     price: 89000,  tag: '',         image: 'https://cdn.go-vietnam.vn/sale-products/00001832-0.png?v=10', brand: 'Bel' },
+  { id: 4, name: 'Sữa Chua Vinamilk Probi',      price: 18000,  tag: 'Sale',     image: 'https://www.lottemart.vn/media/catalog/product/cache/0x0/8/9/8934673304528-1.jpg.webp', unit: 'hộp', brand: 'Vinamilk' },
+  { id: 5, name: 'Bơ Lạt Anchor 250g',           price: 145000, tag: '',         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxEuKe-1WT-VzCgZhuou6zKtvPanXviO36w57gKk5Qm2ZdNz_E7wLEE7cd&s=10', unit: 'hộp', brand: 'Anchor' },
+  { id: 6, name: 'Sữa Đặc Ông Thọ 380g',         price: 35000,  tag: '',         image: 'https://cdn.tgdd.vn/Products/Images/2526/92440/bhx/sua-dac-co-duong-ong-tho-trang-nhan-vang-lon-380g-202306141608258891.jpg', unit: 'lon',  brand: 'Vinamilk' },
 ];
 
 function Products() {
