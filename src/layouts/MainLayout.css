@@ -1,0 +1,12 @@
+/* ==================== MAIN LAYOUT ==================== */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.layout__content {
+  flex: 1;
+  width: 100%;
+}

@@ -1,0 +1,29 @@
+/* ==================== FOOTER STYLES ==================== */
+.footer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 0;
+}
+
+.footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footer__brand {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-body);
+  margin: 0;
+}
+
+.footer__copy {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
