@@ -1,4 +1,4 @@
-#  MiniShop — E-Commerce App
+#  MiniShop — E-Commerce App (NutriMilk)
 
 Dự án thực hành xây dựng ứng dụng E-commerce bằng **ReactJS + Vite**, phát triển theo từng ngày với mục tiêu hoàn thiện dần từ cấu trúc đến tính năng thực tế.
 
@@ -13,33 +13,36 @@ Dự án thực hành xây dựng ứng dụng E-commerce bằng **ReactJS + Vit
 ```
 Mini-Shop/
 ├── public/
+│   ├── favicon.svg          
+│   └── icons.svg
 ├── src/
 │   ├── assets/
 │   │
 │   ├── components/          # UI components dùng chung
-│   │   ├── Header.jsx       # Sticky navbar với NavLink active state
+│   │   ├── Header.jsx       
 │   │   ├── Header.css
-│   │   ├── Footer.jsx
+│   │   ├── Footer.jsx      
 │   │   └── Footer.css
 │   │
-│   ├── layouts/             # Bố cục trang
+│   ├── layouts/             
 │   │   ├── MainLayout.jsx   # Header + <Outlet /> + Footer
 │   │   └── MainLayout.css
 │   │
-│   ├── pages/               # Các trang của ứng dụng
-│   │   ├── Home.jsx         # Hero 2 cột + Feature strip
-│   │   ├── Products.jsx     # Grid 6 sản phẩm (ảnh Unsplash thật)
-│   │   ├── ProductDetail.jsx# Chi tiết sản phẩm, dùng useParams()
+│   ├── pages/               
+│   │   ├── Home.jsx         
+│   │   ├── Products.jsx     # Grid 6 sản phẩm sữa thực tế (Unsplash photos)
+│   │   ├── ProductDetail.jsx# Chi tiết sản phẩm, dùng useParams() & bảng thông tin dinh dưỡng
 │   │   ├── Cart.jsx         # Giỏ hàng + Order Summary panel
 │   │   ├── NotFound.jsx     # Trang 404
-│   │   └── Pages.css        # Shared styles cho tất cả pages
+│   │   └── Pages.css        # Shared styles với token OKLCH
 │   │
 │   ├── routes/              # Cấu hình Router
 │   │   └── AppRoutes.jsx    # Nested Routes config
 │   │
 │   ├── App.jsx              # Root component — chỉ render <AppRoutes />
 │   ├── main.jsx             # Entry point — wrap <BrowserRouter>
-│   └── index.css            # Global reset + Design tokens (CSS vars)
+│   ├── tokens.css           # OKLCH design tokens (colors, font, spacing)
+│   └── index.css            # Global reset + CSS rules
 │
 ├── index.html
 ├── vite.config.js
@@ -54,7 +57,7 @@ Mini-Shop/
 | `react` | ^19 | Core UI framework |
 | `react-dom` | ^19 | DOM rendering |
 | `react-router-dom` | **v6** | Client-side routing |
-| `lucide-react` | latest | Icon library |
+| `lucide-react` | latest | Icon library (`Milk`, `ShoppingCart`,...) |
 | `vite` | ^8 | Build tool + Dev server |
 
 ---
