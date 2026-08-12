@@ -1,0 +1,102 @@
+.invoice-modal {
+  max-width: 500px;
+  padding: 30px;
+}
+
+.invoice-header {
+  text-align: center;
+  border-bottom: 2px dashed #ddd;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.invoice-header h2 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  text-transform: uppercase;
+}
+
+.invoice-header p {
+  margin: 4px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  padding: 10px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.invoice-table th {
+  color: #777;
+  font-weight: 600;
+}
+
+.invoice-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 2px dashed #ddd;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.total-amount {
+  color: #e74c3c;
+  font-size: 22px;
+}
+
+.invoice-actions {
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  border: 1px solid #3498db;
+  background: white;
+  color: #3498db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background: #f0f8ff;
+}
+
+/* Ẩn mọi thứ khác khi in, chỉ hiện modal */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .modal-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: none;
+  }
+  .invoice-modal, .invoice-modal * {
+    visibility: visible;
+  }
+  .invoice-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-shadow: none;
+    padding: 0;
+    width: 100%;
+  }
+  .modal-actions {
+    display: none;
+  }
+}

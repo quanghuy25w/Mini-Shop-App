@@ -1,0 +1,59 @@
+.tabs {
+  display: flex;
+  margin-bottom: 0;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  background: #f1f2f6;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #7f8c8d;
+  transition: all 0.2s;
+  margin-right: 4px;
+}
+
+.tab-btn:hover {
+  background: #e8eaed;
+}
+
+.tab-btn.active {
+  background: white;
+  color: #2c3e50;
+  border-top: 3px solid #3498db;
+  position: relative;
+  z-index: 1;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.filter-bar select, .date-filter input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-filter label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
