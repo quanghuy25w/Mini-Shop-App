@@ -77,11 +77,11 @@ const DashboardPage = () => {
         </div>
         <div className="stat-card">
           <div className="stat-title">Tổng giá trị tồn kho</div>
-          <div className="stat-value text-primary">{formatCurrency(totalInventoryValue)}</div>
+          <div className="stat-value font-mono">{formatCurrency(totalInventoryValue)}</div>
         </div>
         <div className="stat-card">
           <div className="stat-title">Doanh thu 7 ngày qua</div>
-          <div className="stat-value text-success">{formatCurrency(revenue7Days)}</div>
+          <div className="stat-value font-mono text-ledger">{formatCurrency(revenue7Days)}</div>
         </div>
       </div>
 
@@ -104,8 +104,8 @@ const DashboardPage = () => {
                   {lowStockProducts.map(p => (
                     <tr key={p.id}>
                       <td>{p.name}</td>
-                      <td className="text-center font-bold" style={{ color: '#e67e22' }}>{p.stockQuantity} {p.unit}</td>
-                      <td className="text-center">{p.minStockAlert}</td>
+                      <td className="text-center font-mono font-bold text-amber">{p.stockQuantity} {p.unit}</td>
+                      <td className="text-center font-mono text-ink-soft">{p.minStockAlert}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -131,7 +131,7 @@ const DashboardPage = () => {
                   {topSellingProducts.map((p, idx) => (
                     <tr key={idx}>
                       <td>{p.name}</td>
-                      <td className="text-center font-bold" style={{ color: '#27ae60' }}>{p.qty}</td>
+                      <td className="text-center font-mono font-bold text-ledger">{p.qty}</td>
                     </tr>
                   ))}
                 </tbody>

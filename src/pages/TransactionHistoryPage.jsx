@@ -204,7 +204,7 @@ const TransactionHistoryPage = () => {
                     <tbody>
                       {filteredTransactions.map(tx => (
                         <tr key={tx.id}>
-                          <td>{format(new Date(tx.createdAt), 'dd/MM/yyyy HH:mm')}</td>
+                          <td className="font-mono">{format(new Date(tx.createdAt), 'dd/MM/yyyy HH:mm')}</td>
                           <td>{getProductName(tx.productId)}</td>
                           <td className="text-center">
                             {tx.type === 'IN' ? (
@@ -213,9 +213,9 @@ const TransactionHistoryPage = () => {
                               <span className="badge badge-danger">OUT</span>
                             )}
                           </td>
-                          <td className="text-center">{tx.quantity}</td>
-                          <td className="text-right">{formatCurrency(tx.unitPrice)}</td>
-                          <td>{tx.note}</td>
+                          <td className="text-center font-mono">{tx.quantity}</td>
+                          <td className="text-right font-mono">{formatCurrency(tx.unitPrice)}</td>
+                          <td className="font-mono">{tx.note}</td>
                         </tr>
                       ))}
                     </tbody>

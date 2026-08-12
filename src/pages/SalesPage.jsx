@@ -3,6 +3,7 @@ import { useCart } from '../hooks/useCart';
 import { useProducts } from '../hooks/useProducts';
 import { formatCurrency } from '../utils/formatCurrency';
 import InvoiceModal from '../components/sales/InvoiceModal';
+import EmptyState from '../components/common/EmptyState';
 import { toast } from 'react-toastify';
 import './SalesPage.css';
 
@@ -58,8 +59,8 @@ const SalesPage = () => {
                 onClick={() => !isOutOfStock && addToCart(prod, 1)}
               >
                 <div className="card-name">{prod.name}</div>
-                <div className="card-price">{formatCurrency(prod.sellPrice)}</div>
-                <div className="card-stock">
+                <div className="card-price font-mono text-ledger">{formatCurrency(prod.sellPrice)}</div>
+                <div className="card-stock font-mono">
                   Tồn: {prod.stockQuantity} {prod.unit}
                 </div>
                 {isOutOfStock && <div className="overlay-soldout">Hết hàng</div>}
@@ -67,7 +68,9 @@ const SalesPage = () => {
             );
           })}
           {displayProducts.length === 0 && (
-            <div className="empty-products">Không có sản phẩm nào phù hợp</div>
+             <div style={{ gridColumn: '1 / -1' }}>
+               <EmptyState message="Không tìm thấy sản phẩm." />
+             </div>
           )}
         </div>
       </div>

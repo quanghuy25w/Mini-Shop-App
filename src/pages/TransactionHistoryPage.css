@@ -1,49 +1,32 @@
 .tabs {
   display: flex;
-  margin-bottom: 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 24px;
 }
 
 .tab-btn {
-  padding: 12px 24px;
-  background: #f1f2f6;
-  border: 1px solid #ddd;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  color: #7f8c8d;
-  transition: all 0.2s;
-  margin-right: 4px;
+  color: var(--ink-soft);
+  transition: all 0.15s ease;
+  font-family: var(--font-body);
+  margin-bottom: -1px; /* overlap border */
 }
 
 .tab-btn:hover {
-  background: #e8eaed;
+  color: var(--ink);
 }
 
 .tab-btn.active {
-  background: white;
-  color: #2c3e50;
-  border-top: 3px solid #3498db;
-  position: relative;
-  z-index: 1;
-}
-
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 20px;
-  background: #f8f9fa;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.filter-bar select, .date-filter input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: inherit;
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 600;
 }
 
 .date-filter {
@@ -53,7 +36,21 @@
 }
 
 .date-filter label {
-  font-size: 14px;
-  color: #555;
+  font-size: 13px;
+  color: var(--ink-soft);
   font-weight: 500;
+}
+
+.date-filter input, .filter-bar select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: var(--surface);
+}
+
+.date-filter input:focus, .filter-bar select:focus {
+  outline: none;
+  border-color: var(--ink);
 }

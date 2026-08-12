@@ -142,7 +142,7 @@ const ProductPage = () => {
 
       <div className="page-content">
         {filteredProducts.length === 0 ? (
-          <EmptyState message="Không tìm thấy sản phẩm nào phù hợp." />
+          <EmptyState message="Không tìm thấy sản phẩm phù hợp. Thử đổi từ khóa hoặc bộ lọc." />
         ) : (
           <div className="table-responsive">
             <table className="data-table">
@@ -164,8 +164,8 @@ const ProductPage = () => {
                       <div className="product-unit text-muted">ĐVT: {prod.unit}</div>
                     </td>
                     <td>{getCategoryName(prod.categoryId)}</td>
-                    <td className="text-right font-medium">{formatCurrency(prod.sellPrice)}</td>
-                    <td className="text-center">{prod.stockQuantity}</td>
+                    <td className="text-right font-mono font-medium">{formatCurrency(prod.sellPrice)}</td>
+                    <td className="text-center font-mono font-medium">{prod.stockQuantity}</td>
                     <td className="text-center">{renderStockBadge(prod)}</td>
                     <td className="text-center actions-cell">
                       <button className="btn-icon btn-edit" onClick={() => handleOpenForm(prod)}>Sửa</button>

@@ -19,6 +19,11 @@
       "id": "c4444444-4444-4444-4444-444444444444",
       "name": "Văn phòng phẩm",
       "description": "Sách vở, bút, đồ dùng học tập và văn phòng"
+    },
+    {
+      "id": "f2FQI5vOU8U",
+      "name": "Thuốc",
+      "description": "Trị bệnh đau đầu"
     }
   ],
   "products": [
@@ -29,7 +34,7 @@
       "unit": "Chai",
       "costPrice": 4000,
       "sellPrice": 5000,
-      "stockQuantity": 10,
+      "stockQuantity": 8,
       "minStockAlert": 15,
       "isActive": true,
       "createdAt": "2026-07-01T08:00:00.000Z",
@@ -42,7 +47,7 @@
       "unit": "Lon",
       "costPrice": 8000,
       "sellPrice": 10000,
-      "stockQuantity": 5,
+      "stockQuantity": 9,
       "minStockAlert": 10,
       "isActive": true,
       "createdAt": "2026-07-01T08:30:00.000Z",
@@ -94,7 +99,7 @@
       "unit": "Gói",
       "costPrice": 45000,
       "sellPrice": 52000,
-      "stockQuantity": 100,
+      "stockQuantity": 99,
       "minStockAlert": 20,
       "isActive": true,
       "createdAt": "2026-07-02T08:00:00.000Z",
@@ -308,6 +313,33 @@
       "unitPrice": 52000,
       "note": "Bán hàng - HD005",
       "createdAt": "2026-08-11T15:20:00.000Z"
+    },
+    {
+      "id": "wCgy6PHnBYU",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "quantity": 2,
+      "unitPrice": 4000,
+      "note": "Test xuất hàng tự động",
+      "createdAt": "2026-08-12T11:11:00.743Z"
+    },
+    {
+      "id": "uBcASs4q7Zo",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "IN",
+      "quantity": 4,
+      "unitPrice": 8000,
+      "note": "ghi rõ ngày sản xuất và thời gian hết hạn\n",
+      "createdAt": "2026-08-12T11:27:09.737Z"
+    },
+    {
+      "id": "CmKkpNua3fU",
+      "productId": "p0000000-0000-0000-0000-000000000006",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 52000,
+      "note": "Bán hàng - HD006",
+      "createdAt": "2026-08-12T11:27:17.331Z"
     }
   ],
   "orders": [
@@ -385,6 +417,22 @@
       "totalAmount": 260000,
       "status": "completed",
       "createdAt": "2026-08-11T15:20:00.000Z"
+    },
+    {
+      "id": "GCK_6Tb4FD8",
+      "code": "HD006",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000006",
+          "productName": "Bột giặt Omo 800g",
+          "quantity": 1,
+          "price": 52000
+        }
+      ],
+      "totalAmount": 52000,
+      "status": "completed",
+      "createdAt": "2026-08-12T11:27:17.323Z"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

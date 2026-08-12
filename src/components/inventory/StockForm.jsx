@@ -121,12 +121,34 @@ const StockForm = ({ type, onSubmit, isLoading }) => {
             <p><strong>Sản phẩm:</strong> {selectedProduct.name}</p>
             <p><strong>ĐVT:</strong> {selectedProduct.unit}</p>
             <p><strong>Giá vốn hiện tại:</strong> {formatCurrency(selectedProduct.costPrice)}</p>
-            <div className="highlight-stock">
-              Tồn kho hiện tại: <span className="stock-number">{selectedProduct.stockQuantity}</span>
+            
+            <div className="stock-calculation">
+              <div className="stock-row">
+                <span>Tồn kho hiện tại:</span>
+                <span className="font-mono font-medium">{selectedProduct.stockQuantity}</span>
+              </div>
+              
+              {quantity && Number(quantity) > 0 && (
+                <>
+                  <div className="stock-row">
+                    <span>{type === 'IN' ? 'Dự kiến nhập:' : 'Dự kiến xuất:'}</span>
+                    <span className={`font-mono font-medium ${type === 'IN' ? 'text-ledger' : 'text-brick'}`}>
+                      {type === 'IN' ? '+' : '-'}{quantity}
+                    </span>
+                  </div>
+                  <div className="stock-row stock-total">
+                    <span>Tồn kho sau giao dịch:</span>
+                    <span className={`font-mono font-medium ${(type === 'OUT' && Number(quantity) > selectedProduct.stockQuantity) ? 'text-brick' : 'text-ledger'}`}>
+                      {type === 'IN' ? selectedProduct.stockQuantity + Number(quantity) : selectedProduct.stockQuantity - Number(quantity)}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
+
             {type === 'OUT' && Number(quantity) > selectedProduct.stockQuantity && (
               <div className="stock-warning-text">
-                Cảnh báo: Số lượng xuất vượt quá tồn kho!
+                Cảnh báo: Số lượng xuất vượt quá tồn kho hiện tại!
               </div>
             )}
           </div>

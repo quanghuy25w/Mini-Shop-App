@@ -130,6 +130,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           {error && <div className="error-alert">{error}</div>}
           {warning && <div className="warning-alert">{warning}</div>}
           
+          <div className="form-section-title">Thông tin cơ bản</div>
           <div className="form-row">
             <div className="form-group flex-2">
               <label>Tên sản phẩm (*)</label>
@@ -145,22 +146,15 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
               </select>
             </div>
           </div>
-
           <div className="form-row">
             <div className="form-group flex-1">
               <label>Đơn vị tính</label>
               <input type="text" name="unit" value={formData.unit} onChange={handleChange} />
             </div>
-            <div className="form-group flex-1">
-              <label>Tồn kho</label>
-              <input type="number" name="stockQuantity" value={formData.stockQuantity} onChange={handleChange} min="0" />
-            </div>
-            <div className="form-group flex-1">
-              <label>Cảnh báo mức tối thiểu</label>
-              <input type="number" name="minStockAlert" value={formData.minStockAlert} onChange={handleChange} min="0" />
-            </div>
+            <div className="form-group flex-2"></div>
           </div>
-          
+
+          <div className="form-section-title">Giá và Lợi nhuận</div>
           <div className="form-row">
             <div className="form-group flex-1">
               <label>Giá vốn (₫)</label>
@@ -169,6 +163,23 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
             <div className="form-group flex-1">
               <label>Giá bán (₫)</label>
               <input type="number" name="sellPrice" value={formData.sellPrice} onChange={handleChange} min="0" />
+              {Number(formData.costPrice) > 0 && Number(formData.sellPrice) > 0 && (
+                <span className={`profit-margin ${Number(formData.sellPrice) > Number(formData.costPrice) ? 'text-ledger' : 'text-brick'}`}>
+                  Biên lợi nhuận: {(((Number(formData.sellPrice) - Number(formData.costPrice)) / Number(formData.sellPrice)) * 100).toFixed(1)}%
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="form-section-title">Tồn kho</div>
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label>Tồn hiện tại</label>
+              <input type="number" name="stockQuantity" value={formData.stockQuantity} onChange={handleChange} min="0" />
+            </div>
+            <div className="form-group flex-1">
+              <label>Ngưỡng cảnh báo (tối thiểu)</label>
+              <input type="number" name="minStockAlert" value={formData.minStockAlert} onChange={handleChange} min="0" />
             </div>
           </div>
 
