@@ -1,25 +1,31 @@
 import axios from 'axios';
-import { handleLocalStorageRequest } from './localStorageAdapter';
+import { handleLocalStorageRequest, initSeedData } from './localStorageAdapter';
 
 export const checkDemoMode = () => {
-  // 1. Biến môi trường VITE_DEMO_MODE được nhúng từ Vite/Process
-  if (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env.VITE_DEMO_MODE === 'true' || import.meta.env.VITE_DEMO_MODE === true)) {
-    return true;
-  }
-  if (typeof process !== 'undefined' && process.env && (process.env.VITE_DEMO_MODE === 'true' || process.env.VITE_DEMO_MODE === '1')) {
-    return true;
-  }
-
-  // 2. Fallback tự động khi ứng dụng chạy trên trình duyệt ở domain không phải localhost (ví dụ Vercel)
   if (typeof window !== 'undefined' && window.location) {
-    const host = window.location.hostname || '';
-    if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '[::1]') {
+    const hostname = window.location.hostname || '';
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '[::1]') {
       return true;
     }
   }
 
+  const envObj = typeof import.meta !== 'undefined' ? import.meta.env : null;
+  if (envObj && (String(envObj['VITE_DEMO_MODE']) === 'true' || envObj['VITE_DEMO_MODE'] === true)) {
+    return true;
+  }
+
+  const procObj = typeof process !== 'undefined' ? process.env : null;
+  if (procObj && (String(procObj['VITE_DEMO_MODE']) === 'true' || procObj['VITE_DEMO_MODE'] === '1')) {
+    return true;
+  }
+
   return false;
 };
+
+// Khởi tạo Seed Data ngay khi module axiosClient nạp trong Demo Mode
+if (checkDemoMode()) {
+  initSeedData();
+}
 
 const realAxiosClient = axios.create({
   baseURL: 'http://localhost:3001',
