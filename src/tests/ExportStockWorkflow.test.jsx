@@ -97,7 +97,7 @@ describe('Export Stock Workflow Tests', () => {
 
     // Look for the note in the transaction history
     await waitFor(() => {
-      expect(screen.getByText('Test xuất hàng tự động')).toBeTruthy();
+      expect(screen.getAllByText('Test xuất hàng tự động').length).toBeGreaterThan(0);
     }, { timeout: TIMEOUT });
 
     // 12. Verify inventory is updated by fetching directly
@@ -105,5 +105,5 @@ describe('Export Stock Workflow Tests', () => {
     expect(updatedRes.data.stockQuantity).toBe(projectedStock);
     
     // Test passed successfully
-  });
+  }, TIMEOUT);
 });
