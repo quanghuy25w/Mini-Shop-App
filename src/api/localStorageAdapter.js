@@ -10,16 +10,29 @@ const STORAGE_KEYS = {
 export const initSeedData = () => {
   if (typeof window === 'undefined' || !window.localStorage) return;
 
-  if (!localStorage.getItem(STORAGE_KEYS.categories)) {
+  const shouldSeedKey = (key) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw === null || raw === undefined || raw === '' || raw === 'null' || raw === 'undefined') {
+        return true;
+      }
+      JSON.parse(raw);
+      return false;
+    } catch (e) {
+      return true;
+    }
+  };
+
+  if (shouldSeedKey(STORAGE_KEYS.categories)) {
     localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(seedData.categories));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.products)) {
+  if (shouldSeedKey(STORAGE_KEYS.products)) {
     localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(seedData.products));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.inventoryTransactions)) {
+  if (shouldSeedKey(STORAGE_KEYS.inventoryTransactions)) {
     localStorage.setItem(STORAGE_KEYS.inventoryTransactions, JSON.stringify(seedData.inventoryTransactions));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.orders)) {
+  if (shouldSeedKey(STORAGE_KEYS.orders)) {
     localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(seedData.orders));
   }
 };
