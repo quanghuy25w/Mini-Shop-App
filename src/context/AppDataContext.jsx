@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { categoryApi } from '../api/categoryApi';
 import { productApi } from '../api/productApi';
 import { initSeedData } from '../api/localStorageAdapter';
+import { checkDemoMode } from '../api/axiosClient';
 
 export const AppDataContext = createContext();
 
@@ -30,8 +31,10 @@ export const AppDataProvider = ({ children }) => {
 
   const initializeData = useCallback(async () => {
     setLoadingInitial(true);
-    // Luôn đảm bảo Seed Data đã được nạp nếu chưa có dữ liệu trong LocalStorage
-    initSeedData();
+    // Chỉ nạp Seed Data nếu đang chạy ở Demo Mode
+    if (checkDemoMode()) {
+      initSeedData();
+    }
     await Promise.all([refreshCategories(), refreshProducts()]);
     setLoadingInitial(false);
   }, [refreshCategories, refreshProducts]);

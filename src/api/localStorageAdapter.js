@@ -37,11 +37,6 @@ export const initSeedData = () => {
   }
 };
 
-// Tự động khởi tạo Seed Data ngay khi module được nạp trong môi trường trình duyệt
-if (typeof window !== 'undefined' && window.localStorage) {
-  initSeedData();
-}
-
 const getCollection = (resource) => {
   initSeedData();
   const key = STORAGE_KEYS[resource];
