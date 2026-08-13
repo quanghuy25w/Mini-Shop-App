@@ -4,6 +4,7 @@ import StockForm from '../components/inventory/StockForm';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useInventory } from '../hooks/useInventory';
 import { formatCurrency } from '../utils/formatCurrency';
+import { calculateTotalAmount } from '../utils/calculateTotal';
 import { toast } from 'react-toastify';
 
 const ImportPage = () => {
@@ -37,7 +38,7 @@ const ImportPage = () => {
   };
 
   const importTotalAmount = confirmData 
-    ? (Number(confirmData.quantity) || 0) * (Number(confirmData.unitPrice) || 0)
+    ? calculateTotalAmount(confirmData.quantity, confirmData.unitPrice)
     : 0;
 
   return (

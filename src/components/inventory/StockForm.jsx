@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { AppDataContext } from '../../context/AppDataContext';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { calculateTotalAmount } from '../../utils/calculateTotal';
 import './StockForm.css';
 
 const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
@@ -28,10 +29,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
 
   const totalImportAmount = useMemo(() => {
     if (type !== 'IN') return 0;
-    const q = Number(quantity);
-    const p = Number(unitPrice);
-    if (isNaN(q) || q <= 0 || isNaN(p) || p < 0) return 0;
-    return q * p;
+    return calculateTotalAmount(quantity, unitPrice);
   }, [type, quantity, unitPrice]);
 
   const handleProductChange = (e) => {

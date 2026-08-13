@@ -34,7 +34,7 @@
       "unit": "Chai",
       "costPrice": 4000,
       "sellPrice": 5000,
-      "stockQuantity": 8,
+      "stockQuantity": 3,
       "minStockAlert": 15,
       "isActive": true,
       "createdAt": "2026-07-01T08:00:00.000Z",
@@ -340,6 +340,15 @@
       "unitPrice": 52000,
       "note": "Bán hàng - HD006",
       "createdAt": "2026-08-12T11:27:17.331Z"
+    },
+    {
+      "id": "2t1NkKfzz4Y",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "quantity": 5,
+      "unitPrice": 4000,
+      "note": "hết hàng",
+      "createdAt": "2026-08-13T03:20:25.870Z"
     }
   ],
   "orders": [
