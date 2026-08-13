@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import StockForm from '../components/inventory/StockForm';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useInventory } from '../hooks/useInventory';
+import { formatCurrency } from '../utils/formatCurrency';
 import { toast } from 'react-toastify';
 
 const ImportPage = () => {
   const { importStock } = useInventory();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialProductId = searchParams.get('productId') || '';
   
   const [isLoading, setIsLoading] = useState(false);
   const [confirmData, setConfirmData] = useState(null);
@@ -33,6 +36,10 @@ const ImportPage = () => {
     }
   };
 
+  const importTotalAmount = confirmData 
+    ? (Number(confirmData.quantity) || 0) * (Number(confirmData.unitPrice) || 0)
+    : 0;
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -43,13 +50,14 @@ const ImportPage = () => {
           type="IN" 
           onSubmit={handleImportSubmit}
           isLoading={isLoading}
+          initialProductId={initialProductId}
         />
       </div>
 
       <ConfirmDialog 
         isOpen={!!confirmData}
         title="Xác nhận Nhập Kho"
-        message={`Bạn đang chuẩn bị nhập ${confirmData?.quantity} sản phẩm với đơn giá ${confirmData?.unitPrice}đ. Sau khi nhập, hệ thống sẽ cập nhật lại tồn kho và ghi nhận vào lịch sử. Bạn có chắc chắn?`}
+        message={`Bạn đang chuẩn bị nhập ${confirmData?.quantity} sản phẩm với đơn giá ${formatCurrency(confirmData?.unitPrice)}. Tổng tiền nhập: ${formatCurrency(importTotalAmount)}. Sau khi nhập, hệ thống sẽ cập nhật lại tồn kho và ghi nhận vào lịch sử. Bạn có chắc chắn?`}
         onConfirm={executeImport}
         onCancel={() => setConfirmData(null)}
       />

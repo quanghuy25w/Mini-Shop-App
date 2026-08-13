@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppDataContext } from '../context/AppDataContext';
 import { orderApi } from '../api/orderApi';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -10,6 +11,7 @@ const DashboardPage = () => {
   const { products, loadingInitial } = useContext(AppDataContext);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -79,9 +81,9 @@ const DashboardPage = () => {
           <div className="stat-title">Tổng giá trị tồn kho</div>
           <div className="stat-value font-mono">{formatCurrency(totalInventoryValue)}</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card stat-card-featured">
           <div className="stat-title">Doanh thu 7 ngày qua</div>
-          <div className="stat-value font-mono text-ledger">{formatCurrency(revenue7Days)}</div>
+          <div className="stat-value font-mono stat-value-featured">{formatCurrency(revenue7Days)}</div>
         </div>
       </div>
 
@@ -98,14 +100,26 @@ const DashboardPage = () => {
                     <th>Tên sản phẩm</th>
                     <th className="text-center">Tồn kho</th>
                     <th className="text-center">Mức cảnh báo</th>
+                    <th className="text-center">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
                   {lowStockProducts.map(p => (
                     <tr key={p.id}>
                       <td>{p.name}</td>
-                      <td className="text-center font-mono font-bold text-amber">{p.stockQuantity} {p.unit}</td>
+                      <td className="text-center">
+                        <span className="badge badge-warning font-mono">{p.stockQuantity} {p.unit}</span>
+                      </td>
                       <td className="text-center font-mono text-ink-soft">{p.minStockAlert}</td>
+                      <td className="text-center">
+                        <button 
+                          className="btn-icon btn-primary" 
+                          style={{ fontSize: '12px', padding: '4px 10px' }}
+                          onClick={() => navigate(`/import?productId=${p.id}`)}
+                        >
+                          Nhập hàng
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -143,4 +157,5 @@ const DashboardPage = () => {
     </div>
   );
 };
+
 export default DashboardPage;

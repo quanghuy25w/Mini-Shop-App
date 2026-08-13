@@ -12,9 +12,10 @@
   --ink-faint: #999999;
 
   /* Status Colors */
-  --ledger: #059669; /* Success / In-stock */
-  --amber: #d97706;  /* Warning / Low-stock */
-  --brick: #dc2626;  /* Error / Out-of-stock */
+  --ledger: #059669;      /* Success / In-stock */
+  --ledger-dark: #047857; /* Highlighted Ledger */
+  --amber: #d97706;       /* Warning / Low-stock */
+  --brick: #dc2626;       /* Error / Out-of-stock */
 
   /* Typography */
   --font-display: 'Fraunces', serif;
@@ -23,6 +24,7 @@
 
   /* Borders & Misc */
   --border-color: #e5e5e5;
+  --line-strong: #b3b3b3;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -175,11 +177,12 @@ button {
 }
 .data-table th {
   color: var(--ink-soft);
-  font-weight: 500;
+  font-weight: 600;
   background: var(--surface-sunk);
   text-transform: uppercase;
   font-size: 11px;
   letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--line-strong, #b3b3b3);
 }
 .data-table tbody tr {
   transition: background-color 0.15s ease;

@@ -1,38 +1,45 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { AppDataContext } from '../../context/AppDataContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import './StockForm.css';
 
-const StockForm = ({ type, onSubmit, isLoading }) => {
+const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
   const { products } = useContext(AppDataContext);
   
   // Chỉ chọn các sản phẩm đang active
   const activeProducts = useMemo(() => products.filter(p => p.isActive), [products]);
   
-  const [productId, setProductId] = useState('');
+  const [productId, setProductId] = useState(initialProductId);
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
   const [note, setNote] = useState('');
 
+  useEffect(() => {
+    if (initialProductId) {
+      setProductId(initialProductId);
+      const product = activeProducts.find(p => p.id === initialProductId);
+      if (product && type === 'IN') {
+        setUnitPrice(product.costPrice || 0);
+      }
+    }
+  }, [initialProductId, activeProducts, type]);
+
   const selectedProduct = useMemo(() => activeProducts.find(p => p.id === productId), [activeProducts, productId]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!productId) return;
-    onSubmit({ 
-      productId, 
-      quantity: Number(quantity), 
-      unitPrice: type === 'IN' ? Number(unitPrice) : 0, // Xuất kho tự động lấy giá vốn trong hook
-      note 
-    });
-  };
+  const totalImportAmount = useMemo(() => {
+    if (type !== 'IN') return 0;
+    const q = Number(quantity);
+    const p = Number(unitPrice);
+    if (isNaN(q) || q <= 0 || isNaN(p) || p < 0) return 0;
+    return q * p;
+  }, [type, quantity, unitPrice]);
 
   const handleProductChange = (e) => {
     const id = e.target.value;
     setProductId(id);
     const product = activeProducts.find(p => p.id === id);
     if (product) {
-      setUnitPrice(product.costPrice || 0); // Suggest cost price for import
+      setUnitPrice(product.costPrice || 0);
     }
   };
 
@@ -43,9 +50,6 @@ const StockForm = ({ type, onSubmit, isLoading }) => {
     setNote('');
   };
 
-  // Expose resetForm via standard ways isn't easy here unless we use ref, so we'll just rely on the parent not needing it or doing it automatically, but wait: we want to clear form on success.
-  // Actually we can pass a resetTrigger or handle it via a callback.
-  // We'll modify onSubmit to return a promise. If resolved, we reset.
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -57,7 +61,7 @@ const StockForm = ({ type, onSubmit, isLoading }) => {
       });
       resetForm();
     } catch (err) {
-      // Error is handled in the parent, form stays filled so user can fix it
+      // Error is handled in parent
     }
   };
 
@@ -136,6 +140,14 @@ const StockForm = ({ type, onSubmit, isLoading }) => {
                       {type === 'IN' ? '+' : '-'}{quantity}
                     </span>
                   </div>
+                  {type === 'IN' && Number(unitPrice) >= 0 && (
+                    <div className="stock-row">
+                      <span>Tổng tiền nhập:</span>
+                      <span className="font-mono font-bold text-ledger">
+                        {formatCurrency(totalImportAmount)}
+                      </span>
+                    </div>
+                  )}
                   <div className="stock-row stock-total">
                     <span>Tồn kho sau giao dịch:</span>
                     <span className={`font-mono font-medium ${(type === 'OUT' && Number(quantity) > selectedProduct.stockQuantity) ? 'text-brick' : 'text-ledger'}`}>
@@ -159,4 +171,5 @@ const StockForm = ({ type, onSubmit, isLoading }) => {
     </div>
   );
 };
+
 export default StockForm;
