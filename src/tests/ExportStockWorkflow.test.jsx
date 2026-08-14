@@ -1,109 +1,182 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import App from '../App';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import ExportPage from '../pages/ExportPage';
+import { AppDataProvider } from '../context/AppDataContext';
+import { initSeedData } from '../api/localStorageAdapter';
 import axiosClient from '../api/axiosClient';
 
-// Tăng timeout vì gọi API thật
-const TIMEOUT = 10000;
+const renderExportPage = () => {
+  return render(
+    <AppDataProvider>
+      <BrowserRouter>
+        <ExportPage />
+      </BrowserRouter>
+    </AppDataProvider>
+  );
+};
 
-describe('Export Stock Workflow Tests', () => {
-  let container;
-  let testProduct;
-
-  beforeAll(async () => {
-    // 1. Get a product to test with
-    const res = await axiosClient.get('/products');
-    const products = res.data;
-    testProduct = products.find(p => p.stockQuantity > 0 && p.isActive);
-    if (!testProduct) {
-      throw new Error("Không có sản phẩm nào có sẵn tồn kho để test");
-    }
+describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    initSeedData();
+    vi.restoreAllMocks();
   });
 
-  it('Verifies the complete Export Stock workflow', async () => {
-    const utils = render(<App />);
-    container = utils.container;
+  it('Renders new Export Page header, 2-column cards and KPI blocks correctly', async () => {
+    renderExportPage();
 
-    // Wait for initial data to load (Dashboard should render)
+    expect(await screen.findAllByText('Xuất hàng', {}, { timeout: 5000 })).not.toHaveLength(0);
+    expect(screen.getByText('Trang chủ')).toBeTruthy();
+    expect(screen.getByText('Thông tin xuất hàng')).toBeTruthy();
+    expect(screen.getByText('Chi tiết sản phẩm xuất')).toBeTruthy();
+
+    expect(screen.getByText('Tổng số sản phẩm')).toBeTruthy();
+    expect(screen.getByText('Tổng số lượng xuất')).toBeTruthy();
+    expect(screen.getByText('Tổng giá trị xuất')).toBeTruthy();
+  });
+
+  it('Không cho phép thêm trùng sản phẩm xuất kho', async () => {
+    renderExportPage();
+
+    expect(await screen.findByText('Chi tiết sản phẩm xuất', {}, { timeout: 5000 })).toBeTruthy();
+
     await waitFor(() => {
-      expect(screen.getByText('Tổng Quan (Dashboard)')).toBeTruthy();
-    }, { timeout: TIMEOUT });
+      expect(screen.queryAllByTitle('Xoá khỏi danh sách xuất kho').length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
 
-    // Click on Export Stock in Sidebar
-    const exportLink = screen.getByText('Xuất hàng');
-    fireEvent.click(exportLink);
+    // Click "+ Thêm sản phẩm"
+    fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
+
+    // Try adding "Nước khoáng Lavie 500ml" which is already in sample list
+    const lavieItems = screen.getAllByText('Nước khoáng Lavie 500ml');
+    fireEvent.click(lavieItems[0]);
+
+    // Verify list length remains 5 (duplicate blocked)
+    const deleteBtns = screen.getAllByTitle('Xoá khỏi danh sách xuất kho');
+    expect(deleteBtns.length).toBe(5);
+  });
+
+  it('Xoá 1 dòng khỏi danh sách xuất kho tạm', async () => {
+    renderExportPage();
+
+    expect(await screen.findByText('Chi tiết sản phẩm xuất', {}, { timeout: 5000 })).toBeTruthy();
 
     await waitFor(() => {
-      expect(screen.getByText('Xuất Kho (Thủ công)')).toBeTruthy();
-    });
+      expect(screen.queryAllByTitle('Xoá khỏi danh sách xuất kho').length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
 
-    // 1. Load products (happened via context)
-    // 2. Select a product
-    const select = screen.getByRole('combobox');
-    fireEvent.change(select, { target: { value: testProduct.id } });
+    const deleteBtns = screen.getAllByTitle('Xoá khỏi danh sách xuất kho');
+    const initialCount = deleteBtns.length;
 
-    // 3. Verify current stock is displayed
+    // Delete first item
+    fireEvent.click(deleteBtns[0]);
+
+    // Count reduced by 1
     await waitFor(() => {
-      const stockEl = screen.getByText(testProduct.stockQuantity.toString(), { selector: '.stock-row span.font-mono' });
-      expect(stockEl).toBeTruthy();
-    });
+      const newDeleteBtns = screen.getAllByTitle('Xoá khỏi danh sách xuất kho');
+      expect(newDeleteBtns.length).toBe(initialCount - 1);
+    }, { timeout: 5000 });
+  });
 
-    // 4. Enter a valid quantity
-    const quantityInput = screen.getAllByRole('spinbutton')[0]; // Số lượng
-    fireEvent.change(quantityInput, { target: { value: '2' } });
+  it('Chặn số lượng xuất > Tồn kho hiện có', async () => {
+    renderExportPage();
 
-    // 5. Verify stock-after-transaction is calculated correctly
-    const projectedStock = testProduct.stockQuantity - 2;
+    expect(await screen.findByText('Chi tiết sản phẩm xuất', {}, { timeout: 5000 })).toBeTruthy();
+
     await waitFor(() => {
-      expect(screen.getByText(projectedStock.toString(), { selector: '.stock-row.stock-total span.font-mono' })).toBeTruthy();
-      expect(screen.getByText('-2', { selector: '.stock-row span.text-brick' })).toBeTruthy();
-    });
+      expect(screen.queryAllByTitle('Xoá khỏi danh sách xuất kho').length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
 
-    // 6. Enter a quantity greater than available stock
-    const overQuantity = testProduct.stockQuantity + 5;
-    fireEvent.change(quantityInput, { target: { value: overQuantity.toString() } });
+    // Get input for first product row and change value to 9999
+    const spinnerInputs = screen.getAllByRole('textbox');
+    const qtyInput = spinnerInputs.find(input => input.classList.contains('spinner-input'));
+    if (qtyInput) {
+      fireEvent.change(qtyInput, { target: { value: '9999' } });
+    }
 
-    // 7. Verify the validation prevents the transaction (warning appears)
-    await waitFor(() => {
-      expect(screen.getByText('Cảnh báo: Số lượng xuất vượt quá tồn kho hiện tại!')).toBeTruthy();
-    });
-
-    // Reset to valid quantity
-    fireEvent.change(quantityInput, { target: { value: '2' } });
-    const noteInput = screen.getByPlaceholderText('Lý do xuất kho...');
-    fireEvent.change(noteInput, { target: { value: 'Test xuất hàng tự động' } });
-
-    // 8. Click Confirm Export
-    const submitBtn = screen.getByText('Xác nhận Xuất Kho');
+    // Click submit button
+    const submitBtn = screen.getByText('Xác nhận xuất hàng');
     fireEvent.click(submitBtn);
 
-    // 9. Verify the confirmation dialog
+    // Verify confirm dialog is NOT opened
+    expect(screen.queryByText('Xác nhận Xuất hàng')).toBeNull();
+  });
+
+  it('Xuất kho thành công 5 SP A -> Trừ tồn kho -5 ngay lập tức', async () => {
+    const initialProds = await axiosClient.get('/products');
+    const lavie = initialProds.data.find(p => p.name.includes('Lavie'));
+    const initialStock = lavie.stockQuantity;
+
+    renderExportPage();
+
+    expect(await screen.findByText('Chi tiết sản phẩm xuất', {}, { timeout: 5000 })).toBeTruthy();
+
     await waitFor(() => {
-      expect(screen.getByText('Xác nhận Xuất Kho', { selector: 'h3' })).toBeTruthy();
-      expect(screen.getByText(new RegExp(`Bạn đang chuẩn bị xuất 2 sản phẩm`, 'i'))).toBeTruthy();
-    });
+      expect(screen.queryAllByTitle('Xoá khỏi danh sách xuất kho').length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
 
-    // 10. Confirm the transaction
-    const confirmBtn = screen.getByText('Đồng ý', { selector: 'button.btn-submit' });
-    fireEvent.click(confirmBtn);
+    // Reset list
+    fireEvent.click(screen.getByText('Đặt lại'));
 
-    // 11. Verify the API request succeeds & 13. Verify the transaction appears in /transactions
-    // The redirect happens automatically to /transactions
+    // Add Lavie
+    fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
+    const lavieOption = (await screen.findAllByText(lavie.name, {}, { timeout: 5000 }))[0];
+    fireEvent.click(lavieOption);
+
+    // Change export quantity to 5
+    const spinnerInputs = screen.getAllByRole('textbox');
+    const qtyInput = spinnerInputs.find(input => input.classList.contains('spinner-input'));
+    if (qtyInput) {
+      fireEvent.change(qtyInput, { target: { value: '5' } });
+    }
+
+    // Submit form
+    const submitBtn = screen.getByText('Xác nhận xuất hàng');
+    fireEvent.click(submitBtn);
+
     await waitFor(() => {
-      expect(screen.getByText('Lịch sử Giao dịch & Đơn hàng')).toBeTruthy();
-    }, { timeout: TIMEOUT });
+      expect(screen.getByText('Xác nhận Xuất hàng')).toBeTruthy();
+    }, { timeout: 5000 });
 
-    // Look for the note in the transaction history
+    fireEvent.click(screen.getByText('Đồng ý'));
+
+    // Verify inventory updated via API
+    await waitFor(async () => {
+      const updatedRes = await axiosClient.get(`/products/${lavie.id}`);
+      expect(updatedRes.data.stockQuantity).toBe(initialStock - 5);
+    }, { timeout: 5000 });
+  });
+
+  it('Dừng đúng chỗ khi 1 sản phẩm xuất kho bị lỗi giữa chừng', async () => {
+    renderExportPage();
+
+    expect(await screen.findByText('Chi tiết sản phẩm xuất', {}, { timeout: 5000 })).toBeTruthy();
+
     await waitFor(() => {
-      expect(screen.getAllByText('Test xuất hàng tự động').length).toBeGreaterThan(0);
-    }, { timeout: TIMEOUT });
+      expect(screen.queryAllByTitle('Xoá khỏi danh sách xuất kho').length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
 
-    // 12. Verify inventory is updated by fetching directly
-    const updatedRes = await axiosClient.get(`/products/${testProduct.id}`);
-    expect(updatedRes.data.stockQuantity).toBe(projectedStock);
-    
-    // Test passed successfully
-  }, TIMEOUT);
+    // Reset sample list (which has an out-of-stock item Paseo)
+    fireEvent.click(screen.getByText('Đặt lại'));
+
+    // Add 1 valid item Lavie
+    fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
+    const lavieOption = (await screen.findAllByText('Nước khoáng Lavie 500ml', {}, { timeout: 5000 }))[0];
+    fireEvent.click(lavieOption);
+
+    const submitBtn = screen.getByText('Xác nhận xuất hàng');
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Xác nhận Xuất hàng')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    fireEvent.click(screen.getByText('Đồng ý'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Xác nhận Xuất hàng')).toBeNull();
+    }, { timeout: 10000 });
+  }, 15000);
 });

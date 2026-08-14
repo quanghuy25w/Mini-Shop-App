@@ -72,38 +72,16 @@
   align-items: center;
   justify-content: center;
   color: var(--ink-soft);
-  cursor: pointer;
-  transition: background-color 0.15s ease;
+  cursor: default;
   background: var(--surface-sunk);
-}
-
-.header-icon-btn:hover {
-  background-color: var(--border-color);
-  color: var(--ink);
-}
-
-.notification-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  background-color: var(--brick);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #ffffff;
+  opacity: 0.8;
 }
 
 .header-user {
   display: flex;
   align-items: center;
   gap: 10px;
-  cursor: pointer;
+  cursor: default;
 }
 
 .user-avatar {

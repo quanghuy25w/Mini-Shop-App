@@ -34,7 +34,7 @@
       "unit": "Chai",
       "costPrice": 4000,
       "sellPrice": 5000,
-      "stockQuantity": 2,
+      "stockQuantity": 22,
       "minStockAlert": 15,
       "isActive": true,
       "createdAt": "2026-07-01T08:00:00.000Z",
@@ -47,7 +47,7 @@
       "unit": "Lon",
       "costPrice": 8000,
       "sellPrice": 10000,
-      "stockQuantity": 9,
+      "stockQuantity": 34,
       "minStockAlert": 10,
       "isActive": true,
       "createdAt": "2026-07-01T08:30:00.000Z",
@@ -60,7 +60,7 @@
       "unit": "Gói",
       "costPrice": 4000,
       "sellPrice": 6000,
-      "stockQuantity": 20,
+      "stockQuantity": 42,
       "minStockAlert": 25,
       "isActive": true,
       "createdAt": "2026-07-05T10:00:00.000Z",
@@ -221,6 +221,19 @@
       "isActive": true,
       "createdAt": "2026-07-26T08:00:00.000Z",
       "updatedAt": "2026-08-11T10:00:00.000Z"
+    },
+    {
+      "id": "S5283B8QQoE",
+      "name": "Product test",
+      "categoryId": "c1111111-1111-1111-1111-111111111111",
+      "unit": "CáiCCai",
+      "costPrice": 50000,
+      "sellPrice": 30000,
+      "stockQuantity": 0,
+      "minStockAlert": 10,
+      "isActive": false,
+      "createdAt": "2026-08-14T09:11:34.765Z",
+      "updatedAt": "2026-08-14T09:11:34.765Z"
     }
   ],
   "inventoryTransactions": [
@@ -358,6 +371,78 @@
       "unitPrice": 5000,
       "note": "Bán hàng - HD007",
       "createdAt": "2026-08-14T07:42:23.867Z"
+    },
+    {
+      "id": "FmyePPVIlAA",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "IN",
+      "quantity": 20,
+      "unitPrice": 4000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC",
+      "createdAt": "2026-08-14T08:16:11.655Z"
+    },
+    {
+      "id": "r7wejLPA3Es",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "IN",
+      "quantity": 20,
+      "unitPrice": 8000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC",
+      "createdAt": "2026-08-14T08:16:11.692Z"
+    },
+    {
+      "id": "ybIaya8R6F0",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "IN",
+      "quantity": 25,
+      "unitPrice": 4000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC",
+      "createdAt": "2026-08-14T08:16:11.721Z"
+    },
+    {
+      "id": "eRjCTWEZMlw",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "OUT",
+      "quantity": 3,
+      "unitPrice": 6000,
+      "note": "Bán hàng - HD008",
+      "createdAt": "2026-08-14T08:42:58.848Z"
+    },
+    {
+      "id": "VHfCmvpXODs",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "IN",
+      "quantity": 10,
+      "unitPrice": 8000,
+      "note": "[Phiếu PN008PN999] NCC: Công ty TNHH Thực Phẩm Việt",
+      "createdAt": "2026-08-14T09:15:20.003Z"
+    },
+    {
+      "id": "FLTV4jxSgyw",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "OUT",
+      "quantity": 5,
+      "unitPrice": 8000,
+      "note": "[Phiếu PX008PX999] [Lý do: Hỏng hóc / Hết hạn] [Kho xuất: Kho chính -> Nơi nhận: Kho chi nhánh Hà NộiKho chi nhanh 2]",
+      "createdAt": "2026-08-14T09:18:04.334Z"
+    },
+    {
+      "id": "uaZTB636gu4",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "OUT",
+      "quantity": 24,
+      "unitPrice": 10000,
+      "note": "Bán hàng - HD009",
+      "createdAt": "2026-08-14T09:20:52.051Z"
+    },
+    {
+      "id": "VgIMDBaCQac",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "IN",
+      "quantity": 24,
+      "unitPrice": 10000,
+      "note": "Hoàn kho - hủy HD009",
+      "createdAt": "2026-08-14T09:21:51.780Z"
     }
   ],
   "orders": [
@@ -465,6 +550,36 @@
       "totalAmount": 5000,
       "status": "completed",
       "createdAt": "2026-08-14T07:42:23.852Z"
+    },
+    {
+      "id": "B_1fhPTyqTw",
+      "code": "HD008",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000003",
+          "productName": "Snack Oishi vị cay",
+          "quantity": 3,
+          "price": 6000
+        }
+      ],
+      "totalAmount": 18000,
+      "status": "completed",
+      "createdAt": "2026-08-14T08:42:58.839Z"
+    },
+    {
+      "id": "BP-z5ZZPb-M",
+      "code": "HD009",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000002",
+          "productName": "Coca Cola lon 320ml",
+          "quantity": 24,
+          "price": 10000
+        }
+      ],
+      "totalAmount": 240000,
+      "status": "cancelled",
+      "createdAt": "2026-08-14T09:20:52.023Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

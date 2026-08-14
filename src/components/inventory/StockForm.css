@@ -76,7 +76,7 @@
   margin-bottom: 4px;
 }
 
-/* Stock Preview Card (Right column) */
+/* Stock Preview Card */
 .stock-preview {
   flex: 1;
   background-color: var(--surface-sunk);
@@ -237,4 +237,684 @@
   background: var(--brick-tint);
   border: 1px solid #fca5a5;
   border-radius: var(--radius-md);
+}
+
+/* =========================================================
+   NEW REFACTORED IMPORT & EXPORT STOCK UI (2-COLUMN GRID DESIGN)
+   ========================================================= */
+
+.import-page-header {
+  margin-bottom: 24px;
+}
+
+.import-page-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.import-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #64748b;
+}
+
+.import-breadcrumb a {
+  color: #047857;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.import-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.import-breadcrumb-sep {
+  color: #94a3b8;
+}
+
+.import-breadcrumb-current {
+  color: #047857;
+  font-weight: 700;
+}
+
+.import-grid-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .import-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.import-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.import-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #047857;
+  font-family: var(--font-body);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.required-mark {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.textarea-container {
+  position: relative;
+}
+
+.textarea-container textarea {
+  width: 100%;
+  padding-bottom: 28px;
+  resize: vertical;
+  min-height: 110px;
+  box-sizing: border-box;
+}
+
+.char-counter {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+
+.import-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  gap: 12px;
+}
+
+.btn-reset-form {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-reset-form:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-submit-import {
+  background: #047857;
+  border: 1px solid #047857;
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px 0 rgba(4, 120, 87, 0.2);
+}
+
+.btn-submit-import:hover:not(:disabled) {
+  background: #065f46;
+  border-color: #065f46;
+}
+
+.btn-submit-import:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Custom Product Selector Dropdown */
+.custom-product-select {
+  position: relative;
+  width: 100%;
+}
+
+.select-trigger-box {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 52px;
+}
+
+.select-trigger-box:hover, .select-trigger-box.open {
+  border-color: #047857;
+}
+
+.select-trigger-box.open {
+  box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.15);
+}
+
+.trigger-product-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trigger-product-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.trigger-product-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.trigger-product-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.select-placeholder-text {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.dropdown-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-search-box {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-search-box input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 13.5px;
+  color: #0f172a;
+  outline: none;
+  padding: 4px 0;
+}
+
+.dropdown-options-container {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.dropdown-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.dropdown-item-row:hover {
+  background-color: #ecfdf5;
+}
+
+.dropdown-item-row.active {
+  background-color: #d1fae5;
+}
+
+.dropdown-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdown-item-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dropdown-item-sub {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.dropdown-no-results {
+  padding: 16px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* Product Thumbnail Graphic */
+.product-thumb-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.product-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-drink {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.thumb-snack {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.thumb-home {
+  background-color: #ecfeff;
+  color: #0891b2;
+}
+
+.thumb-stationery {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.thumb-default {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+/* Inputs Row: Quantity, Unit Price, Total, Add Button */
+.product-inputs-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr 1.3fr auto;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 18px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 850px) {
+  .product-inputs-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.readonly-amount-input {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  cursor: default;
+}
+
+.btn-add-to-list {
+  background: #ffffff;
+  border: 1.5px solid #10b981;
+  color: #047857;
+  padding: 0 18px;
+  height: 42px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-add-to-list:hover {
+  background: #ecfdf5;
+  border-color: #059669;
+  color: #065f46;
+}
+
+/* Products Table */
+.temp-table-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+  font-family: var(--font-body);
+}
+
+.import-table-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.import-temp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.import-temp-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 11px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.import-temp-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.import-temp-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-product-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.btn-delete-row {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #ef4444;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-delete-row:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  transform: scale(1.05);
+}
+
+.empty-temp-table {
+  padding: 32px 16px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13.5px;
+}
+
+/* Footer Summary Block */
+.summary-footer-box {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 18px 24px;
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-col-left, .summary-col-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-col-right {
+  align-items: flex-end;
+}
+
+.summary-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.summary-val-qty {
+  font-size: 32px;
+  font-weight: 800;
+  color: #047857;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.summary-val-amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: #047857;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+/* =========================================================
+   EXCLUSIVE EXPORT STOCK SPECIFIC STYLES
+   ========================================================= */
+
+.export-top-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.export-search-field {
+  flex: 1;
+  position: relative;
+}
+
+.export-search-field input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13.5px;
+  outline: none;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.export-search-field .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.btn-open-prod-picker {
+  background: #ffffff;
+  border: 1.5px solid #10b981;
+  color: #047857;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-open-prod-picker:hover {
+  background: #ecfdf5;
+  border-color: #059669;
+  color: #065f46;
+}
+
+.export-callout-info {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* EXPORT KPI FOOTER (3 BLOCKS) */
+.export-kpi-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .export-kpi-footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.export-kpi-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.export-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon-green {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.kpi-icon-emerald {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.kpi-icon-mint {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.export-kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.export-kpi-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.export-kpi-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.export-kpi-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #047857;
+  font-family: var(--font-body);
+  line-height: 1;
+}
+
+.export-kpi-unit {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.text-stock-danger {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+
+.stock-qty-badge {
+  font-weight: 600;
 }

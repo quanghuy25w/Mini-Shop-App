@@ -10,7 +10,7 @@ export const useCart = () => {
   const cartContext = useContext(CartContext);
   const { refreshProducts, products } = useContext(AppDataContext);
 
-  const checkout = async () => {
+  const checkout = async (customTotalAmount) => {
     if (cartContext.cartItems.length === 0) {
       throw new Error("Giỏ hàng trống!");
     }
@@ -23,6 +23,10 @@ export const useCart = () => {
       throw new Error("Lỗi khi tạo mã hóa đơn tự động.");
     }
 
+    const finalAmount = (customTotalAmount !== undefined && customTotalAmount !== null && !isNaN(customTotalAmount))
+      ? Number(customTotalAmount)
+      : cartContext.totalAmount;
+
     // b. Tạo order với status "completed"
     const orderData = {
       id: generateId(),
@@ -33,7 +37,7 @@ export const useCart = () => {
         quantity: i.quantity,
         price: i.price
       })),
-      totalAmount: cartContext.totalAmount,
+      totalAmount: finalAmount,
       status: "completed",
       createdAt: new Date().toISOString()
     };

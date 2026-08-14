@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-.agents/
-.vercel
+
+.slill.log.json
+.vercel/
+
 .env*
+.skills-lock.json
+docs/
+.agents/
