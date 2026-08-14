@@ -2,20 +2,29 @@
 
 :root {
   /* Hallmark Token System - Base */
-  --paper: #f9f9f7;
+  --paper: #f8fafc;
   --surface: #ffffff;
-  --surface-sunk: #f2f2f0;
+  --surface-sunk: #f1f5f9;
 
   /* Ink */
-  --ink: #1c1c1c;
-  --ink-soft: #575757;
-  --ink-faint: #999999;
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --ink-faint: #94a3b8;
 
-  /* Status Colors */
-  --ledger: #059669;      /* Success / In-stock */
-  --ledger-dark: #047857; /* Highlighted Ledger */
-  --amber: #d97706;       /* Warning / Low-stock */
-  --brick: #dc2626;       /* Error / Out-of-stock */
+  /* Status & Brand Colors */
+  --ledger: #10b981;      /* Success / Green Primary */
+  --ledger-dark: #047857; /* Darker Green text */
+  --ledger-tint: #ecfdf5; /* Light Green active background */
+  --amber: #f59e0b;       /* Warning / Low-stock */
+  --amber-tint: #fffbeb;
+  --brick: #ef4444;       /* Error / Out-of-stock */
+  --brick-tint: #fef2f2;
+
+  /* Layout Specific Tokens */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --header-bg: #ffffff;
+  --header-border: #e2e8f0;
 
   /* Typography */
   --font-display: 'Fraunces', serif;
@@ -23,10 +32,12 @@
   --font-mono: 'IBM Plex Mono', monospace;
 
   /* Borders & Misc */
-  --border-color: #e5e5e5;
-  --line-strong: #b3b3b3;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --border-color: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --radius-lg: 12px;
+  --radius-md: 8px;
 }
 
 body {

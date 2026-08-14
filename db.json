@@ -34,11 +34,11 @@
       "unit": "Chai",
       "costPrice": 4000,
       "sellPrice": 5000,
-      "stockQuantity": 3,
+      "stockQuantity": 2,
       "minStockAlert": 15,
       "isActive": true,
       "createdAt": "2026-07-01T08:00:00.000Z",
-      "updatedAt": "2026-08-01T08:00:00.000Z"
+      "updatedAt": "2026-08-14T07:45:37.440Z"
     },
     {
       "id": "p0000000-0000-0000-0000-000000000002",
@@ -349,6 +349,15 @@
       "unitPrice": 4000,
       "note": "hết hàng",
       "createdAt": "2026-08-13T03:20:25.870Z"
+    },
+    {
+      "id": "SlxzXoMAJt8",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 5000,
+      "note": "Bán hàng - HD007",
+      "createdAt": "2026-08-14T07:42:23.867Z"
     }
   ],
   "orders": [
@@ -441,6 +450,21 @@
       "totalAmount": 52000,
       "status": "completed",
       "createdAt": "2026-08-12T11:27:17.323Z"
+    },
+    {
+      "id": "QJObgQGqlHY",
+      "code": "HD007",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000001",
+          "productName": "Nước khoáng Lavie 500ml",
+          "quantity": 1,
+          "price": 5000
+        }
+      ],
+      "totalAmount": 5000,
+      "status": "completed",
+      "createdAt": "2026-08-14T07:42:23.852Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

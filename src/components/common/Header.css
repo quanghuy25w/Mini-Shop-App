@@ -1,14 +1,138 @@
 .header {
   height: 64px;
-  background-color: var(--surface);
-  border-bottom: 1px solid var(--border-color);
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
   display: flex;
   align-items: center;
-  padding: 0 40px;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .header-title {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.breadcrumb-separator {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.header-breadcrumb {
+  font-size: 13px;
   color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--ledger-tint);
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ledger-dark);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--ledger);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.header-icon-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  background: var(--surface-sunk);
+}
+
+.header-icon-btn:hover {
+  background-color: var(--border-color);
+  color: var(--ink);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: var(--brick);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--ledger-dark);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--ink-soft);
+  line-height: 1.2;
 }

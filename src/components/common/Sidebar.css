@@ -1,70 +1,69 @@
 .sidebar {
   width: 240px;
-  background-color: var(--surface);
-  border-right: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
 .sidebar-logo {
-  padding: 20px 24px;
+  padding: 22px 24px;
   font-size: 18px;
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.02em;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--sidebar-border);
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.sidebar-stamp {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: var(--ink);
-  color: var(--surface);
+.sidebar-logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background-color: var(--ledger-tint);
+  color: var(--ledger-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  letter-spacing: 0;
   flex-shrink: 0;
 }
 
 .sidebar-title {
   font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  gap: 4px;
+  padding: 20px 14px;
+  gap: 6px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 14px;
   color: var(--ink-soft);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   transition: all 0.15s ease;
 }
 
-.nav-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--ink-faint);
-  transition: all 0.15s ease;
+.nav-icon {
+  color: var(--ink-faint);
+  transition: color 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -73,17 +72,42 @@
   color: var(--ink);
 }
 
-.nav-link:hover .nav-dot {
-  background-color: var(--ink-soft);
+.nav-link:hover .nav-icon {
+  color: var(--ink-soft);
 }
 
 .nav-link.active {
-  background-color: var(--ink);
-  color: var(--surface);
+  background-color: var(--ledger-tint);
+  color: var(--ledger-dark);
   font-weight: 600;
 }
 
-.nav-link.active .nav-dot {
-  background-color: var(--surface);
-  transform: scale(1.2);
+.nav-link.active .nav-icon {
+  color: var(--ledger-dark);
+}
+
+/* Bottom Quick Guide Box */
+.sidebar-quick-guide {
+  margin: 16px 14px 20px;
+  padding: 14px 16px;
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: var(--radius-md);
+}
+
+.guide-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 6px;
+}
+
+.guide-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #b45309;
 }

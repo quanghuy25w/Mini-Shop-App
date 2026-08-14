@@ -38,9 +38,12 @@ const ExportPage = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h2>Xuất Kho (Thủ công)</h2>
+        <div>
+          <h2>Xuất Kho (Thủ công)</h2>
+          <p className="page-subtitle">Tạo phiếu xuất kho thủ công cho sản phẩm trong cửa hàng</p>
+        </div>
       </div>
-      <div className="page-content" style={{ background: 'none', boxShadow: 'none' }}>
+      <div className="page-content" style={{ background: 'none', boxShadow: 'none', padding: 0 }}>
         <StockForm 
           type="OUT" 
           onSubmit={handleExportSubmit}

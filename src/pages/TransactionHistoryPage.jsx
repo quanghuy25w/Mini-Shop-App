@@ -138,12 +138,27 @@ const TransactionHistoryPage = () => {
     }
   };
 
+  const handleResetFilters = () => {
+    setFilterProductId('');
+    setFilterType('');
+    setDateFrom('');
+    setDateTo('');
+  };
+
   return (
     <div className="page-container">
       <div className="page-header">
-        <h2>Lịch sử Giao dịch & Đơn hàng</h2>
-        <button className="btn-secondary" style={{ padding: '10px 20px', border: '1px solid #3498db', background: 'white', color: '#3498db', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }} onClick={handleExportCSV}>
-          Xuất báo cáo CSV
+        <div>
+          <h2>Lịch sử Giao dịch & Đơn hàng</h2>
+          <p className="page-subtitle">Theo dõi chi tiết biến động nhập/xuất kho và lịch sử bán hàng</p>
+        </div>
+        <button className="btn-secondary" onClick={handleExportCSV}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Xuất báo cáo CSV</span>
         </button>
       </div>
 
@@ -152,25 +167,34 @@ const TransactionHistoryPage = () => {
           className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
           onClick={() => setActiveTab('inventory')}
         >
-          Giao dịch Nhập/Xuất kho
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="12 8 12 12 14 14"></polyline>
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+          </svg>
+          <span>Giao dịch Nhập/Xuất kho</span>
         </button>
         <button 
           className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
         >
-          Đơn hàng (Sales)
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span>Đơn hàng Bán (Sales)</span>
         </button>
       </div>
 
-      <div className="page-content" style={{ borderTopLeftRadius: 0 }}>
+      <div className="page-content" style={{ padding: 0 }}>
         {activeTab === 'inventory' && (
           <div className="inventory-tab">
             <div className="filter-bar">
-              <select value={filterProductId} onChange={e => setFilterProductId(e.target.value)}>
+              <select value={filterProductId} onChange={e => setFilterProductId(e.target.value)} className="filter-select">
                 <option value="">Tất cả sản phẩm</option>
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <select value={filterType} onChange={e => setFilterType(e.target.value)}>
+              <select value={filterType} onChange={e => setFilterType(e.target.value)} className="filter-select">
                 <option value="">Tất cả loại giao dịch</option>
                 <option value="IN">Nhập kho (IN)</option>
                 <option value="OUT">Xuất kho (OUT)</option>
@@ -183,6 +207,13 @@ const TransactionHistoryPage = () => {
                 <label>Đến ngày:</label>
                 <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
               </div>
+              <button className="btn-reset" onClick={handleResetFilters}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                <span>Làm mới</span>
+              </button>
             </div>
 
             {loading ? <LoadingSpinner /> : (
@@ -204,22 +235,26 @@ const TransactionHistoryPage = () => {
                     <tbody>
                       {filteredTransactions.map(tx => (
                         <tr key={tx.id}>
-                          <td className="font-mono">{format(new Date(tx.createdAt), 'dd/MM/yyyy HH:mm')}</td>
-                          <td>{getProductName(tx.productId)}</td>
+                          <td className="font-mono text-muted">{format(new Date(tx.createdAt), 'dd/MM/yyyy HH:mm')}</td>
+                          <td className="font-medium">{getProductName(tx.productId)}</td>
                           <td className="text-center">
                             {tx.type === 'IN' ? (
-                              <span className="badge badge-success">IN</span>
+                              <span className="badge-status badge-in">IN</span>
                             ) : (
-                              <span className="badge badge-danger">OUT</span>
+                              <span className="badge-status badge-out">OUT</span>
                             )}
                           </td>
-                          <td className="text-center font-mono">{tx.quantity}</td>
+                          <td className="text-center font-mono font-bold">{tx.quantity}</td>
                           <td className="text-right font-mono">{formatCurrency(tx.unitPrice)}</td>
-                          <td className="font-mono">{tx.note}</td>
+                          <td className="font-mono text-muted">{tx.note || '-'}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  
+                  <div className="table-footer-info">
+                    <span>Hiển thị 1 - {filteredTransactions.length} của {transactions.length} bản ghi</span>
+                  </div>
                 </div>
               )
             )}
@@ -247,30 +282,29 @@ const TransactionHistoryPage = () => {
                     <tbody>
                       {orders.map(order => (
                         <tr key={order.id}>
-                          <td><strong>{order.code}</strong></td>
-                          <td>{format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm')}</td>
+                          <td><strong className="font-mono">{order.code}</strong></td>
+                          <td className="font-mono text-muted">{format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm')}</td>
                           <td>
-                            <ul style={{ paddingLeft: '20px', margin: 0, fontSize: '13px' }}>
+                            <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '13px', color: 'var(--ink-soft)' }}>
                               {order.items.map((item, idx) => (
-                                <li key={idx}>{item.productName} (x{item.quantity})</li>
+                                <li key={idx}><strong>{item.productName}</strong> (x{item.quantity})</li>
                               ))}
                             </ul>
                           </td>
-                          <td className="text-right font-medium" style={{ color: '#e74c3c' }}>
+                          <td className="text-right font-mono font-bold text-ledger">
                             {formatCurrency(order.totalAmount)}
                           </td>
                           <td className="text-center">
                             {order.status === 'completed' ? (
-                              <span className="badge badge-success">Thành công</span>
+                              <span className="badge-status badge-in">Thành công</span>
                             ) : (
-                              <span className="badge badge-danger">Đã hủy</span>
+                              <span className="badge-status badge-out">Đã hủy</span>
                             )}
                           </td>
                           <td className="text-center">
                             {order.status === 'completed' && (
                               <button 
-                                className="btn-primary" 
-                                style={{ background: '#e74c3c', fontSize: '13px', padding: '6px 12px' }}
+                                className="btn-cancel-order" 
                                 onClick={() => handleCancelClick(order)}
                               >
                                 Hủy đơn
@@ -281,6 +315,10 @@ const TransactionHistoryPage = () => {
                       ))}
                     </tbody>
                   </table>
+
+                  <div className="table-footer-info">
+                    <span>Hiển thị {orders.length} hóa đơn bán hàng</span>
+                  </div>
                 </div>
               )
             )}
