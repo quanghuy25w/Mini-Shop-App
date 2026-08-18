@@ -65,7 +65,7 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
 
     expect(await screen.findByText('Quản lý Sản phẩm', {}, { timeout: 5000 })).toBeTruthy();
 
-    // Click delete on first product e.g. "Nước khoáng Lavie 500ml"
+    // Click delete on first product e.g. "Abbott Ensure Gold 380g (Beta Glucan)"
     const deleteBtns = screen.getAllByTitle('Xóa');
     fireEvent.click(deleteBtns[0]);
 
@@ -77,14 +77,14 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
 
     // Product should disappear from the active products list UI
     await waitFor(() => {
-      expect(screen.queryByText('Nước khoáng Lavie 500ml')).toBeNull();
+      expect(screen.queryByText('Abbott Ensure Gold 380g (Beta Glucan)')).toBeNull();
     }, { timeout: 5000 });
 
     // Check localStorage directly: item still exists in db but isActive === false
     const productsInStorage = JSON.parse(localStorage.getItem('minishop_products'));
-    const lavieProd = productsInStorage.find(p => p.name === 'Nước khoáng Lavie 500ml');
-    expect(lavieProd).toBeTruthy();
-    expect(lavieProd.isActive).toBe(false);
+    const testProd = productsInStorage.find(p => p.name === 'Abbott Ensure Gold 380g (Beta Glucan)');
+    expect(testProd).toBeTruthy();
+    expect(testProd.isActive).toBe(false);
   });
 
   it('Xuất báo cáo CSV dữ liệu đang hiển thị', async () => {

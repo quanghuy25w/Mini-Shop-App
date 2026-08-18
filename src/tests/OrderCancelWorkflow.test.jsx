@@ -29,9 +29,9 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
       id: 'ord-test-cancel-1',
       code: 'HD99999',
       items: [
-        { productId: 'p1111111-1111-1111-1111-111111111111', productName: 'Nước khoáng Lavie 500ml', quantity: 2, price: 6000 }
+        { productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold 380g (Beta Glucan)', quantity: 2, price: 436000 }
       ],
-      totalAmount: 12000,
+      totalAmount: 872000,
       status: 'completed',
       createdAt: new Date().toISOString()
     };
@@ -49,19 +49,19 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
   });
 
   it('Bấm "Hủy đơn" chuyển trạng thái thành "Đã hủy" và cộng hoàn trả tồn kho sản phẩm', async () => {
-    // Get Lavie initial stock
+    // Get initial stock
     const prods = await axiosClient.get('/products');
-    const lavie = prods.data.find(p => p.name.includes('Lavie'));
-    const initialStock = lavie.stockQuantity;
+    const testProd = prods.data[0];
+    const initialStock = testProd.stockQuantity;
 
-    // Create a test order with 2 units of Lavie
+    // Create a test order with 2 units of testProd
     const newOrder = {
       id: 'ord-test-cancel-2',
       code: 'HD88888',
       items: [
-        { productId: lavie.id, productName: lavie.name, quantity: 2, price: lavie.sellPrice }
+        { productId: testProd.id, productName: testProd.name, quantity: 2, price: testProd.sellPrice }
       ],
-      totalAmount: lavie.sellPrice * 2,
+      totalAmount: testProd.sellPrice * 2,
       status: 'completed',
       createdAt: new Date().toISOString()
     };
@@ -92,7 +92,7 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
     }, { timeout: 5000 });
 
     // Check inventory stock is refunded (+2)
-    const updatedRes = await axiosClient.get(`/products/${lavie.id}`);
+    const updatedRes = await axiosClient.get(`/products/${testProd.id}`);
     expect(updatedRes.data.stockQuantity).toBe(initialStock + 2);
   });
 });

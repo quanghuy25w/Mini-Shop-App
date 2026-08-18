@@ -49,13 +49,13 @@ describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
     // Click "+ Thêm sản phẩm"
     fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
 
-    // Try adding "Nước khoáng Lavie 500ml" which is already in sample list
-    const lavieItems = screen.getAllByText('Nước khoáng Lavie 500ml');
-    fireEvent.click(lavieItems[0]);
+    // Try adding "Abbott Ensure Gold 380g (Beta Glucan)" which is already in sample list
+    const prodItems = screen.getAllByText('Abbott Ensure Gold 380g (Beta Glucan)');
+    fireEvent.click(prodItems[0]);
 
-    // Verify list length remains 5 (duplicate blocked)
+    // Verify list length remains 4 (duplicate blocked)
     const deleteBtns = screen.getAllByTitle('Xoá khỏi danh sách xuất kho');
-    expect(deleteBtns.length).toBe(5);
+    expect(deleteBtns.length).toBe(4);
   });
 
   it('Xoá 1 dòng khỏi danh sách xuất kho tạm', async () => {
@@ -106,8 +106,8 @@ describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
 
   it('Xuất kho thành công 5 SP A -> Trừ tồn kho -5 ngay lập tức', async () => {
     const initialProds = await axiosClient.get('/products');
-    const lavie = initialProds.data.find(p => p.name.includes('Lavie'));
-    const initialStock = lavie.stockQuantity;
+    const testProd = initialProds.data[0];
+    const initialStock = testProd.stockQuantity;
 
     renderExportPage();
 
@@ -120,10 +120,10 @@ describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
     // Reset list
     fireEvent.click(screen.getByText('Đặt lại'));
 
-    // Add Lavie
+    // Add product
     fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
-    const lavieOption = (await screen.findAllByText(lavie.name, {}, { timeout: 5000 }))[0];
-    fireEvent.click(lavieOption);
+    const prodOption = (await screen.findAllByText(testProd.name, {}, { timeout: 5000 }))[0];
+    fireEvent.click(prodOption);
 
     // Change export quantity to 5
     const spinnerInputs = screen.getAllByRole('textbox');
@@ -144,7 +144,7 @@ describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
 
     // Verify inventory updated via API
     await waitFor(async () => {
-      const updatedRes = await axiosClient.get(`/products/${lavie.id}`);
+      const updatedRes = await axiosClient.get(`/products/${testProd.id}`);
       expect(updatedRes.data.stockQuantity).toBe(initialStock - 5);
     }, { timeout: 5000 });
   });
@@ -158,13 +158,12 @@ describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
       expect(screen.queryAllByTitle('Xoá khỏi danh sách xuất kho').length).toBeGreaterThan(0);
     }, { timeout: 5000 });
 
-    // Reset sample list (which has an out-of-stock item Paseo)
     fireEvent.click(screen.getByText('Đặt lại'));
 
-    // Add 1 valid item Lavie
+    // Add 1 valid item
     fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
-    const lavieOption = (await screen.findAllByText('Nước khoáng Lavie 500ml', {}, { timeout: 5000 }))[0];
-    fireEvent.click(lavieOption);
+    const prodOption = (await screen.findAllByText('Abbott Ensure Gold 380g (Beta Glucan)', {}, { timeout: 5000 }))[0];
+    fireEvent.click(prodOption);
 
     const submitBtn = screen.getByText('Xác nhận xuất hàng');
     fireEvent.click(submitBtn);
@@ -178,5 +177,5 @@ describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
     await waitFor(() => {
       expect(screen.queryByText('Xác nhận Xuất hàng')).toBeNull();
     }, { timeout: 10000 });
-  }, 15000);
+  });
 });

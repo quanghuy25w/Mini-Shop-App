@@ -34,17 +34,21 @@ describe('Group 7: Dashboard (DashboardPage) Tests', () => {
   });
 
   it('Bảng "Sản phẩm sắp hết hàng" chỉ hiện các sản phẩm có 0 < Tồn kho <= minStockAlert', async () => {
+    const productsInStorage = JSON.parse(localStorage.getItem('minishop_products'));
+    if (productsInStorage && productsInStorage.length > 0) {
+      productsInStorage[0].stockQuantity = 5;
+      localStorage.setItem('minishop_products', JSON.stringify(productsInStorage));
+    }
+
     renderDashboardPage();
 
     expect(await screen.findByText('Sản phẩm sắp hết hàng', {}, { timeout: 5000 })).toBeTruthy();
 
-    // Check products in low stock list
-    const productsInStorage = JSON.parse(localStorage.getItem('minishop_products'));
-    const activeProducts = productsInStorage.filter(p => p.isActive);
+    const activeProducts = JSON.parse(localStorage.getItem('minishop_products')).filter(p => p.isActive);
     const lowStockProds = activeProducts.filter(p => p.stockQuantity <= p.minStockAlert && p.stockQuantity > 0);
 
     for (const prod of lowStockProds) {
-      expect(await screen.findByText(prod.name, {}, { timeout: 5000 })).toBeTruthy();
+      expect((await screen.findAllByText(prod.name, {}, { timeout: 5000 })).length).toBeGreaterThan(0);
     }
   });
 });

@@ -20,7 +20,6 @@ const ProductThumbnail = ({ product, size = 44 }) => {
     );
   }
 
-  const nameLower = (product.name || '').toLowerCase();
   let thumbClass = 'thumb-default';
   let iconSvg = (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -28,14 +27,14 @@ const ProductThumbnail = ({ product, size = 44 }) => {
     </svg>
   );
 
-  if (nameLower.includes('lavie') || nameLower.includes('nước khoáng') || nameLower.includes('nước suối')) {
+  if (product.categoryId === 'c1111111-1111-1111-1111-111111111111') {
     thumbClass = 'thumb-drink';
     iconSvg = (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
       </svg>
     );
-  } else if (nameLower.includes('coca') || nameLower.includes('fanta') || nameLower.includes('lon') || nameLower.includes('pepsi') || nameLower.includes('trà xanh')) {
+  } else if (product.categoryId === 'c2222222-2222-2222-2222-222222222222') {
     thumbClass = 'thumb-drink';
     iconSvg = (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -43,20 +42,20 @@ const ProductThumbnail = ({ product, size = 44 }) => {
         <line x1="5" y1="6" x2="19" y2="6"></line>
       </svg>
     );
-  } else if (nameLower.includes('oishi') || nameLower.includes('snack') || nameLower.includes('bánh') || nameLower.includes('chocopie') || nameLower.includes('oreo') || nameLower.includes('mì')) {
-    thumbClass = 'thumb-snack';
-    iconSvg = (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-      </svg>
-    );
-  } else if (nameLower.includes('sữa') || nameLower.includes('milk') || nameLower.includes('cà phê') || nameLower.includes('g7')) {
+  } else if (product.categoryId === 'c3333333-3333-3333-3333-333333333333') {
     thumbClass = 'thumb-drink';
     iconSvg = (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
         <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+      </svg>
+    );
+  } else if (product.categoryId === 'c4444444-4444-4444-4444-444444444444') {
+    thumbClass = 'thumb-snack';
+    iconSvg = (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
       </svg>
     );
   }

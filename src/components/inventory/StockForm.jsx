@@ -17,7 +17,6 @@ const ProductThumbnail = ({ product, size = 38 }) => {
     );
   }
 
-  const nameLower = (product.name || '').toLowerCase();
   let thumbClass = 'thumb-default';
   let iconSvg = (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -25,14 +24,14 @@ const ProductThumbnail = ({ product, size = 38 }) => {
     </svg>
   );
 
-  if (nameLower.includes('lavie') || nameLower.includes('nước khoáng') || nameLower.includes('nước suối')) {
+  if (product.categoryId === 'c1111111-1111-1111-1111-111111111111') {
     thumbClass = 'thumb-drink';
     iconSvg = (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
       </svg>
     );
-  } else if (nameLower.includes('coca') || nameLower.includes('fanta') || nameLower.includes('lon') || nameLower.includes('giải khát')) {
+  } else if (product.categoryId === 'c2222222-2222-2222-2222-222222222222') {
     thumbClass = 'thumb-drink';
     iconSvg = (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -40,27 +39,19 @@ const ProductThumbnail = ({ product, size = 38 }) => {
         <line x1="5" y1="6" x2="19" y2="6"></line>
       </svg>
     );
-  } else if (nameLower.includes('oishi') || nameLower.includes('snack') || nameLower.includes('bánh') || nameLower.includes('chocopie') || nameLower.includes('cosy') || nameLower.includes('kẹo')) {
-    thumbClass = 'thumb-snack';
-    iconSvg = (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-      </svg>
-    );
-  } else if (nameLower.includes('omo') || nameLower.includes('sunlight') || nameLower.includes('chảo') || nameLower.includes('giấy') || nameLower.includes('th true milk') || nameLower.includes('sữa')) {
+  } else if (product.categoryId === 'c3333333-3333-3333-3333-333333333333') {
     thumbClass = 'thumb-home';
     iconSvg = (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
       </svg>
     );
-  } else if (nameLower.includes('bút') || nameLower.includes('vở') || nameLower.includes('tẩy')) {
+  } else if (product.categoryId === 'c4444444-4444-4444-4444-444444444444') {
     thumbClass = 'thumb-stationery';
     iconSvg = (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
       </svg>
     );
   }
@@ -84,22 +75,17 @@ const getProductCode = (product, idx = 0) => {
 
 const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
   const { products, categories } = useContext(AppDataContext);
-  
+
   // Chi chon cac san pham đang active
   const activeProducts = useMemo(() => products.filter(p => p.isActive), [products]);
 
   const getCategoryName = (catId) => {
     const cat = categories.find(c => c.id === catId);
-    if (cat) return cat.name;
-    if (catId === 'c1111111-1111-1111-1111-111111111111') return 'Nước giải khát';
-    if (catId === 'c2222222-2222-2222-2222-222222222222') return 'Bánh kẹo';
-    if (catId === 'c3333333-3333-3333-3333-333333333333') return 'Đồ gia dụng';
-    if (catId === 'c4444444-4444-4444-4444-444444444444') return 'Văn phòng phẩm';
-    return 'Khác';
+    return cat ? cat.name : 'Khác';
   };
 
   // State cho Nhap hang & Xuat hang
-  const [supplier, setSupplier] = useState('Nhà cung cấp ABC');
+  const [supplier, setSupplier] = useState('');
   const [importDate, setImportDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [exportDate, setExportDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [receiptCode, setReceiptCode] = useState(type === 'IN' ? 'PN008' : 'PX008');
@@ -110,9 +96,9 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
   // State cho san pham dang chon & danh sach tam
   const [selectedProductId, setSelectedProductId] = useState(initialProductId);
   const [tempQuantity, setTempQuantity] = useState(type === 'IN' ? '20' : '1');
-  const [tempUnitPrice, setTempUnitPrice] = useState(type === 'IN' ? '6000' : '');
+  const [tempUnitPrice, setTempUnitPrice] = useState('');
   const [tempItems, setTempItems] = useState([]);
-  
+
   // Custom dropdown / popover picker state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownSearch, setDropdownSearch] = useState('');
@@ -124,24 +110,26 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
     if (activeProducts.length > 0 && isInitialMount.current) {
       isInitialMount.current = false;
       const initialSamples = [];
-      const lavie = activeProducts.find(p => p.name.toLowerCase().includes('lavie'));
-      const coca = activeProducts.find(p => p.name.toLowerCase().includes('coca'));
-      const oishi = activeProducts.find(p => p.name.toLowerCase().includes('oishi'));
-      const chocopie = activeProducts.find(p => p.name.toLowerCase().includes('chocopie') || p.name.toLowerCase().includes('cosy'));
-      const milk = activeProducts.find(p => p.name.toLowerCase().includes('omo') || p.name.toLowerCase().includes('sữa') || p.name.toLowerCase().includes('fanta'));
+      const sampleProds = activeProducts.slice(0, 4);
 
       if (type === 'IN') {
-        if (coca) initialSamples.push({ productId: coca.id, product: coca, quantity: 10, unitPrice: 10000 });
-        if (lavie) initialSamples.push({ productId: lavie.id, product: lavie, quantity: 20, unitPrice: 6000 });
-        if (oishi) initialSamples.push({ productId: oishi.id, product: oishi, quantity: 15, unitPrice: 4000 });
-        if (chocopie) initialSamples.push({ productId: chocopie.id, product: chocopie, quantity: 10, unitPrice: 7000 });
+        sampleProds.forEach((p, index) => {
+          initialSamples.push({
+            productId: p.id,
+            product: p,
+            quantity: (index + 1) * 5,
+            unitPrice: p.costPrice || 0
+          });
+        });
       } else {
-        // EXPORT SAMPLES matching mockup
-        if (lavie) initialSamples.push({ productId: lavie.id, product: lavie, quantity: 20, unitPrice: lavie.costPrice || 4000 });
-        if (coca) initialSamples.push({ productId: coca.id, product: coca, quantity: 15, unitPrice: coca.costPrice || 8000 });
-        if (oishi) initialSamples.push({ productId: oishi.id, product: oishi, quantity: 3, unitPrice: oishi.costPrice || 4000 });
-        if (chocopie) initialSamples.push({ productId: chocopie.id, product: chocopie, quantity: 10, unitPrice: chocopie.costPrice || 35000 });
-        if (milk) initialSamples.push({ productId: milk.id, product: milk, quantity: 5, unitPrice: milk.costPrice || 45000 });
+        sampleProds.forEach((p, index) => {
+          initialSamples.push({
+            productId: p.id,
+            product: p,
+            quantity: Math.min(p.stockQuantity || 1, (index + 1) * 2),
+            unitPrice: p.costPrice || 0
+          });
+        });
       }
 
       if (initialSamples.length > 0) {
@@ -182,8 +170,8 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
   const filteredDropdownProducts = useMemo(() => {
     if (!dropdownSearch.trim()) return activeProducts;
     const q = dropdownSearch.toLowerCase();
-    return activeProducts.filter(p => 
-      p.name.toLowerCase().includes(q) || 
+    return activeProducts.filter(p =>
+      p.name.toLowerCase().includes(q) ||
       getProductCode(p).toLowerCase().includes(q) ||
       getCategoryName(p.categoryId).toLowerCase().includes(q)
     );
@@ -274,7 +262,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
 
   // Reset toan bo form Nhap hang
   const handleResetImportAll = () => {
-    setSupplier('Nhà cung cấp ABC');
+    setSupplier('');
     const today = new Date();
     setImportDate(today.toISOString().split('T')[0]);
     setReceiptCode('PN008');
@@ -370,12 +358,6 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
       return;
     }
 
-    const valError = validateStock(qtyNum, item.product.stockQuantity);
-    if (valError) {
-      toast.error(`Không thể xuất ${qtyNum}. ${valError}`);
-      return;
-    }
-
     const updatedList = [...tempItems];
     updatedList[itemIndex] = { ...item, quantity: qtyNum };
     setTempItems(updatedList);
@@ -459,23 +441,28 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
         {/* CỘT TRÁI - CARD THÔNG TIN NHẬP HÀNG */}
         <div className="import-card">
           <h3 className="import-card-title">Thông tin nhập hàng</h3>
-          
+
           <form onSubmit={handleImportConfirmSubmit}>
             <div className="form-group">
               <label>
                 Nhà cung cấp <span className="required-mark">*</span>
               </label>
-              <select 
-                value={supplier} 
-                onChange={e => setSupplier(e.target.value)} 
+              <select
+                value={supplier}
+                onChange={e => setSupplier(e.target.value)}
                 required
               >
                 <option value="">-- Chọn nhà cung cấp --</option>
-                <option value="Nhà cung cấp ABC">Nhà cung cấp ABC</option>
-                <option value="Công ty TNHH Thực Phẩm Việt">Công ty TNHH Thực Phẩm Việt</option>
-                <option value="Công ty CP Bánh kẹo Phạm Nguyên">Công ty CP Bánh kẹo Phạm Nguyên</option>
-                <option value="Tổng công ty Nước giải khát Việt Nam">Tổng công ty Nước giải khát Việt Nam</option>
-                <option value="Nhà phân phối Hàng tiêu dùng Hà Nội">Nhà phân phối Hàng tiêu dùng Hà Nội</option>
+                <option value="Nhà phân phối Abbott">Nhà phân phối Abbott</option>
+                <option value="Nhà phân phối Vinamilk">Nhà phân phối Vinamilk</option>
+                <option value="Nhà phân phối Nutifood">Nhà phân phối Nutifood</option>
+                <option value="Nhà phân phối FrieslandCampina">Nhà phân phối FrieslandCampina</option>
+                <option value="Nhà phân phối Nestlé">Nhà phân phối Nestlé</option>
+                <option value="Nhà phân phối Meiji">Nhà phân phối Meiji</option>
+                <option value="Nhà phân phối HiPP">Nhà phân phối HiPP</option>
+                <option value="Nhà phân phối Aptamil">Nhà phân phối Aptamil</option>
+                <option value="Nhà phân phối Nutricare">Nhà phân phối Nutricare</option>
+                <option value="Nhà phân phối Rontamil">Nhà phân phối Rontamil</option>
               </select>
             </div>
 
@@ -484,23 +471,23 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                 <label>
                   Ngày nhập <span className="required-mark">*</span>
                 </label>
-                <input 
-                  type="date" 
-                  value={importDate} 
-                  onChange={e => setImportDate(e.target.value)} 
-                  required 
+                <input
+                  type="date"
+                  value={importDate}
+                  onChange={e => setImportDate(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label>
                   Số phiếu nhập <span className="required-mark">*</span>
                 </label>
-                <input 
-                  type="text" 
-                  value={receiptCode} 
-                  onChange={e => setReceiptCode(e.target.value)} 
-                  required 
-                  placeholder="VD: PN008" 
+                <input
+                  type="text"
+                  value={receiptCode}
+                  onChange={e => setReceiptCode(e.target.value)}
+                  required
+                  placeholder="VD: PN008"
                 />
               </div>
             </div>
@@ -508,21 +495,21 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
             <div className="form-group">
               <label>Ghi chú</label>
               <div className="textarea-container">
-                <textarea 
-                  value={note} 
-                  onChange={e => setNote(e.target.value.slice(0, 200))} 
-                  maxLength={200} 
-                  rows={4} 
-                  placeholder="Nhập ghi chú (nếu có)..." 
+                <textarea
+                  value={note}
+                  onChange={e => setNote(e.target.value.slice(0, 200))}
+                  maxLength={200}
+                  rows={4}
+                  placeholder="Nhập ghi chú (nếu có)..."
                 />
                 <span className="char-counter">{note.length} / 200</span>
               </div>
             </div>
 
             <div className="import-card-actions">
-              <button 
-                type="button" 
-                className="btn-reset-form" 
+              <button
+                type="button"
+                className="btn-reset-form"
                 onClick={handleResetImportAll}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -532,9 +519,9 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                 <span>Đặt lại</span>
               </button>
 
-              <button 
-                type="submit" 
-                className="btn-submit-import" 
+              <button
+                type="submit"
+                className="btn-submit-import"
                 disabled={isLoading || tempItems.length === 0}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -557,7 +544,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
               Chọn sản phẩm <span className="required-mark">*</span>
             </label>
             <div className="custom-product-select" ref={dropdownRef}>
-              <div 
+              <div
                 className={`select-trigger-box ${isDropdownOpen ? 'open' : ''}`}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
@@ -586,9 +573,9 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                       <circle cx="11" cy="11" r="8"></circle>
                       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input 
-                      type="text" 
-                      placeholder="Tìm sản phẩm theo tên, mã..." 
+                    <input
+                      type="text"
+                      placeholder="Tìm sản phẩm theo tên, mã..."
                       value={dropdownSearch}
                       onChange={e => setDropdownSearch(e.target.value)}
                       autoFocus
@@ -599,8 +586,8 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                       <div className="dropdown-no-results">Không tìm thấy sản phẩm phù hợp</div>
                     ) : (
                       filteredDropdownProducts.map((p, idx) => (
-                        <div 
-                          key={p.id} 
+                        <div
+                          key={p.id}
                           className={`dropdown-item-row ${p.id === selectedProductId ? 'active' : ''}`}
                           onClick={() => handleSelectImportProduct(p)}
                         >
@@ -625,12 +612,12 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
               <label>
                 Số lượng nhập <span className="required-mark">*</span>
               </label>
-              <input 
-                type="number" 
-                min="1" 
-                value={tempQuantity} 
-                onChange={e => setTempQuantity(e.target.value)} 
-                placeholder="VD: 20" 
+              <input
+                type="number"
+                min="1"
+                value={tempQuantity}
+                onChange={e => setTempQuantity(e.target.value)}
+                placeholder="VD: 20"
               />
             </div>
 
@@ -638,28 +625,28 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
               <label>
                 Giá nhập / đơn vị (đ) <span className="required-mark">*</span>
               </label>
-              <input 
-                type="number" 
-                min="0" 
-                value={tempUnitPrice} 
-                onChange={e => setTempUnitPrice(e.target.value)} 
-                placeholder="VD: 6000" 
+              <input
+                type="number"
+                min="0"
+                value={tempUnitPrice}
+                onChange={e => setTempUnitPrice(e.target.value)}
+                placeholder="VD: 6000"
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Thành tiền (đ)</label>
-              <input 
-                type="text" 
-                readOnly 
-                value={formatCurrency(tempTotalAmount)} 
-                className="readonly-amount-input font-mono" 
+              <input
+                type="text"
+                readOnly
+                value={formatCurrency(tempTotalAmount)}
+                className="readonly-amount-input font-mono"
               />
             </div>
 
-            <button 
-              type="button" 
-              className="btn-add-to-list" 
+            <button
+              type="button"
+              className="btn-add-to-list"
               onClick={handleAddImportToList}
             >
               + Thêm vào danh sách
@@ -699,10 +686,10 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                         <td className="text-right font-mono">{formatCurrency(item.unitPrice)}</td>
                         <td className="text-right font-mono font-medium">{formatCurrency(item.quantity * item.unitPrice)}</td>
                         <td className="text-center">
-                          <button 
+                          <button
                             type="button"
-                            className="btn-delete-row" 
-                            onClick={() => handleRemoveItem(item.productId)} 
+                            className="btn-delete-row"
+                            onClick={() => handleRemoveItem(item.productId)}
                             title="Xoá sản phẩm khỏi danh sách"
                           >
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -742,7 +729,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
       {/* CỘT TRÁI - CARD THÔNG TIN XUẤT HÀNG */}
       <div className="import-card">
         <h3 className="import-card-title">Thông tin xuất hàng</h3>
-        
+
         <form onSubmit={handleExportConfirmSubmit}>
           <div className="form-group">
             <label>
@@ -758,23 +745,23 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
               <label>
                 Ngày xuất <span className="required-mark">*</span>
               </label>
-              <input 
-                type="date" 
-                value={exportDate} 
-                onChange={e => setExportDate(e.target.value)} 
-                required 
+              <input
+                type="date"
+                value={exportDate}
+                onChange={e => setExportDate(e.target.value)}
+                required
               />
             </div>
             <div className="form-group">
               <label>
                 Số phiếu xuất <span className="required-mark">*</span>
               </label>
-              <input 
-                type="text" 
-                value={receiptCode} 
-                onChange={e => setReceiptCode(e.target.value)} 
-                required 
-                placeholder="VD: PX008" 
+              <input
+                type="text"
+                value={receiptCode}
+                onChange={e => setReceiptCode(e.target.value)}
+                required
+                placeholder="VD: PX008"
               />
             </div>
           </div>
@@ -783,9 +770,9 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
             <label>
               Lý do xuất <span className="required-mark">*</span>
             </label>
-            <select 
-              value={reason} 
-              onChange={e => setReason(e.target.value)} 
+            <select
+              value={reason}
+              onChange={e => setReason(e.target.value)}
               required
             >
               <option value="Chuyển kho">Chuyển kho</option>
@@ -799,33 +786,33 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
             <label>
               Kho nhận / Nơi nhận <span className="required-mark">*</span>
             </label>
-            <input 
-              type="text" 
-              value={destination} 
-              onChange={e => setDestination(e.target.value)} 
-              required 
-              placeholder="VD: Kho chi nhánh Hà Nội" 
+            <input
+              type="text"
+              value={destination}
+              onChange={e => setDestination(e.target.value)}
+              required
+              placeholder="VD: Kho chi nhánh Hà Nội"
             />
           </div>
 
           <div className="form-group">
             <label>Ghi chú</label>
             <div className="textarea-container">
-              <textarea 
-                value={note} 
-                onChange={e => setNote(e.target.value.slice(0, 200))} 
-                maxLength={200} 
-                rows={4} 
-                placeholder="Nhập ghi chú (nếu có)..." 
+              <textarea
+                value={note}
+                onChange={e => setNote(e.target.value.slice(0, 200))}
+                maxLength={200}
+                rows={4}
+                placeholder="Nhập ghi chú (nếu có)..."
               />
               <span className="char-counter">{note.length} / 200</span>
             </div>
           </div>
 
           <div className="import-card-actions">
-            <button 
-              type="button" 
-              className="btn-reset-form" 
+            <button
+              type="button"
+              className="btn-reset-form"
               onClick={handleResetExport}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -835,9 +822,9 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
               <span>Đặt lại</span>
             </button>
 
-            <button 
-              type="submit" 
-              className="btn-submit-import" 
+            <button
+              type="submit"
+              className="btn-submit-import"
               disabled={isLoading || tempItems.length === 0}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -863,9 +850,9 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm sản phẩm..." 
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
               value={dropdownSearch}
               onChange={e => {
                 setDropdownSearch(e.target.value);
@@ -875,8 +862,8 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
             />
           </div>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn-open-prod-picker"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
@@ -891,8 +878,8 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                   <div className="dropdown-no-results">Không tìm thấy sản phẩm phù hợp</div>
                 ) : (
                   filteredDropdownProducts.map((p, idx) => (
-                    <div 
-                      key={p.id} 
+                    <div
+                      key={p.id}
                       className="dropdown-item-row"
                       onClick={() => handleAddExportProduct(p)}
                     >
@@ -949,13 +936,13 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                       </td>
                       <td className="text-center">
                         <div className="cart-qty-spinner" style={{ margin: '0 auto' }}>
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             className="btn-spinner"
                             onClick={() => handleUpdateItemQuantity(item.productId, Math.max(1, item.quantity - 1))}
                           >-</button>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             className="spinner-input"
                             value={item.quantity}
                             onChange={(e) => {
@@ -965,8 +952,8 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                               }
                             }}
                           />
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             className="btn-spinner"
                             onClick={() => handleUpdateItemQuantity(item.productId, item.quantity + 1)}
                           >+</button>
@@ -976,10 +963,10 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
                         {item.product?.unit || 'Cái'}
                       </td>
                       <td className="text-center">
-                        <button 
+                        <button
                           type="button"
-                          className="btn-delete-row" 
-                          onClick={() => handleRemoveItem(item.productId)} 
+                          className="btn-delete-row"
+                          onClick={() => handleRemoveItem(item.productId)}
                           title="Xoá khỏi danh sách xuất kho"
                         >
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">

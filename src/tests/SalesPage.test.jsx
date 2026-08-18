@@ -30,13 +30,13 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     renderSalesPage();
 
     expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
-    expect(await screen.findByText('Nước khoáng Lavie 500ml', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText('Abbott Ensure Gold 380g (Beta Glucan)', {}, { timeout: 5000 })).toBeTruthy();
 
     const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
-    fireEvent.change(searchInput, { target: { value: 'Lavie' } });
+    fireEvent.change(searchInput, { target: { value: 'Ensure' } });
 
-    // Expect Lavie product card to be displayed
-    expect(screen.getByText('Nước khoáng Lavie 500ml')).toBeTruthy();
+    // Expect Ensure product card to be displayed
+    expect(screen.getByText('Abbott Ensure Gold 380g (Beta Glucan)')).toBeTruthy();
 
     // Search non-existing product
     fireEvent.change(searchInput, { target: { value: 'Sản phẩm không có xyz' } });
@@ -69,9 +69,9 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
 
     expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
 
-    // Add Lavie product to cart
-    const lavieCard = await screen.findByText('Nước khoáng Lavie 500ml', {}, { timeout: 5000 });
-    fireEvent.click(lavieCard);
+    // Add Ensure product to cart
+    const prodCard = await screen.findByText('Abbott Ensure Gold 380g (Beta Glucan)', {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
 
     // Find quantity input in cart table
     const qtyInputs = screen.getAllByRole('textbox');
@@ -90,15 +90,15 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
 
     expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
 
-    // Add Lavie (6000đ) and Coca (10000đ)
-    const lavieCard = await screen.findByText('Nước khoáng Lavie 500ml', {}, { timeout: 5000 });
-    fireEvent.click(lavieCard);
+    // Add Ensure 380g (436.000đ) and Ensure 800g (900.000đ)
+    const prod1Card = await screen.findByText('Abbott Ensure Gold 380g (Beta Glucan)', {}, { timeout: 5000 });
+    fireEvent.click(prod1Card);
 
-    const cocaCard = await screen.findByText('Coca Cola lon 330ml', {}, { timeout: 5000 });
-    fireEvent.click(cocaCard);
+    const prod2Card = await screen.findByText('Abbott Ensure Gold 800g (Beta Glucan)', {}, { timeout: 5000 });
+    fireEvent.click(prod2Card);
 
-    // Check subtotal in summary
-    expect(await screen.findByText('16.000 ₫', {}, { timeout: 5000 })).toBeTruthy();
+    // Check subtotal in summary (appears in both Tạm tính and Tổng thanh toán)
+    expect((await screen.findAllByText(/1\.336\.000/, {}, { timeout: 5000 })).length).toBeGreaterThan(0);
 
     // Delete one item
     const removeBtns = screen.getAllByTitle('Xóa sản phẩm khỏi giỏ');
@@ -108,25 +108,25 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     expect(screen.getByText('Xóa sản phẩm khỏi giỏ')).toBeTruthy();
     fireEvent.click(screen.getByText('Đồng ý'));
 
-    // Verify item deleted
+    // Verify item deleted from cart (only present in product catalog list, count = 1)
     await waitFor(() => {
-      expect(screen.queryByText('Nước khoáng Lavie 500ml')).toBeNull();
+      expect(screen.getAllByText('Abbott Ensure Gold 380g (Beta Glucan)').length).toBe(1);
     }, { timeout: 5000 });
   });
 
   it('Thanh toán thành công hiển thị Modal Hóa đơn và làm sạch giỏ hàng + trừ tồn kho', async () => {
-    // Get initial stock of Lavie
+    // Get initial stock of first product
     const initialProds = await axiosClient.get('/products');
-    const lavie = initialProds.data.find(p => p.name.includes('Lavie'));
-    const initialStock = lavie.stockQuantity;
+    const testProd = initialProds.data[0];
+    const initialStock = testProd.stockQuantity;
 
     renderSalesPage();
 
     expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
 
-    // Add Lavie to cart
-    const lavieCard = await screen.findByText('Nước khoáng Lavie 500ml', {}, { timeout: 5000 });
-    fireEvent.click(lavieCard);
+    // Add product to cart
+    const prodCard = await screen.findByText(testProd.name, {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
 
     // Click "Thanh toán (F9)"
     const checkoutBtn = screen.getByRole('button', { name: /Thanh toán \(F9\)/i });
@@ -134,18 +134,18 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
 
     // Verify Invoice Modal appears
     await waitFor(() => {
-      expect(screen.getByText('HÓA ĐƠN BÁN HÀNG')).toBeTruthy();
+      expect(screen.getByText(/Hóa Đơn Bán Hàng/i)).toBeTruthy();
     }, { timeout: 5000 });
 
     // Close Modal
-    const closeBtn = screen.getByText('Đóng');
+    const closeBtn = screen.getByText(/Đóng/i);
     fireEvent.click(closeBtn);
 
     // Verify cart is now empty
     expect(screen.getByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
 
     // Verify stock reduced by 1
-    const updatedRes = await axiosClient.get(`/products/${lavie.id}`);
+    const updatedRes = await axiosClient.get(`/products/${testProd.id}`);
     expect(updatedRes.data.stockQuantity).toBe(initialStock - 1);
   });
 });

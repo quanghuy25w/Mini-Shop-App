@@ -27,7 +27,7 @@ describe('Group 6: Giao dịch kho (InventoryTransactions) Tests', () => {
     // Add a new inventory transaction
     const newTx = {
       id: 'tx-test-999',
-      productId: 'p1111111-1111-1111-1111-111111111111',
+      productId: 'p0000000-0000-0000-0000-000000000001',
       type: 'IN',
       quantity: 50,
       unitPrice: 6000,

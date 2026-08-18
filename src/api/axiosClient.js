@@ -15,14 +15,14 @@ export const isLocalHostname = (hostname) => {
 };
 
 export const checkDemoMode = () => {
-  // 1. Kiểm tra biến môi trường VITE_DEMO_MODE
-  const envObj = typeof import.meta !== 'undefined' ? import.meta.env : null;
-  if (envObj && (String(envObj['VITE_DEMO_MODE']) === 'true' || envObj['VITE_DEMO_MODE'] === true)) {
+  // 1. Kiểm tra môi trường test (Vitest / Jest) hoặc biến VITE_DEMO_MODE
+  const procObj = typeof process !== 'undefined' ? process.env : null;
+  if (procObj && (procObj['NODE_ENV'] === 'test' || procObj['VITEST'] || String(procObj['VITE_DEMO_MODE']) === 'true' || procObj['VITE_DEMO_MODE'] === '1')) {
     return true;
   }
 
-  const procObj = typeof process !== 'undefined' ? process.env : null;
-  if (procObj && (String(procObj['VITE_DEMO_MODE']) === 'true' || procObj['VITE_DEMO_MODE'] === '1')) {
+  const envObj = typeof import.meta !== 'undefined' ? import.meta.env : null;
+  if (envObj && (String(envObj['VITE_DEMO_MODE']) === 'true' || envObj['VITE_DEMO_MODE'] === true || envObj['MODE'] === 'test')) {
     return true;
   }
 

@@ -60,7 +60,7 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
     fireEvent.click(screen.getByText('+ Thêm vào danh sách'));
 
     // Verify item with quantity 0 is NOT added
-    expect(screen.queryByText('Thành tiền (đ)')).toBeTruthy();
+    expect(screen.getAllByText('Thành tiền (đ)').length).toBeGreaterThan(0);
   });
 
   it('Gộp số lượng khi chọn trùng sản phẩm trong danh sách nhập kho tạm', async () => {
@@ -115,8 +115,8 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
 
   it('Nhập kho thành công 10 SP A -> Cập nhật tồn kho +10 ngay lập tức', async () => {
     const initialProds = await axiosClient.get('/products');
-    const coca = initialProds.data.find(p => p.name.includes('Coca'));
-    const initialStock = coca.stockQuantity;
+    const testProd = initialProds.data[0];
+    const initialStock = testProd.stockQuantity;
 
     renderImportPage();
 
@@ -125,6 +125,10 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
     await waitFor(() => {
       expect(screen.queryAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBeGreaterThan(0);
     }, { timeout: 5000 });
+
+    // Select supplier
+    const supplierSelect = screen.getByRole('combobox');
+    fireEvent.change(supplierSelect, { target: { value: 'Nhà phân phối Abbott' } });
 
     // Submit form directly
     const submitBtn = screen.getByText('Xác nhận nhập hàng');
@@ -139,7 +143,7 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
 
     // Check updated stock via API
     await waitFor(async () => {
-      const updatedRes = await axiosClient.get(`/products/${coca.id}`);
+      const updatedRes = await axiosClient.get(`/products/${testProd.id}`);
       expect(updatedRes.data.stockQuantity).toBeGreaterThan(initialStock);
     }, { timeout: 5000 });
   });
@@ -153,6 +157,10 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
       expect(screen.queryAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBeGreaterThan(0);
     }, { timeout: 5000 });
 
+    // Select supplier
+    const supplierSelect = screen.getByRole('combobox');
+    fireEvent.change(supplierSelect, { target: { value: 'Nhà phân phối Abbott' } });
+
     const submitBtn = screen.getByText('Xác nhận nhập hàng');
     fireEvent.click(submitBtn);
 
@@ -165,5 +173,5 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
     await waitFor(() => {
       expect(screen.queryByText('Xác nhận Nhập hàng')).toBeNull();
     }, { timeout: 10000 });
-  }, 15000);
+  });
 });

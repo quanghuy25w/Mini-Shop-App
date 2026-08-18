@@ -26,14 +26,14 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
   it('Validate tên danh mục trống khi tạo mới', async () => {
     renderCategoryPage();
 
-    expect(await screen.findByText('Quản lý Danh mục', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /Quản lý Danh mục/i }, { timeout: 5000 })).toBeTruthy();
 
     // Click "+ Thêm danh mục"
     const addBtn = screen.getByText('+ Thêm danh mục');
     fireEvent.click(addBtn);
 
     // Modal opens
-    expect(screen.getByText('Thêm Danh mục mới')).toBeTruthy();
+    expect(screen.getByText(/Thêm Danh mục mới/i)).toBeTruthy();
 
     // Submit form with empty name
     const submitBtn = screen.getByText('Lưu');
@@ -46,19 +46,19 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
   it('Báo lỗi khi tạo danh mục trùng tên (không phân biệt chữ hoa/thường)', async () => {
     renderCategoryPage();
 
-    expect(await screen.findByText('Quản lý Danh mục', {}, { timeout: 5000 })).toBeTruthy();
-    
+    expect(await screen.findByRole('heading', { name: /Quản lý Danh mục/i }, { timeout: 5000 })).toBeTruthy();
+
     // Wait for categories table to be populated
     await waitFor(() => {
-      expect(screen.getByText('Đồ uống')).toBeTruthy();
+      expect(screen.getByText('Sữa bột')).toBeTruthy();
     }, { timeout: 5000 });
 
     // Click "+ Thêm danh mục"
     fireEvent.click(screen.getByText('+ Thêm danh mục'));
 
-    // Input duplicate category name in lowercase "đồ uống"
+    // Input duplicate category name in lowercase "sữa bột"
     const input = screen.getByPlaceholderText('Nhập tên danh mục');
-    fireEvent.change(input, { target: { value: 'đồ uống' } });
+    fireEvent.change(input, { target: { value: 'sữa bột' } });
 
     fireEvent.click(screen.getByText('Lưu'));
 
@@ -71,13 +71,13 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
   it('Chặn xóa danh mục ĐANG CÓ sản phẩm active', async () => {
     renderCategoryPage();
 
-    expect(await screen.findByText('Quản lý Danh mục', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /Quản lý Danh mục/i }, { timeout: 5000 })).toBeTruthy();
 
     await waitFor(() => {
       expect(screen.getAllByTitle('Xóa').length).toBeGreaterThan(0);
     }, { timeout: 5000 });
 
-    // Category "Đồ uống" (first row) has active products in seedData
+    // Category "Sữa bột" (first row) has active products in seedData
     const deleteBtns = screen.getAllByTitle('Xóa');
     fireEvent.click(deleteBtns[0]);
 
@@ -91,13 +91,13 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
     // Add a dummy category with no products
     await axiosClient.post('/categories', {
       id: 'cat-empty-test',
-      name: 'Danh Mục Rỗng Test',
+      name: 'Danh mục rỗng Test',
       description: 'Mô tả test'
     });
 
     renderCategoryPage();
 
-    expect(await screen.findByText('Danh Mục Rỗng Test', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Danh mục rỗng Test/i, {}, { timeout: 5000 })).toBeTruthy();
 
     // Find delete button for this new category
     const deleteBtns = screen.getAllByTitle('Xóa');
@@ -106,7 +106,7 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
 
     // Confirm dialog should ask confirmation with canDelete=true
     await waitFor(() => {
-      expect(screen.getByText(/Bạn có chắc chắn muốn xóa danh mục "Danh Mục Rỗng Test" không\?/i)).toBeTruthy();
+      expect(screen.getByText(/Bạn có chắc chắn muốn xóa danh mục "Danh mục rỗng Test" không\?/i)).toBeTruthy();
     }, { timeout: 5000 });
 
     // Click "Đồng ý"
@@ -115,7 +115,7 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
 
     // Verify it is removed from list
     await waitFor(() => {
-      expect(screen.queryByText('Danh Mục Rỗng Test')).toBeNull();
+      expect(screen.queryByText('Danh mục rỗng Test')).toBeNull();
     }, { timeout: 5000 });
   });
 });
