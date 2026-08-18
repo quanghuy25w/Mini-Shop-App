@@ -12,7 +12,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     stockQuantity: 0,
     minStockAlert: 0
   });
-  
+
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
 
@@ -52,10 +52,10 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     if (type === 'number') {
       finalValue = value === '' ? '' : Number(value);
     }
-    
+
     const newFormData = { ...formData, [name]: finalValue };
     setFormData(newFormData);
-    
+
     // Warning logic
     if (name === 'costPrice' || name === 'sellPrice') {
       const cost = name === 'costPrice' ? finalValue : newFormData.costPrice;
@@ -71,29 +71,29 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const { name, categoryId, costPrice, sellPrice, stockQuantity, minStockAlert, unit } = formData;
-    
+
     const trimmedName = name.trim();
     if (!trimmedName) {
       setError('Tên sản phẩm không được để trống');
       return;
     }
-    
+
     if (!categoryId) {
       setError('Vui lòng chọn danh mục');
       return;
     }
-    
+
     if (costPrice < 0 || sellPrice < 0 || stockQuantity < 0 || minStockAlert < 0) {
       setError('Các trường số lượng và giá tiền không được âm');
       return;
     }
 
     // Check unique active product name
-    const isDuplicate = products.some(p => 
-      p.name.toLowerCase() === trimmedName.toLowerCase() && 
-      p.id !== initialData?.id && 
+    const isDuplicate = products.some(p =>
+      p.name.toLowerCase() === trimmedName.toLowerCase() &&
+      p.id !== initialData?.id &&
       p.isActive === true
     );
 
@@ -103,7 +103,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     }
 
     const now = new Date().toISOString();
-    
+
     const data = {
       id: initialData ? initialData.id : generateId(),
       name: trimmedName,
@@ -125,11 +125,11 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     <div className="modal-overlay">
       <div className="modal-content product-modal">
         <h3>{initialData ? 'Sửa Sản phẩm' : 'Thêm Sản phẩm mới'}</h3>
-        
+
         <form onSubmit={handleSubmit}>
           {error && <div className="error-alert">{error}</div>}
           {warning && <div className="warning-alert">{warning}</div>}
-          
+
           <div className="form-section-title">Thông tin cơ bản</div>
           <div className="form-row">
             <div className="form-group flex-2">
@@ -154,7 +154,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
             <div className="form-group flex-2"></div>
           </div>
 
-          <div className="form-section-title">Giá và Lợi nhuận</div>
+          <div className="form-section-title">Giá và lợi nhuận</div>
           <div className="form-row">
             <div className="form-group flex-1">
               <label>Giá vốn (₫)</label>

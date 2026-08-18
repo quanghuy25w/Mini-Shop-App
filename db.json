@@ -34,7 +34,7 @@
       "unit": "Chai",
       "costPrice": 4000,
       "sellPrice": 5000,
-      "stockQuantity": 22,
+      "stockQuantity": 42,
       "minStockAlert": 15,
       "isActive": true,
       "createdAt": "2026-07-01T08:00:00.000Z",
@@ -47,7 +47,7 @@
       "unit": "Lon",
       "costPrice": 8000,
       "sellPrice": 10000,
-      "stockQuantity": 34,
+      "stockQuantity": 44,
       "minStockAlert": 10,
       "isActive": true,
       "createdAt": "2026-07-01T08:30:00.000Z",
@@ -60,7 +60,7 @@
       "unit": "Gói",
       "costPrice": 4000,
       "sellPrice": 6000,
-      "stockQuantity": 42,
+      "stockQuantity": 57,
       "minStockAlert": 25,
       "isActive": true,
       "createdAt": "2026-07-05T10:00:00.000Z",
@@ -73,7 +73,7 @@
       "unit": "Hộp",
       "costPrice": 35000,
       "sellPrice": 45000,
-      "stockQuantity": 0,
+      "stockQuantity": 10,
       "minStockAlert": 10,
       "isActive": true,
       "createdAt": "2026-07-10T09:00:00.000Z",
@@ -443,6 +443,42 @@
       "unitPrice": 10000,
       "note": "Hoàn kho - hủy HD009",
       "createdAt": "2026-08-14T09:21:51.780Z"
+    },
+    {
+      "id": "HKCRSLA7tas",
+      "productId": "p0000000-0000-0000-0000-000000000002",
+      "type": "IN",
+      "quantity": 10,
+      "unitPrice": 10000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC - hết hàng",
+      "createdAt": "2026-08-15T13:50:23.388Z"
+    },
+    {
+      "id": "2JGh8qkTza0",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "IN",
+      "quantity": 20,
+      "unitPrice": 6000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC - hết hàng",
+      "createdAt": "2026-08-15T13:50:23.413Z"
+    },
+    {
+      "id": "_Cg5sSsYS2Q",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "IN",
+      "quantity": 15,
+      "unitPrice": 4000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC - hết hàng",
+      "createdAt": "2026-08-15T13:50:23.425Z"
+    },
+    {
+      "id": "EhWlstaJXIE",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "IN",
+      "quantity": 10,
+      "unitPrice": 7000,
+      "note": "[Phiếu PN008] NCC: Nhà cung cấp ABC - hết hàng",
+      "createdAt": "2026-08-15T13:50:23.437Z"
     }
   ],
   "orders": [
