@@ -10,7 +10,8 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     costPrice: 0,
     sellPrice: 0,
     stockQuantity: 0,
-    minStockAlert: 0
+    minStockAlert: 0,
+    imageUrl: ''
   });
 
   const [error, setError] = useState('');
@@ -26,7 +27,8 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           costPrice: initialData.costPrice,
           sellPrice: initialData.sellPrice,
           stockQuantity: initialData.stockQuantity,
-          minStockAlert: initialData.minStockAlert
+          minStockAlert: initialData.minStockAlert,
+          imageUrl: initialData.imageUrl || ''
         });
       } else {
         setFormData({
@@ -36,7 +38,8 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           costPrice: 0,
           sellPrice: 0,
           stockQuantity: 0,
-          minStockAlert: 10
+          minStockAlert: 10,
+          imageUrl: ''
         });
       }
       setError('');
@@ -72,7 +75,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const { name, categoryId, costPrice, sellPrice, stockQuantity, minStockAlert, unit } = formData;
+    const { name, categoryId, costPrice, sellPrice, stockQuantity, minStockAlert, unit, imageUrl } = formData;
 
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -113,6 +116,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
       sellPrice: Number(sellPrice),
       stockQuantity: Number(stockQuantity),
       minStockAlert: Number(minStockAlert),
+      imageUrl: imageUrl.trim(),
       isActive: true,
       createdAt: initialData ? initialData.createdAt : now,
       updatedAt: now
@@ -152,6 +156,30 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
               <input type="text" name="unit" value={formData.unit} onChange={handleChange} />
             </div>
             <div className="form-group flex-2"></div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group flex-2">
+              <label>Link ảnh sản phẩm</label>
+              <input
+                type="text"
+                name="imageUrl"
+                placeholder="https://example.com/anh-san-pham.jpg"
+                value={formData.imageUrl}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group flex-1">
+              {formData.imageUrl && (
+                <div className="image-preview">
+                  <img
+                    src={formData.imageUrl}
+                    alt="Xem trước"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-section-title">Giá và lợi nhuận</div>

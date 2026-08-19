@@ -8,6 +8,21 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { exportToCSV } from '../utils/exportCSV';
 import './ProductPage.css';
 
+// Component hien anh san pham, dung React state de xu ly loi anh
+const ProductThumb = ({ product }) => {
+  const [imgError, setImgError] = useState(false);
+  const src = product.imageUrl || product.image;
+
+  if (!src || imgError) {
+    return <div className="product-thumb">{product.name.charAt(0).toUpperCase()}</div>;
+  }
+
+  return (
+    <div className="product-thumb">
+      <img src={src} alt={product.name} onError={() => setImgError(true)} />
+    </div>
+  );
+};
 const ProductPage = () => {
   const { products, categories, loading, error, refetch, createProduct, updateProduct, deleteProduct } = useProducts();
 
@@ -219,7 +234,7 @@ const ProductPage = () => {
                     <td>
                       <div className="product-cell-group">
                         <div className="product-thumb">
-                          {prod.imageUrl ? (
+                          {prod.imageUrl || prod.image ? (
                             <img
                               src={prod.imageUrl}
                               alt={prod.name}
