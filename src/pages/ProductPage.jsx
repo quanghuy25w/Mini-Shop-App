@@ -233,17 +233,7 @@ const ProductPage = () => {
                     <td className="text-center text-muted font-mono">{idx + 1}</td>
                     <td>
                       <div className="product-cell-group">
-                        <div className="product-thumb">
-                          {prod.imageUrl || prod.image ? (
-                            <img
-                              src={prod.imageUrl}
-                              alt={prod.name}
-                              onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.textContent = prod.name.charAt(0).toUpperCase(); }}
-                            />
-                          ) : (
-                            prod.name.charAt(0).toUpperCase()
-                          )}
-                        </div>
+                        <ProductThumb product={prod} />
                         <div>
                           <div className="product-name">{prod.name}</div>
                           <div className="product-unit text-muted">ĐVT: {prod.unit}</div>
