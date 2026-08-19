@@ -60,7 +60,7 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 44,
+      "stockQuantity": 48,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-380g-2-600x600.webp",
       "isActive": true,
@@ -75,7 +75,7 @@
       "unit": "Hộp",
       "costPrice": 830000,
       "sellPrice": 900000,
-      "stockQuantity": 41,
+      "stockQuantity": 44,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-800g-1-600x600.webp",
       "isActive": true,
@@ -180,7 +180,7 @@
       "unit": "Hộp",
       "costPrice": 365000,
       "sellPrice": 398000,
-      "stockQuantity": 40,
+      "stockQuantity": 25,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/1111111-600x600.webp",
       "isActive": true,
@@ -255,7 +255,7 @@
       "unit": "Hộp",
       "costPrice": 325000,
       "sellPrice": 352000,
-      "stockQuantity": 35,
+      "stockQuantity": 37,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/ron2-400.webp",
       "isActive": true,
@@ -375,7 +375,7 @@
       "unit": "Lốc",
       "costPrice": 360000,
       "sellPrice": 396000,
-      "stockQuantity": 30,
+      "stockQuantity": 32,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/z5768373493781-d42e8fb7bdde4b99ba0a9b4dfa590e76.webp",
       "isActive": true,
@@ -991,9 +991,23 @@
       "sellPrice": 7000,
       "stockQuantity": 5,
       "minStockAlert": 10,
-      "isActive": true,
+      "isActive": false,
       "createdAt": "2026-08-18T09:33:07.477Z",
       "updatedAt": "2026-08-18T09:33:07.477Z"
+    },
+    {
+      "id": "JcMJXb5qY6k",
+      "name": "Khăn ướt BeBeen Signature",
+      "categoryId": "c4444444-4444-4444-4444-444444444444",
+      "unit": "Cái",
+      "costPrice": 25000,
+      "sellPrice": 31000,
+      "stockQuantity": 10,
+      "minStockAlert": 10,
+      "imageUrl": "https://thegioisua.com/wp-content/uploads/2026/08/hong-600x600.webp",
+      "isActive": true,
+      "createdAt": "2026-08-19T06:56:47.282Z",
+      "updatedAt": "2026-08-19T06:56:47.282Z"
     }
   ],
   "inventoryTransactions": [
@@ -1329,6 +1343,69 @@
       "unitPrice": 830000,
       "note": "[Phiếu PX008] [Lý do: Trả hàng nhà cung cấp] [Kho xuất: Kho chính -> Nơi nhận: Kho chi nhánh Hà Nội] Hàng đạt tiêu chuẩn",
       "createdAt": "2026-08-18T09:35:08.924Z"
+    },
+    {
+      "id": "f8z4Znmd2yI",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "IN",
+      "quantity": 5,
+      "unitPrice": 400000,
+      "note": "[Phiếu PN7867] NCC: Nhà phân phối FrieslandCampina - Nhập",
+      "createdAt": "2026-08-19T07:02:04.355Z"
+    },
+    {
+      "id": "sO-XzRxi1dc",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "IN",
+      "quantity": 3,
+      "unitPrice": 830000,
+      "note": "[Phiếu PN7867] NCC: Nhà phân phối FrieslandCampina - Nhập",
+      "createdAt": "2026-08-19T07:02:04.404Z"
+    },
+    {
+      "id": "_qd__Oe5pCk",
+      "productId": "p0000000-0000-0000-0000-000000000024",
+      "type": "IN",
+      "quantity": 2,
+      "unitPrice": 360000,
+      "note": "[Phiếu PN7867] NCC: Nhà phân phối FrieslandCampina - Nhập",
+      "createdAt": "2026-08-19T07:02:04.432Z"
+    },
+    {
+      "id": "jj4ym55Uj_A",
+      "productId": "p0000000-0000-0000-0000-000000000016",
+      "type": "IN",
+      "quantity": 2,
+      "unitPrice": 325000,
+      "note": "[Phiếu PN7867] NCC: Nhà phân phối FrieslandCampina - Nhập",
+      "createdAt": "2026-08-19T07:02:04.463Z"
+    },
+    {
+      "id": "TAkJWmkYmuE",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 436000,
+      "note": "Bán hàng - HD011",
+      "createdAt": "2026-08-19T07:03:49.338Z"
+    },
+    {
+      "id": "yxUk2dNtkhk",
+      "productId": "p0000000-0000-0000-0000-000000000011",
+      "type": "OUT",
+      "quantity": 35,
+      "unitPrice": 398000,
+      "note": "Bán hàng - HD011",
+      "createdAt": "2026-08-19T07:03:49.361Z"
+    },
+    {
+      "id": "bidN7iEeR84",
+      "productId": "p0000000-0000-0000-0000-000000000011",
+      "type": "IN",
+      "quantity": 20,
+      "unitPrice": 365000,
+      "note": "[Phiếu HD7171] NCC: Nhà phân phối Aptamil - Nhập hàng",
+      "createdAt": "2026-08-19T07:05:02.793Z"
     }
   ],
   "orders": [
@@ -1523,6 +1600,27 @@
       "totalAmount": 2230000,
       "status": "completed",
       "createdAt": "2026-08-18T07:55:43.439Z"
+    },
+    {
+      "id": "xGFvdWy_IDM",
+      "code": "HD011",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000003",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 380g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 436000
+        },
+        {
+          "productId": "p0000000-0000-0000-0000-000000000011",
+          "productName": "Meiji Step milk 1-3 tuổi (nội địa) mẫu mới có muỗng",
+          "quantity": 35,
+          "price": 398000
+        }
+      ],
+      "totalAmount": 14366000,
+      "status": "completed",
+      "createdAt": "2026-08-19T07:03:49.328Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

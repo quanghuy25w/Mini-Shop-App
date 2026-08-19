@@ -15,13 +15,13 @@ import './TransactionHistoryPage.css';
 
 const TransactionHistoryPage = () => {
   const [activeTab, setActiveTab] = useState('inventory');
-  
+
   const [orders, setOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const { products, refreshProducts } = useContext(AppDataContext);
-  
+
   // Filters for inventory
   const [filterProductId, setFilterProductId] = useState('');
   const [filterType, setFilterType] = useState('');
@@ -64,7 +64,7 @@ const TransactionHistoryPage = () => {
 
       if (filterProductId) matchProduct = tx.productId === filterProductId;
       if (filterType) matchType = tx.type === filterType;
-      
+
       const txDate = new Date(tx.createdAt);
       if (dateFrom) matchDateFrom = txDate >= new Date(dateFrom);
       if (dateTo) matchDateTo = txDate <= new Date(dateTo + 'T23:59:59');
@@ -100,13 +100,13 @@ const TransactionHistoryPage = () => {
         await inventoryApi.createTransaction(txData);
         const dbProduct = products.find(p => p.id === item.productId);
         if (dbProduct) {
-           const newStock = dbProduct.stockQuantity + item.quantity;
-           await productApi.patch(item.productId, { stockQuantity: newStock });
+          const newStock = dbProduct.stockQuantity + item.quantity;
+          await productApi.patch(item.productId, { stockQuantity: newStock });
         }
       }
       toast.success(`Đã hủy đơn hàng ${cancellingOrder.code} và hoàn trả kho.`);
-      await refreshProducts(); 
-      fetchData(); 
+      await refreshProducts();
+      fetchData();
     } catch (error) {
       toast.error("Lỗi khi hủy đơn hàng. Vui lòng thử lại!");
     } finally {
@@ -149,7 +149,7 @@ const TransactionHistoryPage = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h2>Lịch sử Giao dịch & Đơn hàng</h2>
+          <h2>Lịch sử giao dịch và đơn hàng</h2>
           <p className="page-subtitle">Theo dõi chi tiết biến động nhập/xuất kho và lịch sử bán hàng</p>
         </div>
         <button className="btn-secondary" onClick={handleExportCSV}>
@@ -163,7 +163,7 @@ const TransactionHistoryPage = () => {
       </div>
 
       <div className="tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
           onClick={() => setActiveTab('inventory')}
         >
@@ -171,9 +171,9 @@ const TransactionHistoryPage = () => {
             <polyline points="12 8 12 12 14 14"></polyline>
             <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
           </svg>
-          <span>Giao dịch Nhập/Xuất kho</span>
+          <span>Giao dịch nhập/Xuất kho</span>
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
         >
@@ -251,7 +251,7 @@ const TransactionHistoryPage = () => {
                       ))}
                     </tbody>
                   </table>
-                  
+
                   <div className="table-footer-info">
                     <span>Hiển thị 1 - {filteredTransactions.length} của {transactions.length} bản ghi</span>
                   </div>
@@ -303,8 +303,8 @@ const TransactionHistoryPage = () => {
                           </td>
                           <td className="text-center">
                             {order.status === 'completed' && (
-                              <button 
-                                className="btn-cancel-order" 
+                              <button
+                                className="btn-cancel-order"
                                 onClick={() => handleCancelClick(order)}
                               >
                                 Hủy đơn
@@ -326,7 +326,7 @@ const TransactionHistoryPage = () => {
         )}
       </div>
 
-      <ConfirmDialog 
+      <ConfirmDialog
         isOpen={isCancelConfirmOpen}
         title="Xác nhận Hủy Đơn"
         message={`Bạn có chắc chắn muốn hủy đơn ${cancellingOrder?.code}? Quá trình này sẽ hoàn trả số lượng vào kho và ghi lại lịch sử giao dịch.`}

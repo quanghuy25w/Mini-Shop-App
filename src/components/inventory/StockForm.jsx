@@ -103,40 +103,6 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownSearch, setDropdownSearch] = useState('');
   const dropdownRef = useRef(null);
-  const isInitialMount = useRef(true);
-
-  // Nap sample default items khi mount trang
-  useEffect(() => {
-    if (activeProducts.length > 0 && isInitialMount.current) {
-      isInitialMount.current = false;
-      const initialSamples = [];
-      const sampleProds = activeProducts.slice(0, 4);
-
-      if (type === 'IN') {
-        sampleProds.forEach((p, index) => {
-          initialSamples.push({
-            productId: p.id,
-            product: p,
-            quantity: (index + 1) * 5,
-            unitPrice: p.costPrice || 0
-          });
-        });
-      } else {
-        sampleProds.forEach((p, index) => {
-          initialSamples.push({
-            productId: p.id,
-            product: p,
-            quantity: Math.min(p.stockQuantity || 1, (index + 1) * 2),
-            unitPrice: p.costPrice || 0
-          });
-        });
-      }
-
-      if (initialSamples.length > 0) {
-        setTempItems(initialSamples);
-      }
-    }
-  }, [type, activeProducts]);
 
   // San pham duoc chon
   const selectedProduct = useMemo(() => {

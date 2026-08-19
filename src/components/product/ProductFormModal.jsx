@@ -128,7 +128,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
   return (
     <div className="modal-overlay">
       <div className="modal-content product-modal">
-        <h3>{initialData ? 'Sửa Sản phẩm' : 'Thêm Sản phẩm mới'}</h3>
+        <h3>{initialData ? 'Sửa Sản phẩm' : 'Thêm sản phẩm mới'}</h3>
 
         <form onSubmit={handleSubmit}>
           {error && <div className="error-alert">{error}</div>}
