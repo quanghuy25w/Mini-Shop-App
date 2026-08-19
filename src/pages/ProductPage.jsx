@@ -10,14 +10,14 @@ import './ProductPage.css';
 
 const ProductPage = () => {
   const { products, categories, loading, error, refetch, createProduct, updateProduct, deleteProduct } = useProducts();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
-  
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  
+
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState(null);
 
@@ -112,7 +112,7 @@ const ProductPage = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  
+
   if (error) {
     return (
       <div className="error-state">
@@ -126,7 +126,7 @@ const ProductPage = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h2>Quản lý Sản phẩm</h2>
+          <h2>Quản lý sản phẩm</h2>
           <p className="page-subtitle">Quản lý danh sách sản phẩm và tồn kho cửa hàng</p>
         </div>
         <div className="header-actions">
@@ -143,7 +143,7 @@ const ProductPage = () => {
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            <span>+ Thêm sản phẩm</span>
+            <span> Thêm sản phẩm</span>
           </button>
         </div>
       </div>
@@ -154,17 +154,17 @@ const ProductPage = () => {
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm sản phẩm theo tên..." 
+          <input
+            type="text"
+            placeholder="Tìm kiếm sản phẩm theo tên..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
         </div>
 
-        <select 
-          value={filterCategory} 
+        <select
+          value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
           className="filter-select"
         >
@@ -174,8 +174,8 @@ const ProductPage = () => {
           ))}
         </select>
 
-        <select 
-          value={filterStatus} 
+        <select
+          value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
           className="filter-select"
         >
@@ -219,7 +219,15 @@ const ProductPage = () => {
                     <td>
                       <div className="product-cell-group">
                         <div className="product-thumb">
-                          {prod.name.charAt(0).toUpperCase()}
+                          {prod.imageUrl ? (
+                            <img
+                              src={prod.imageUrl}
+                              alt={prod.name}
+                              onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.textContent = prod.name.charAt(0).toUpperCase(); }}
+                            />
+                          ) : (
+                            prod.name.charAt(0).toUpperCase()
+                          )}
                         </div>
                         <div>
                           <div className="product-name">{prod.name}</div>
@@ -250,7 +258,7 @@ const ProductPage = () => {
                 ))}
               </tbody>
             </table>
-            
+
             <div className="table-footer-info">
               <span>Hiển thị 1 - {filteredProducts.length} của {products.length} sản phẩm</span>
             </div>
@@ -258,16 +266,16 @@ const ProductPage = () => {
         )}
       </div>
 
-      <ProductFormModal 
-        isOpen={isFormOpen} 
-        onClose={handleCloseForm} 
+      <ProductFormModal
+        isOpen={isFormOpen}
+        onClose={handleCloseForm}
         onSubmit={handleSubmitForm}
         initialData={editingProduct}
         products={products}
         categories={categories}
       />
 
-      <ConfirmDialog 
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         title="Xác nhận xóa"
         message={`Bạn có chắc chắn muốn xóa sản phẩm "${deletingProduct?.name}" không?`}

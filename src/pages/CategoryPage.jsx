@@ -10,10 +10,10 @@ import './CategoryPage.css';
 
 const CategoryPage = () => {
   const { categories, loading, error, refetch, createCategory, updateCategory, deleteCategory } = useCategories();
-  
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  
+
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState(null);
   const [confirmMessage, setConfirmMessage] = useState('');
@@ -36,7 +36,7 @@ const CategoryPage = () => {
     } else {
       success = await createCategory(data);
     }
-    
+
     if (success) {
       handleCloseForm();
     }
@@ -47,7 +47,7 @@ const CategoryPage = () => {
       // Kiểm tra sản phẩm thuộc danh mục này
       const res = await productApi.getAll();
       const products = res.data;
-      
+
       const activeProducts = products.filter(
         p => p.categoryId === category.id && p.isActive === true
       );
@@ -97,14 +97,14 @@ const CategoryPage = () => {
   }, []);
 
   const filteredCategories = React.useMemo(() => {
-    return categories.filter(c => 
+    return categories.filter(c =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.description && c.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [categories, searchTerm]);
 
   if (loading) return <LoadingSpinner />;
-  
+
   if (error) {
     return (
       <div className="error-state">
@@ -118,7 +118,7 @@ const CategoryPage = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h2>Quản lý Danh mục</h2>
+          <h2>Quản lý danh mục</h2>
           <p className="page-subtitle">Quản lý danh mục sản phẩm cửa hàng của bạn.</p>
         </div>
         <button className="btn-primary" onClick={() => handleOpenForm()}>
@@ -126,7 +126,7 @@ const CategoryPage = () => {
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          <span>+ Thêm danh mục</span>
+          <span> Thêm danh mục</span>
         </button>
       </div>
 
@@ -136,9 +136,9 @@ const CategoryPage = () => {
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm danh mục..." 
+          <input
+            type="text"
+            placeholder="Tìm kiếm danh mục..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -194,15 +194,15 @@ const CategoryPage = () => {
         )}
       </div>
 
-      <CategoryFormModal 
-        isOpen={isFormOpen} 
-        onClose={handleCloseForm} 
+      <CategoryFormModal
+        isOpen={isFormOpen}
+        onClose={handleCloseForm}
         onSubmit={handleSubmitForm}
         initialData={editingCategory}
         categories={categories}
       />
 
-      <ConfirmDialog 
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         title="Xác nhận"
         message={confirmMessage}

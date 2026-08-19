@@ -713,7 +713,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
             </div>
             <div className="summary-col-right">
               <span className="summary-label">Tổng tiền nhập</span>
-              <span className="summary-val-amount">{formatCurrency(totalImportAmount)} đ</span>
+              <span className="summary-val-amount">{formatCurrency(totalImportAmount)} </span>
             </div>
           </div>
         </div>
@@ -1035,7 +1035,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
             <div className="export-kpi-content">
               <span className="export-kpi-label">Tổng giá trị xuất</span>
               <div className="export-kpi-val-row">
-                <span className="export-kpi-val">{formatCurrency(totalExportValue)} đ</span>
+                <span className="export-kpi-val">{formatCurrency(totalExportValue)} </span>
               </div>
             </div>
           </div>
