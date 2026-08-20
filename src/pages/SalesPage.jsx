@@ -4,8 +4,10 @@ import { useProducts } from '../hooks/useProducts';
 import { AppDataContext } from '../context/AppDataContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import InvoiceModal from '../components/sales/InvoiceModal';
+import CheckoutConfirmModal from '../components/sales/CheckoutConfirmModal';
 import EmptyState from '../components/common/EmptyState';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import { printInvoice } from '../utils/printInvoice';
 import { toast } from 'react-toastify';
 import './SalesPage.css';
 
@@ -95,6 +97,7 @@ const SalesPage = () => {
   // Processing & Modal states
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedOrder, setCompletedOrder] = useState(null);
+  const [isCheckoutConfirmOpen, setIsCheckoutConfirmOpen] = useState(false);
 
   // Confirm dialog state for Clear All / Remove item
   const [confirmState, setConfirmState] = useState(null);
@@ -151,7 +154,7 @@ const SalesPage = () => {
       } else if (e.key === 'F9') {
         e.preventDefault();
         if (cartItems.length > 0 && !isProcessing && !isSubmittingRef.current) {
-          handleCheckout();
+          handleOpenCheckoutConfirm();
         } else if (cartItems.length === 0) {
           toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
         }
@@ -174,22 +177,51 @@ const SalesPage = () => {
     addToCart(prod, 1);
   };
 
-  // Nút Thanh toán (F9)
-  const handleCheckout = async () => {
-    if (isSubmittingRef.current) return;  // chặn tức thời, không chờ setState
+  // Mở Popup xác nhận thanh toán (F9)
+  const handleOpenCheckoutConfirm = () => {
     if (cartItems.length === 0) {
-      toast.error('Giỏ hàng đang trống!');
+      toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
       return;
     }
+    setIsCheckoutConfirmOpen(true);
+  };
+
+  // Thanh toán & In hóa đơn
+  const handlePayAndPrint = async () => {
+    if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setIsProcessing(true);
     try {
       const order = await checkout(finalTotal);
+      setIsCheckoutConfirmOpen(false);
       setCompletedOrder(order);
       setDiscount('0');
       setOrderNote('');
       setShowNoteInput(false);
       toast.success('Thanh toán đơn hàng thành công!');
+      
+      // In hóa đơn độc lập qua printInvoice (100% không bị trắng trang trên mọi trình duyệt)
+      printInvoice(order);
+    } catch (err) {
+      toast.error(err.message || 'Lỗi khi thanh toán');
+    } finally {
+      setIsProcessing(false);
+      isSubmittingRef.current = false;
+    }
+  };
+
+  // Chỉ thanh toán (không in)
+  const handlePayOnly = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setIsProcessing(true);
+    try {
+      const order = await checkout(finalTotal);
+      setIsCheckoutConfirmOpen(false);
+      setDiscount('0');
+      setOrderNote('');
+      setShowNoteInput(false);
+      toast.success(`Thanh toán đơn ${order.code} thành công!`);
     } catch (err) {
       toast.error(err.message || 'Lỗi khi thanh toán');
     } finally {
@@ -207,10 +239,10 @@ const SalesPage = () => {
     toast.success('Đã lưu tạm thông tin đơn hàng!');
   };
 
-  // In hóa đon (F11)
+  // In hóa đơn (F11)
   const handlePrintInvoiceAction = () => {
     if (completedOrder) {
-      window.print();
+      printInvoice(completedOrder);
     } else if (cartItems.length > 0) {
       toast.info('Vui lòng hoàn tất thanh toán trước khi in hóa đơn.');
     } else {
@@ -570,7 +602,7 @@ const SalesPage = () => {
             <button 
               type="button" 
               className="btn-main-checkout" 
-              onClick={handleCheckout}
+              onClick={handleOpenCheckoutConfirm}
               disabled={cartItems.length === 0 || isProcessing}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -605,12 +637,25 @@ const SalesPage = () => {
                   <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                   <rect x="6" y="14" width="12" height="8"></rect>
                 </svg>
-                <span>In hóa đơn (F11)</span>
+                <span>In hóa đơn sau khi thanh toán (F11)</span>
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* POPUP XÁC NHẬN THANH TOÁN (CHỌN IN HÓA ĐƠN HOẶC CHỈ THANH TOÁN HOẶC HỦY) */}
+      <CheckoutConfirmModal
+        isOpen={isCheckoutConfirmOpen}
+        totalQuantity={totalQuantity}
+        subtotal={subtotal}
+        discountAmount={discountAmount}
+        totalAmount={finalTotal}
+        isProcessing={isProcessing}
+        onPayAndPrint={handlePayAndPrint}
+        onPayOnly={handlePayOnly}
+        onCancel={() => setIsCheckoutConfirmOpen(false)}
+      />
 
       {/* CONFIRM DIALOG FOR CLEAR ALL OR REMOVE ITEM */}
       <ConfirmDialog 

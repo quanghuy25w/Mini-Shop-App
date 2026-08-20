@@ -132,6 +132,13 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     const checkoutBtn = screen.getByRole('button', { name: /Thanh toán \(F9\)/i });
     fireEvent.click(checkoutBtn);
 
+    // Verify Checkout Confirm Modal appears
+    expect(await screen.findByText('Xác nhận thanh toán')).toBeTruthy();
+
+    // Click "Thanh toán & In hóa đơn"
+    const payAndPrintBtn = screen.getByRole('button', { name: /Thanh toán & In hóa đơn/i });
+    fireEvent.click(payAndPrintBtn);
+
     // Verify Invoice Modal appears
     await waitFor(() => {
       expect(screen.getByText(/Hóa Đơn Bán Hàng/i)).toBeTruthy();
@@ -147,5 +154,69 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     // Verify stock reduced by 1
     const updatedRes = await axiosClient.get(`/products/${testProd.id}`);
     expect(updatedRes.data.stockQuantity).toBe(initialStock - 1);
+  });
+
+  it('Chọn "Chỉ thanh toán (không in)" hoàn tất đơn hàng không mở Modal hóa đơn', async () => {
+    const initialProds = await axiosClient.get('/products');
+    const testProd = initialProds.data[0];
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Add product to cart
+    const prodCard = await screen.findByText(testProd.name, {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
+
+    // Click "Thanh toán (F9)"
+    const checkoutBtn = screen.getByRole('button', { name: /Thanh toán \(F9\)/i });
+    fireEvent.click(checkoutBtn);
+
+    // Verify Checkout Confirm Modal appears
+    expect(await screen.findByText('Xác nhận thanh toán')).toBeTruthy();
+
+    // Click "Chỉ thanh toán (không in)"
+    const payOnlyBtn = screen.getByRole('button', { name: /Chỉ thanh toán \(không in\)/i });
+    fireEvent.click(payOnlyBtn);
+
+    // Verify cart is now empty
+    await waitFor(() => {
+      expect(screen.getByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
+    }, { timeout: 5000 });
+
+    // Modal hóa đơn không hiển thị
+    expect(screen.queryByText(/Hóa Đơn Bán Hàng/i)).toBeNull();
+  });
+
+  it('Chọn "Hủy thao tác" đóng popup và giữ nguyên giỏ hàng', async () => {
+    const initialProds = await axiosClient.get('/products');
+    const testProd = initialProds.data[0];
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Add product to cart
+    const prodCard = await screen.findByText(testProd.name, {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
+
+    // Click "Thanh toán (F9)"
+    const checkoutBtn = screen.getByRole('button', { name: /Thanh toán \(F9\)/i });
+    fireEvent.click(checkoutBtn);
+
+    // Verify Checkout Confirm Modal appears
+    expect(await screen.findByText('Xác nhận thanh toán')).toBeTruthy();
+
+    // Click "Hủy thao tác"
+    const cancelBtn = screen.getByRole('button', { name: /Hủy thao tác/i });
+    fireEvent.click(cancelBtn);
+
+    // Popup closed
+    await waitFor(() => {
+      expect(screen.queryByText('Xác nhận thanh toán')).toBeNull();
+    }, { timeout: 5000 });
+
+    // Cart still has product
+    expect(screen.queryByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeNull();
   });
 });

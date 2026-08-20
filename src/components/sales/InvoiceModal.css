@@ -1,119 +1,268 @@
+/* ON-SCREEN MODAL STYLES */
 .invoice-modal {
-  max-width: 500px;
-  padding: 30px;
+  max-width: 440px;
+  width: 95%;
+  padding: 24px 28px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+  color: #1e293b;
 }
 
-.invoice-header {
+.store-brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
   text-align: center;
-  border-bottom: 2px dashed #ddd;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
-.invoice-header h2 {
-  margin: 0 0 10px 0;
-  color: #2c3e50;
+.store-sub {
+  font-size: 11.5px;
+  color: #64748b;
+  text-align: center;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
 }
 
-.invoice-header p {
-  margin: 4px 0;
-  color: #555;
-  font-size: 14px;
+.store-info {
+  font-size: 12px;
+  color: #475569;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.receipt-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 12px 0;
+}
+
+.receipt-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.receipt-meta {
+  font-size: 12.5px;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #f1f5f9;
 }
 
 .invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-.invoice-table th,
-.invoice-table td {
-  padding: 10px 4px;
-  border-bottom: 1px solid #eee;
+  margin-top: 8px;
+  font-size: 13px;
 }
 
 .invoice-table th {
-  color: #777;
+  color: #64748b;
   font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  padding: 8px 4px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.invoice-table td {
+  padding: 8px 4px;
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: top;
+}
+
+.item-name-cell {
+  font-weight: 500;
+  color: #0f172a;
+  word-break: break-word;
 }
 
 .invoice-total {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 15px;
-  border-top: 2px dashed #ddd;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .invoice-total-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #475569;
 }
 
 .invoice-discount-row {
-  color: #e67e22;
+  color: #d97706;
 }
 
 .invoice-grand-total {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
   padding-top: 6px;
-  border-top: 1px solid #eee;
-  margin-top: 2px;
 }
 
-.total-amount {
-  color: #e74c3c;
-  font-size: 22px;
+.invoice-grand-total .total-amount {
+  font-size: 18px;
+  color: #047857;
+}
+
+.receipt-footer {
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+.receipt-footer .vat-note {
+  font-size: 11px;
+  font-style: italic;
+  margin: 0 0 6px 0;
+}
+
+.receipt-footer .thank-you {
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+  font-size: 13px;
+}
+
+.receipt-footer .website {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
 }
 
 .invoice-actions {
-  justify-content: center;
-  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
 }
 
-.btn-secondary {
-  padding: 10px 20px;
-  border: 1px solid #3498db;
-  background: white;
-  color: #3498db;
+.btn-print-bill {
+  background: #047857;
+  color: #ffffff;
+  border: 1px solid #047857;
+  padding: 8px 16px;
   border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
-.btn-secondary:hover {
-  background: #f0f8ff;
+.btn-print-bill:hover {
+  background: #065f46;
 }
 
-/* Ẩn mọi thứ khác khi in, chỉ hiện modal */
+/* ==========================================================================
+   PRINT MEDIA RULES (ĐỘC LẬP HOÀN TOÀN NHỜ REACT PORTAL TRÊN DOCUMENT.BODY)
+   ========================================================================== */
 @media print {
-  body * {
-    visibility: hidden;
+  @page {
+    margin: 5mm;
+    size: auto;
   }
-  .modal-overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    background: none;
+
+  /* ẨN TOÀN BỘ ỨNG DỤNG #root VÀ TOAST */
+  #root,
+  .Toastify {
+    display: none !important;
+    visibility: hidden !important;
   }
-  .invoice-modal, .invoice-modal * {
-    visibility: visible;
+
+  /* RESET TOÀN BỘ HTML/BODY */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
   }
+
+  /* MODAL OVERLAY CHUYỂN THÀNH BLOCK THƯỜNG */
+  .modal-overlay,
+  .invoice-modal-overlay {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    z-index: auto !important;
+  }
+
+  /* TỜ HÓA ĐƠN ĐƯỢC HIỂN THỊ RÕ NÉT VÀ CĂN CHUẨN GIỮA */
   .invoice-modal {
-    position: absolute;
-    left: 0;
-    top: 0;
-    box-shadow: none;
-    padding: 0;
-    width: 100%;
+    position: static !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 80mm !important; /* Khổ in bill nhiệt K80 */
+    margin: 0 auto !important;
+    padding: 5px 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    display: block !important;
+    visibility: visible !important;
   }
-  .modal-actions {
-    display: none;
+
+  .invoice-modal * {
+    color: #000000 !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    visibility: visible !important;
+  }
+
+  /* ẨN CÁC NÚT THAO TÁC TRONG MODAL */
+  .modal-actions,
+  .invoice-actions,
+  .btn-print-bill,
+  .btn-primary,
+  .btn-secondary {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .receipt-meta {
+    background: transparent !important;
+    border: 1px solid #000000 !important;
+  }
+
+  .receipt-divider {
+    border-top: 1px dashed #000000 !important;
+  }
+
+  .invoice-table th {
+    border-bottom: 1px solid #000000 !important;
+  }
+
+  .invoice-table td {
+    border-bottom: 1px dashed #999999 !important;
   }
 }

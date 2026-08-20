@@ -30,7 +30,7 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 72,
+      "stockQuantity": 69,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/ensure-380g2-600x600.webp",
       "isActive": true,
@@ -60,7 +60,7 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 46,
+      "stockQuantity": 64,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-380g-2-600x600.webp",
       "isActive": true,
@@ -75,7 +75,7 @@
       "unit": "Hộp",
       "costPrice": 830000,
       "sellPrice": 900000,
-      "stockQuantity": 39,
+      "stockQuantity": 34,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-800g-1-600x600.webp",
       "isActive": true,
@@ -135,7 +135,7 @@
       "unit": "Hộp",
       "costPrice": 540000,
       "sellPrice": 584000,
-      "stockQuantity": 35,
+      "stockQuantity": 34,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-1-3-nhap-600x600.webp",
       "isActive": true,
@@ -150,7 +150,7 @@
       "unit": "Hộp",
       "costPrice": 19000,
       "sellPrice": 20950,
-      "stockQuantity": 45,
+      "stockQuantity": 44,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-1-3-nhap-600x600.webp",
       "isActive": true,
@@ -1496,6 +1496,114 @@
       "unitPrice": 900000,
       "note": "Bán hàng - HD019",
       "createdAt": "2026-08-20T06:51:59.605Z"
+    },
+    {
+      "id": "lBYkld6bhQg",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "quantity": 2,
+      "unitPrice": 436000,
+      "note": "Bán hàng - HD020",
+      "createdAt": "2026-08-20T14:13:55.489Z"
+    },
+    {
+      "id": "OPco79Dkbgk",
+      "productId": "p0000000-0000-0000-0000-000000000008",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 584000,
+      "note": "Bán hàng - HD020",
+      "createdAt": "2026-08-20T14:13:55.502Z"
+    },
+    {
+      "id": "dRXkfCG3_Hw",
+      "productId": "p0000000-0000-0000-0000-000000000009",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 20950,
+      "note": "Bán hàng - HD020",
+      "createdAt": "2026-08-20T14:13:55.515Z"
+    },
+    {
+      "id": "mN89i0bEVdg",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 400000,
+      "note": "[Phiếu PX008] [Lý do: Trả hàng nhà cung cấp] [Kho xuất: Kho chính -> Nơi nhận: Kho chi nhánh Hà Nội]",
+      "createdAt": "2026-08-20T14:16:50.796Z"
+    },
+    {
+      "id": "9n9CzQrUXk0",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "IN",
+      "quantity": 20,
+      "unitPrice": 400000,
+      "note": "[Phiếu HD17823] NCC: Nhà phân phối Abbott",
+      "createdAt": "2026-08-20T14:17:27.171Z"
+    },
+    {
+      "id": "UBCsQ9Gx56s",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 436000,
+      "note": "Bán hàng - HD021",
+      "createdAt": "2026-08-20T14:20:26.858Z"
+    },
+    {
+      "id": "5IAiLK4YpUg",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD022",
+      "createdAt": "2026-08-20T14:26:09.689Z"
+    },
+    {
+      "id": "K8j1EO2d5tc",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD023",
+      "createdAt": "2026-08-20T14:30:34.709Z"
+    },
+    {
+      "id": "YXjAdRRqgEo",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD024",
+      "createdAt": "2026-08-20T14:32:46.205Z"
+    },
+    {
+      "id": "BTjworSiMAs",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD025",
+      "createdAt": "2026-08-20T14:33:13.289Z"
+    },
+    {
+      "id": "Nw1MH2xMYxg",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 436000,
+      "note": "Bán hàng - HD026",
+      "createdAt": "2026-08-20T14:37:53.302Z"
+    },
+    {
+      "id": "8EWVkNG9Tcc",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD027",
+      "createdAt": "2026-08-20T14:39:06.204Z"
     }
   ],
   "orders": [
@@ -1853,6 +1961,154 @@
       "totalAmount": 3600000,
       "status": "completed",
       "createdAt": "2026-08-20T06:51:59.595Z"
+    },
+    {
+      "id": "9lrJcRhZ18M",
+      "code": "HD020",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000001",
+          "productName": "Abbott Ensure Gold 380g (Beta Glucan)",
+          "quantity": 2,
+          "price": 436000
+        },
+        {
+          "productId": "p0000000-0000-0000-0000-000000000008",
+          "productName": "Meiji 1-3 year old Growingup Formula Premium 800g (Nhập khẩu)",
+          "quantity": 1,
+          "price": 584000
+        },
+        {
+          "productId": "p0000000-0000-0000-0000-000000000009",
+          "productName": "Meiji 1-3 years old Growing up Formula Ezcube 560g Thanh (28gr*20)",
+          "quantity": 1,
+          "price": 20950
+        }
+      ],
+      "subtotal": 1476950,
+      "discountAmount": 0,
+      "totalAmount": 1476950,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:13:55.472Z"
+    },
+    {
+      "id": "h_BqectgxJA",
+      "code": "HD021",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000003",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 380g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 436000
+        }
+      ],
+      "subtotal": 436000,
+      "discountAmount": 0,
+      "totalAmount": 436000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:20:26.845Z"
+    },
+    {
+      "id": "2pkHswdnl9E",
+      "code": "HD022",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 0,
+      "totalAmount": 900000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:26:09.677Z"
+    },
+    {
+      "id": "vcH5mXlsJYE",
+      "code": "HD023",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 0,
+      "totalAmount": 900000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:30:34.697Z"
+    },
+    {
+      "id": "eb6Rs2bWfAo",
+      "code": "HD024",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 0,
+      "totalAmount": 900000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:32:46.193Z"
+    },
+    {
+      "id": "De8-AKKxRwM",
+      "code": "HD025",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 0,
+      "totalAmount": 900000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:33:13.280Z"
+    },
+    {
+      "id": "lcmQitVl4z4",
+      "code": "HD026",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000003",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 380g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 436000
+        }
+      ],
+      "subtotal": 436000,
+      "discountAmount": 0,
+      "totalAmount": 436000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:37:53.293Z"
+    },
+    {
+      "id": "yI5Kugtt3as",
+      "code": "HD027",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 0,
+      "totalAmount": 900000,
+      "status": "completed",
+      "createdAt": "2026-08-20T14:39:06.186Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
