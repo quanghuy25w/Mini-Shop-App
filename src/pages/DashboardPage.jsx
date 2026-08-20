@@ -2,35 +2,41 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppDataContext } from '../context/AppDataContext';
 import { orderApi } from '../api/orderApi';
+import { inventoryApi } from '../api/inventoryApi';
 import { formatCurrency } from '../utils/formatCurrency';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { subDays, isAfter } from 'date-fns';
+import { subDays, isAfter, isBefore } from 'date-fns';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { products, loadingInitial } = useContext(AppDataContext);
   const [orders, setOrders] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchData = async () => {
       try {
-        const res = await orderApi.getAll();
-        setOrders(res.data);
+        const [ordersRes, txRes] = await Promise.all([
+          orderApi.getAll(),
+          inventoryApi.getAllTransactions(),
+        ]);
+        setOrders(ordersRes.data);
+        setTransactions(txRes.data);
       } catch (err) {
         console.error(err);
       } finally {
         setLoadingOrders(false);
       }
     };
-    fetchOrders();
+    fetchData();
   }, []);
 
   const activeProducts = useMemo(() => products.filter(p => p.isActive), [products]);
 
   const totalActiveProducts = activeProducts.length;
-  
+
   const totalInventoryValue = useMemo(() => {
     return activeProducts.reduce((sum, p) => sum + (p.stockQuantity * p.costPrice), 0);
   }, [activeProducts]);
@@ -69,7 +75,82 @@ const DashboardPage = () => {
     return orders.filter(o => o.status === 'completed' && isAfter(new Date(o.createdAt), sevenDaysAgo)).length;
   }, [orders]);
 
+  // ── Trend metrics ────────────────────────────────────────────────────────────
+
+  // Card 1: sản phẩm active được tạo trong 24h gần nhất
+  const newProductsLast24h = useMemo(() => {
+    const oneDayAgo = subDays(new Date(), 1);
+    return activeProducts.filter(p => isAfter(new Date(p.createdAt), oneDayAgo)).length;
+  }, [activeProducts]);
+
+  // Card 2: thay đổi giá trị tồn kho trong 7 ngày qua (IN - OUT) × unitPrice
+  const inventoryValueChange7Days = useMemo(() => {
+    const sevenDaysAgo = subDays(new Date(), 7);
+    return transactions
+      .filter(tx => isAfter(new Date(tx.createdAt), sevenDaysAgo))
+      .reduce((sum, tx) => {
+        const val = tx.quantity * (tx.unitPrice || 0);
+        return tx.type === 'IN' ? sum + val : sum - val;
+      }, 0);
+  }, [transactions]);
+
+  // Card 2: % thay đổi so với giá trị tồn kho tại điểm 7 ngày trước
+  const inventoryValueChangePercent = useMemo(() => {
+    // Ước tính giá trị tồn kho 7 ngày trước = hiện tại - delta
+    const baseValue = totalInventoryValue - inventoryValueChange7Days;
+    if (baseValue === 0) return null;
+    return (inventoryValueChange7Days / Math.abs(baseValue)) * 100;
+  }, [totalInventoryValue, inventoryValueChange7Days]);
+
+  // Card 3: doanh thu completed orders trong 7 ngày TRƯỚC khoảng hiện tại (ngày -14 đến -7)
+  const revenuePrev7Days = useMemo(() => {
+    const sevenDaysAgo = subDays(new Date(), 7);
+    const fourteenDaysAgo = subDays(new Date(), 14);
+    return orders
+      .filter(o =>
+        o.status === 'completed' &&
+        isAfter(new Date(o.createdAt), fourteenDaysAgo) &&
+        isBefore(new Date(o.createdAt), sevenDaysAgo)
+      )
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+  }, [orders]);
+
+  // Card 3: % thay đổi doanh thu tuần này so với tuần trước
+  const revenueChangePercent = useMemo(() => {
+    if (revenuePrev7Days === 0) return null;
+    return ((revenue7Days - revenuePrev7Days) / revenuePrev7Days) * 100;
+  }, [revenue7Days, revenuePrev7Days]);
+
+  // Card 4: số đơn completed trong khoảng ngày -14 đến -7
+  const completedOrdersPrev7DaysCount = useMemo(() => {
+    const sevenDaysAgo = subDays(new Date(), 7);
+    const fourteenDaysAgo = subDays(new Date(), 14);
+    return orders.filter(o =>
+      o.status === 'completed' &&
+      isAfter(new Date(o.createdAt), fourteenDaysAgo) &&
+      isBefore(new Date(o.createdAt), sevenDaysAgo)
+    ).length;
+  }, [orders]);
+
+  // Card 4: chênh lệch số đơn tuần này - tuần trước
+  const ordersChangeCount = useMemo(
+    () => completedOrders7DaysCount - completedOrdersPrev7DaysCount,
+    [completedOrders7DaysCount, completedOrdersPrev7DaysCount]
+  );
+
+  // Hàm format text xu hướng, trả về { text, up: boolean | null }
+  const formatTrend = (value, { isPercent = false, suffix = '' } = {}) => {
+    if (value === null || value === undefined) {
+      return { text: 'Chưa đủ dữ liệu so sánh', up: null };
+    }
+    const rounded = isPercent ? Math.round(value * 10) / 10 : Math.round(value);
+    const sign = rounded > 0 ? '+' : '';
+    const text = `${sign}${rounded}${isPercent ? '%' : ''}${suffix ? ' ' + suffix : ''}`;
+    return { text, up: rounded >= 0 };
+  };
+
   if (loadingInitial || loadingOrders) return <LoadingSpinner />;
+
 
   return (
     <div className="page-container dashboard-container">
@@ -94,9 +175,15 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="stat-value">{totalActiveProducts}</div>
-          <div className="stat-trend trend-up">
-            <span className="trend-text">+ 4 so với hôm qua</span>
-          </div>
+          {(() => {
+            const t1 = formatTrend(newProductsLast24h, { suffix: 'so với hôm qua' });
+            const cls1 = t1.up === true ? 'trend-up' : t1.up === false ? 'trend-down' : 'trend-neutral';
+            return (
+              <div className={`stat-trend ${cls1}`}>
+                <span className="trend-text">{t1.text}</span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Card 2: Tổng giá trị tồn kho */}
@@ -110,9 +197,15 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="stat-value font-mono">{formatCurrency(totalInventoryValue)}</div>
-          <div className="stat-trend trend-up">
-            <span className="trend-text">+ 12% so với tuần trước</span>
-          </div>
+          {(() => {
+            const t2 = formatTrend(inventoryValueChangePercent, { isPercent: true, suffix: 'so với 7 ngày trước' });
+            const cls2 = t2.up === true ? 'trend-up' : t2.up === false ? 'trend-down' : 'trend-neutral';
+            return (
+              <div className={`stat-trend ${cls2}`}>
+                <span className="trend-text">{t2.text}</span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Card 3: Doanh thu 7 ngày */}
@@ -128,9 +221,15 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="stat-value font-mono text-ledger">{formatCurrency(revenue7Days)}</div>
-          <div className="stat-trend trend-up">
-            <span className="trend-text">+ 8% so với tuần trước</span>
-          </div>
+          {(() => {
+            const t3 = formatTrend(revenueChangePercent, { isPercent: true, suffix: 'so với tuần trước' });
+            const cls3 = t3.up === true ? 'trend-up' : t3.up === false ? 'trend-down' : 'trend-neutral';
+            return (
+              <div className={`stat-trend ${cls3}`}>
+                <span className="trend-text">{t3.text}</span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Card 4: Đơn hàng 7 ngày */}
@@ -147,9 +246,15 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="stat-value">{completedOrders7DaysCount}</div>
-          <div className="stat-trend trend-up">
-            <span className="trend-text">+ 6 so với tuần trước</span>
-          </div>
+          {(() => {
+            const t4 = formatTrend(ordersChangeCount, { suffix: 'so với tuần trước' });
+            const cls4 = t4.up === true ? 'trend-up' : t4.up === false ? 'trend-down' : 'trend-neutral';
+            return (
+              <div className={`stat-trend ${cls4}`}>
+                <span className="trend-text">{t4.text}</span>
+              </div>
+            );
+          })()}
         </div>
       </div>
 

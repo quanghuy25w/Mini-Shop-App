@@ -104,6 +104,14 @@
   color: var(--ledger-dark);
 }
 
+.trend-down {
+  color: var(--brick, #dc2626);
+}
+
+.trend-neutral {
+  color: var(--ink-faint, #9ca3af);
+}
+
 /* Dual Tables Layout */
 .dashboard-tables {
   display: grid;
