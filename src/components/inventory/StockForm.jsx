@@ -838,7 +838,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
 
           {/* DROPDOWN MENU CHỌN SẢN PHẨM XUẤT */}
           {isDropdownOpen && (
-            <div className="dropdown-popover" style={{ top: '50px' }}>
+            <div className="dropdown-popover">
               <div className="dropdown-options-container">
                 {filteredDropdownProducts.length === 0 ? (
                   <div className="dropdown-no-results">Không tìm thấy sản phẩm phù hợp</div>
