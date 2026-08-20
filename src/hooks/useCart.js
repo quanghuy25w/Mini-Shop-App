@@ -23,9 +23,11 @@ export const useCart = () => {
       throw new Error("Lỗi khi tạo mã hóa đơn tự động.");
     }
 
+    const subtotal = cartContext.totalAmount; // tổng giá gốc chưa giảm
     const finalAmount = (customTotalAmount !== undefined && customTotalAmount !== null && !isNaN(customTotalAmount))
       ? Number(customTotalAmount)
-      : cartContext.totalAmount;
+      : subtotal;
+    const discountAmount = Math.max(0, subtotal - finalAmount);
 
     // b. Tạo order với status "completed"
     const orderData = {
@@ -35,8 +37,10 @@ export const useCart = () => {
         productId: i.productId,
         productName: i.productName,
         quantity: i.quantity,
-        price: i.price
+        price: i.price          // giá gốc niêm yết từng dòng, KHÔNG chia đều discount
       })),
+      subtotal: subtotal,
+      discountAmount: discountAmount,
       totalAmount: finalAmount,
       status: "completed",
       createdAt: new Date().toISOString()

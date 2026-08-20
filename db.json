@@ -30,7 +30,7 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 73,
+      "stockQuantity": 78,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/ensure-380g2-600x600.webp",
       "isActive": true,
@@ -1406,6 +1406,15 @@
       "unitPrice": 365000,
       "note": "[Phiếu HD7171] NCC: Nhà phân phối Aptamil - Nhập hàng",
       "createdAt": "2026-08-19T07:05:02.793Z"
+    },
+    {
+      "id": "BXi4RoSvGU0",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "IN",
+      "quantity": 5,
+      "unitPrice": 400000,
+      "note": "[Phiếu PN008] NCC: Nhà phân phối HiPP",
+      "createdAt": "2026-08-20T04:37:04.970Z"
     }
   ],
   "orders": [

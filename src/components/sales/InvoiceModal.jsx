@@ -38,8 +38,20 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
           </table>
           
           <div className="invoice-total">
-            <span>Tổng cộng:</span>
-            <span className="total-amount">{formatCurrency(order.totalAmount)}</span>
+            <div className="invoice-total-row">
+              <span>Tạm tính:</span>
+              <span>{formatCurrency(order.subtotal ?? order.items.reduce((s, i) => s + i.price * i.quantity, 0))}</span>
+            </div>
+            {order.discountAmount > 0 && (
+              <div className="invoice-total-row invoice-discount-row">
+                <span>Giảm giá:</span>
+                <span>-{formatCurrency(order.discountAmount)}</span>
+              </div>
+            )}
+            <div className="invoice-total-row invoice-grand-total">
+              <span>Tổng cộng:</span>
+              <span className="total-amount">{formatCurrency(order.totalAmount)}</span>
+            </div>
           </div>
         </div>
 

@@ -42,12 +42,29 @@
 
 .invoice-total {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
   padding-top: 15px;
   border-top: 2px dashed #ddd;
+  font-size: 15px;
+}
+
+.invoice-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.invoice-discount-row {
+  color: #e67e22;
+}
+
+.invoice-grand-total {
   font-size: 18px;
   font-weight: bold;
+  padding-top: 6px;
+  border-top: 1px solid #eee;
+  margin-top: 2px;
 }
 
 .total-amount {
