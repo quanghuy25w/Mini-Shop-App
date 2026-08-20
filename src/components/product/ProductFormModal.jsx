@@ -114,7 +114,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
       unit: unit.trim(),
       costPrice: Number(costPrice),
       sellPrice: Number(sellPrice),
-      stockQuantity: Number(stockQuantity),
+      stockQuantity: initialData ? initialData.stockQuantity : Number(stockQuantity),
       minStockAlert: Number(minStockAlert),
       imageUrl: imageUrl.trim(),
       isActive: true,
@@ -203,7 +203,19 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           <div className="form-row">
             <div className="form-group flex-1">
               <label>Tồn hiện tại</label>
-              <input type="number" name="stockQuantity" value={formData.stockQuantity} onChange={handleChange} min="0" />
+              <input
+                type="number"
+                name="stockQuantity"
+                value={formData.stockQuantity}
+                onChange={handleChange}
+                min="0"
+                disabled={Boolean(initialData)}
+              />
+              {initialData && (
+                <span className="field-note" style={{ fontSize: '12px', color: 'var(--ink-soft)', marginTop: '4px', display: 'block' }}>
+                  Để thay đổi tồn kho, vui lòng dùng chức năng Nhập hàng / Xuất hàng.
+                </span>
+              )}
             </div>
             <div className="form-group flex-1">
               <label>Ngưỡng cảnh báo (tối thiểu)</label>

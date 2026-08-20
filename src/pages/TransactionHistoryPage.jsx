@@ -85,9 +85,15 @@ const TransactionHistoryPage = () => {
 
   const executeCancelOrder = async () => {
     if (!cancellingOrder) return;
+    const rollbackSteps = [];
+    const orderCode = cancellingOrder.code;
+    let isSuccess = false;
+
     try {
-      await orderApi.updateStatus(cancellingOrder.id, "cancelled");
       for (const item of cancellingOrder.items) {
+        const dbProduct = products.find(p => p.id === item.productId);
+        const previousStock = dbProduct ? dbProduct.stockQuantity : 0;
+
         const txData = {
           id: generateId(),
           productId: item.productId,
@@ -97,21 +103,50 @@ const TransactionHistoryPage = () => {
           note: `Hoàn kho - hủy ${cancellingOrder.code}`,
           createdAt: new Date().toISOString()
         };
-        await inventoryApi.createTransaction(txData);
-        const dbProduct = products.find(p => p.id === item.productId);
+        const txRes = await inventoryApi.createTransaction(txData);
+        const createdTx = txRes.data;
+
         if (dbProduct) {
-          const newStock = dbProduct.stockQuantity + item.quantity;
+          const newStock = previousStock + item.quantity;
           await productApi.patch(item.productId, { stockQuantity: newStock });
         }
+
+        rollbackSteps.push({
+          productId: item.productId,
+          transactionId: createdTx.id,
+          previousStock,
+          hasProduct: Boolean(dbProduct)
+        });
       }
-      toast.success(`Đã hủy đơn hàng ${cancellingOrder.code} và hoàn trả kho.`);
-      await refreshProducts();
-      fetchData();
+
+      await orderApi.updateStatus(cancellingOrder.id, "cancelled");
+      isSuccess = true;
     } catch (error) {
+      console.error("Lỗi khi hủy đơn hàng, bắt đầu rollback...", error);
+      for (const step of rollbackSteps) {
+        try {
+          if (step.hasProduct) {
+            await productApi.patch(step.productId, { stockQuantity: step.previousStock });
+          }
+          await inventoryApi.removeTransaction(step.transactionId);
+        } catch (rollbackErr) {
+          console.error(`Rollback thất bại cho sản phẩm ${step.productId}:`, rollbackErr);
+        }
+      }
       toast.error("Lỗi khi hủy đơn hàng. Vui lòng thử lại!");
     } finally {
       setIsCancelConfirmOpen(false);
       setCancellingOrder(null);
+    }
+
+    if (isSuccess) {
+      toast.success(`Đã hủy đơn hàng ${orderCode} và hoàn trả kho.`);
+      try {
+        await refreshProducts();
+        fetchData();
+      } catch (postErr) {
+        console.error("Lỗi khi làm mới dữ liệu sau hủy đơn:", postErr);
+      }
     }
   };
 

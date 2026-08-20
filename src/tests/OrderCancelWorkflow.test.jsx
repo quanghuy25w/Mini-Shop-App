@@ -40,7 +40,7 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
     renderTransactionHistoryPage();
 
     // Switch to Orders tab
-    expect(await screen.findByText('Lịch sử Giao dịch & Đơn hàng', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Lịch sử giao dịch/i, {}, { timeout: 5000 })).toBeTruthy();
     const ordersTab = await screen.findByText('Đơn hàng Bán (Sales)', {}, { timeout: 5000 });
     fireEvent.click(ordersTab);
 
@@ -70,7 +70,7 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
     renderTransactionHistoryPage();
 
     // Click "Đơn hàng Bán (Sales)" tab
-    expect(await screen.findByText('Lịch sử Giao dịch & Đơn hàng', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Lịch sử giao dịch/i, {}, { timeout: 5000 })).toBeTruthy();
     const ordersTab = await screen.findByText('Đơn hàng Bán (Sales)', {}, { timeout: 5000 });
     fireEvent.click(ordersTab);
 

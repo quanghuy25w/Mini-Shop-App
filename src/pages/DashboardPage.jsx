@@ -59,9 +59,10 @@ const DashboardPage = () => {
     orders.filter(o => o.status === 'completed').forEach(order => {
       order.items.forEach(item => {
         if (!salesCount[item.productId]) {
-          salesCount[item.productId] = { name: item.productName, qty: 0 };
+          salesCount[item.productId] = { name: item.productName, qty: 0, revenue: 0 };
         }
         salesCount[item.productId].qty += item.quantity;
+        salesCount[item.productId].revenue += item.quantity * item.price;
       });
     });
 
@@ -328,7 +329,7 @@ const DashboardPage = () => {
                     <tr key={idx}>
                       <td className="font-medium">{p.name}</td>
                       <td className="text-center font-mono font-bold text-ledger">{p.qty}</td>
-                      <td className="text-right font-mono">{formatCurrency(p.qty * 10000)}</td>
+                      <td className="text-right font-mono">{formatCurrency(p.revenue)}</td>
                     </tr>
                   ))}
                 </tbody>

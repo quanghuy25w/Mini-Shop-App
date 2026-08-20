@@ -26,13 +26,13 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
   it('Hiện cảnh báo khi giá bán < giá vốn nhưng vẫn cho phép lưu sản phẩm', async () => {
     const { container } = renderProductPage();
 
-    expect(await screen.findByText('Quản lý Sản phẩm', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Quản lý sản phẩm/i, {}, { timeout: 5000 })).toBeTruthy();
 
     // Open Add Product modal
-    fireEvent.click(screen.getByText('+ Thêm sản phẩm'));
+    fireEvent.click(screen.getByText('Thêm sản phẩm'));
 
     await waitFor(() => {
-      expect(screen.getByText('Thêm Sản phẩm mới')).toBeTruthy();
+      expect(screen.getByText(/Thêm sản phẩm mới/i)).toBeTruthy();
     });
 
     // Fill form fields by name attribute
@@ -63,7 +63,7 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
   it('Xóa sản phẩm thực hiện xóa mềm (isActive = false, không xóa khỏi DB)', async () => {
     renderProductPage();
 
-    expect(await screen.findByText('Quản lý Sản phẩm', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Quản lý sản phẩm/i, {}, { timeout: 5000 })).toBeTruthy();
 
     // Click delete on first product e.g. "Abbott Ensure Gold 380g (Beta Glucan)"
     const deleteBtns = screen.getAllByTitle('Xóa');
@@ -90,7 +90,7 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
   it('Xuất báo cáo CSV dữ liệu đang hiển thị', async () => {
     renderProductPage();
 
-    expect(await screen.findByText('Quản lý Sản phẩm', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Quản lý sản phẩm/i, {}, { timeout: 5000 })).toBeTruthy();
 
     const csvBtn = screen.getByText('Xuất CSV');
     expect(csvBtn).toBeTruthy();

@@ -10,8 +10,7 @@ export const orderApi = {
   generateOrderCode: async () => {
     const res = await axiosClient.get('/orders');
     const orders = res.data;
-    if (orders.length === 0) return 'HD001';
-    
+
     let maxNum = 0;
     orders.forEach(o => {
       if (o.code && o.code.startsWith('HD')) {
@@ -19,8 +18,17 @@ export const orderApi = {
         if (!isNaN(num) && num > maxNum) maxNum = num;
       }
     });
-    
-    const nextNum = maxNum + 1;
-    return `HD${nextNum.toString().padStart(3, '0')}`;
+
+    // Thử tối đa 5 lần, mỗi lần xác nhận lại mã chưa tồn tại (chống race
+    // condition khi có request khác vừa tạo đơn xen giữa)
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidateNum = maxNum + 1 + attempt;
+      const candidateCode = `HD${candidateNum.toString().padStart(3, '0')}`;
+      const checkRes = await axiosClient.get(`/orders?code=${candidateCode}`);
+      if (checkRes.data.length === 0) {
+        return candidateCode; // chắc chắn chưa ai dùng mã này
+      }
+    }
+    throw new Error('Không thể tạo mã hóa đơn duy nhất, vui lòng thử lại.');
   }
 };

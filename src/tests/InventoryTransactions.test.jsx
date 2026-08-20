@@ -38,8 +38,8 @@ describe('Group 6: Giao dịch kho (InventoryTransactions) Tests', () => {
 
     renderTransactionHistoryPage();
 
-    expect(await screen.findByText('Lịch sử Giao dịch & Đơn hàng', {}, { timeout: 5000 })).toBeTruthy();
-    expect(screen.getByText('Giao dịch Nhập/Xuất kho')).toBeTruthy();
+    expect(await screen.findByText(/Lịch sử giao dịch/i, {}, { timeout: 5000 })).toBeTruthy();
+    expect(screen.getByText(/Giao dịch nhập\/Xuất kho/i)).toBeTruthy();
 
     // Latest transaction note should be present
     expect(await screen.findByText('Giao dịch test mới nhất', {}, { timeout: 5000 })).toBeTruthy();
@@ -48,7 +48,7 @@ describe('Group 6: Giao dịch kho (InventoryTransactions) Tests', () => {
   it('Bộ lọc theo sản phẩm, loại giao dịch và khoảng ngày hoạt động đúng', async () => {
     renderTransactionHistoryPage();
 
-    expect(await screen.findByText('Lịch sử Giao dịch & Đơn hàng', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Lịch sử giao dịch/i, {}, { timeout: 5000 })).toBeTruthy();
 
     // Select filter type: Nhập kho
     const typeSelect = await screen.findByDisplayValue('Tất cả loại giao dịch', {}, { timeout: 5000 });
@@ -65,7 +65,7 @@ describe('Group 6: Giao dịch kho (InventoryTransactions) Tests', () => {
   it('Bấm "Xuất CSV" xuất báo cáo các giao dịch đang hiển thị', async () => {
     renderTransactionHistoryPage();
 
-    expect(await screen.findByText('Lịch sử Giao dịch & Đơn hàng', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText(/Lịch sử giao dịch/i, {}, { timeout: 5000 })).toBeTruthy();
 
     const csvBtn = screen.getByText('Xuất báo cáo CSV');
     expect(csvBtn).toBeTruthy();

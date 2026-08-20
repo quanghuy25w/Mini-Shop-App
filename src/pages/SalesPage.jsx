@@ -100,6 +100,7 @@ const SalesPage = () => {
   const [confirmState, setConfirmState] = useState(null);
 
   const searchInputRef = useRef(null);
+  const isSubmittingRef = useRef(false); // khóa đồng bộ chống double-submit tức thời
 
   // Filter san pham hien thi
   const displayProducts = useMemo(() => {
@@ -149,7 +150,7 @@ const SalesPage = () => {
         handleSaveDraft();
       } else if (e.key === 'F9') {
         e.preventDefault();
-        if (cartItems.length > 0 && !isProcessing) {
+        if (cartItems.length > 0 && !isProcessing && !isSubmittingRef.current) {
           handleCheckout();
         } else if (cartItems.length === 0) {
           toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
@@ -175,11 +176,12 @@ const SalesPage = () => {
 
   // Nút Thanh toán (F9)
   const handleCheckout = async () => {
+    if (isSubmittingRef.current) return;  // chặn tức thời, không chờ setState
     if (cartItems.length === 0) {
       toast.error('Giỏ hàng đang trống!');
       return;
     }
-
+    isSubmittingRef.current = true;
     setIsProcessing(true);
     try {
       const order = await checkout(finalTotal);
@@ -192,6 +194,7 @@ const SalesPage = () => {
       toast.error(err.message || 'Lỗi khi thanh toán');
     } finally {
       setIsProcessing(false);
+      isSubmittingRef.current = false;
     }
   };
 

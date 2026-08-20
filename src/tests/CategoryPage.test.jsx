@@ -29,7 +29,7 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
     expect(await screen.findByRole('heading', { name: /Quản lý Danh mục/i }, { timeout: 5000 })).toBeTruthy();
 
     // Click "+ Thêm danh mục"
-    const addBtn = screen.getByText('+ Thêm danh mục');
+    const addBtn = screen.getByText('Thêm danh mục');
     fireEvent.click(addBtn);
 
     // Modal opens
@@ -53,8 +53,8 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
       expect(screen.getByText('Sữa bột')).toBeTruthy();
     }, { timeout: 5000 });
 
-    // Click "+ Thêm danh mục"
-    fireEvent.click(screen.getByText('+ Thêm danh mục'));
+    // Click "Thêm danh mục"
+    fireEvent.click(screen.getByText('Thêm danh mục'));
 
     // Input duplicate category name in lowercase "sữa bột"
     const input = screen.getByPlaceholderText('Nhập tên danh mục');

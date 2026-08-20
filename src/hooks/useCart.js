@@ -50,7 +50,24 @@ export const useCart = () => {
     try {
       const res = await orderApi.create(orderData);
       createdOrder = res.data;
+
+      // FIX 3: Xác nhận cuối — phát hiện trường hợp cực hiếm 2 request lọt qua
+      // generateOrderCode cùng lúc (sau khi đã có FIX1 + FIX2, xác suất gần như 0)
+      try {
+        const dupCheck = await orderApi.getAll();
+        const sameCode = dupCheck.data.filter(o => o.code === createdOrder.code);
+        if (sameCode.length > 1) {
+          console.warn(
+            `[useCart] DUPLICATE ORDER CODE DETECTED: "${createdOrder.code}" xuất hiện ${sameCode.length} lần. ` +
+            `IDs: ${sameCode.map(o => o.id).join(', ')}. Cần kiểm tra thủ công.`
+          );
+        }
+      } catch (dupErr) {
+        // Không throw — đây chỉ là cảnh báo, không được block luồng chính
+        console.warn('[useCart] Không thể kiểm tra duplicate code:', dupErr);
+      }
     } catch (e) {
+      console.error('[useCart] orderApi.create thất bại:', e);
       throw new Error("Lỗi khi khởi tạo đơn hàng mới trên hệ thống.");
     }
 

@@ -93,23 +93,53 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
   });
 
   it('Xoá 1 dòng khỏi danh sách tạm nhập kho', async () => {
-    renderImportPage();
+    const { container } = renderImportPage();
 
     expect(await screen.findByText('Chi tiết sản phẩm nhập', {}, { timeout: 5000 })).toBeTruthy();
 
-    // Wait for initial sample products to load into table
+    // Add first product
+    fireEvent.click(screen.getByText('-- Chọn sản phẩm --'));
     await waitFor(() => {
-      expect(screen.queryAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBeGreaterThan(0);
+      expect(container.querySelector('.dropdown-popover')).not.toBeNull();
+    }, { timeout: 5000 });
+    const popoverItems = container.querySelectorAll('.dropdown-item-name');
+    if (popoverItems.length > 0) {
+      fireEvent.click(popoverItems[0]);
+    }
+    const inputs1 = screen.getAllByRole('spinbutton');
+    fireEvent.change(inputs1[0], { target: { value: '5' } });
+    fireEvent.change(inputs1[1], { target: { value: '50000' } });
+    fireEvent.click(screen.getByText('+ Thêm vào danh sách'));
+
+    await waitFor(() => {
+      expect(screen.getAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBe(1);
+    }, { timeout: 5000 });
+
+    // Add second product
+    fireEvent.click(container.querySelector('.select-trigger-box'));
+    await waitFor(() => {
+      expect(container.querySelector('.dropdown-popover')).not.toBeNull();
+    }, { timeout: 5000 });
+    const popoverItems2 = container.querySelectorAll('.dropdown-item-name');
+    if (popoverItems2.length > 1) {
+      fireEvent.click(popoverItems2[1]);
+    }
+    const inputs2 = screen.getAllByRole('spinbutton');
+    fireEvent.change(inputs2[0], { target: { value: '3' } });
+    fireEvent.change(inputs2[1], { target: { value: '30000' } });
+    fireEvent.click(screen.getByText('+ Thêm vào danh sách'));
+
+    await waitFor(() => {
+      expect(screen.getAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBe(2);
     }, { timeout: 5000 });
 
     const deleteBtns = screen.getAllByTitle(/Xoá sản phẩm khỏi danh sách/i);
-    const countBefore = deleteBtns.length;
     fireEvent.click(deleteBtns[0]);
 
-    // Expect items count reduced by 1
+    // Expect items count reduced to 1
     await waitFor(() => {
       const deleteBtnsAfter = screen.getAllByTitle(/Xoá sản phẩm khỏi danh sách/i);
-      expect(deleteBtnsAfter.length).toBe(countBefore - 1);
+      expect(deleteBtnsAfter.length).toBe(1);
     }, { timeout: 5000 });
   });
 
@@ -118,9 +148,24 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
     const testProd = initialProds.data[0];
     const initialStock = testProd.stockQuantity;
 
-    renderImportPage();
+    const { container } = renderImportPage();
 
     expect(await screen.findByText('Chi tiết sản phẩm nhập', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Select and add product to table
+    fireEvent.click(screen.getByText('-- Chọn sản phẩm --'));
+    await waitFor(() => {
+      expect(container.querySelector('.dropdown-popover')).not.toBeNull();
+    }, { timeout: 5000 });
+
+    const popoverItems = container.querySelectorAll('.dropdown-item-name');
+    if (popoverItems.length > 0) {
+      fireEvent.click(popoverItems[0]);
+    }
+    const inputs = screen.getAllByRole('spinbutton');
+    fireEvent.change(inputs[0], { target: { value: '10' } });
+    fireEvent.change(inputs[1], { target: { value: '50000' } });
+    fireEvent.click(screen.getByText('+ Thêm vào danh sách'));
 
     await waitFor(() => {
       expect(screen.queryAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBeGreaterThan(0);
@@ -149,9 +194,24 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
   });
 
   it('Dừng đúng chỗ khi 1 sản phẩm trong danh sách lỗi giữa chừng khi submit hàng loạt', async () => {
-    renderImportPage();
+    const { container } = renderImportPage();
 
     expect(await screen.findByText('Chi tiết sản phẩm nhập', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Select and add product to table
+    fireEvent.click(screen.getByText('-- Chọn sản phẩm --'));
+    await waitFor(() => {
+      expect(container.querySelector('.dropdown-popover')).not.toBeNull();
+    }, { timeout: 5000 });
+
+    const popoverItems = container.querySelectorAll('.dropdown-item-name');
+    if (popoverItems.length > 0) {
+      fireEvent.click(popoverItems[0]);
+    }
+    const inputs = screen.getAllByRole('spinbutton');
+    fireEvent.change(inputs[0], { target: { value: '5' } });
+    fireEvent.change(inputs[1], { target: { value: '50000' } });
+    fireEvent.click(screen.getByText('+ Thêm vào danh sách'));
 
     await waitFor(() => {
       expect(screen.queryAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBeGreaterThan(0);
