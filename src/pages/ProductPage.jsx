@@ -4,9 +4,12 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import EmptyState from '../components/common/EmptyState';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import ProductFormModal from '../components/product/ProductFormModal';
+import Pagination from '../components/common/Pagination';
 import { formatCurrency } from '../utils/formatCurrency';
 import { exportToCSV } from '../utils/exportCSV';
 import './ProductPage.css';
+
+const PAGE_SIZE = 20;
 
 // Component hien anh san pham, dung React state de xu ly loi anh
 const ProductThumb = ({ product }) => {
@@ -19,7 +22,7 @@ const ProductThumb = ({ product }) => {
 
   return (
     <div className="product-thumb">
-      <img src={src} alt={product.name} onError={() => setImgError(true)} />
+      <img src={src} alt={product.name} loading="lazy" onError={() => setImgError(true)} />
     </div>
   );
 };
@@ -29,6 +32,8 @@ const ProductPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -43,8 +48,6 @@ const ProductPage = () => {
     }, 300);
     return () => clearTimeout(handler);
   }, [searchTerm]);
-
-  const [filterStatus, setFilterStatus] = useState('');
 
   const handleResetFilters = () => {
     setSearchTerm('');
@@ -84,6 +87,11 @@ const ProductPage = () => {
       success = await updateProduct(editingProduct.id, data);
     } else {
       success = await createProduct(data);
+      if (success) {
+        const nextTotal = filteredProducts.length + 1;
+        const lastPage = Math.max(1, Math.ceil(nextTotal / PAGE_SIZE));
+        setCurrentPage(lastPage);
+      }
     }
     if (success) {
       handleCloseForm();
@@ -115,6 +123,25 @@ const ProductPage = () => {
       return matchName && matchCat && matchStatus;
     });
   }, [products, debouncedSearch, filterCategory, filterStatus]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+
+  // Reset ve trang 1 khi tim kiem hoac bo loc thay doi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, filterCategory, filterStatus]);
+
+  // Tu dong lui ve trang cuoi neu currentPage vuot qua tong so trang (khi xoa sp)
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    return filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [filteredProducts, currentPage]);
 
   const renderStockBadge = (product) => {
     if (product.stockQuantity === 0) {
@@ -228,9 +255,9 @@ const ProductPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((prod, idx) => (
+                {paginatedProducts.map((prod, idx) => (
                   <tr key={prod.id}>
-                    <td className="text-center text-muted font-mono">{idx + 1}</td>
+                    <td className="text-center text-muted font-mono">{(currentPage - 1) * PAGE_SIZE + idx + 1}</td>
                     <td>
                       <div className="product-cell-group">
                         <ProductThumb product={prod} />
@@ -264,9 +291,12 @@ const ProductPage = () => {
               </tbody>
             </table>
 
-            <div className="table-footer-info">
-              <span>Hiển thị 1 - {filteredProducts.length} của {products.length} sản phẩm</span>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredProducts.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </div>

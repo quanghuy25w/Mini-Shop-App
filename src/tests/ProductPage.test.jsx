@@ -96,4 +96,35 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
     expect(csvBtn).toBeTruthy();
     fireEvent.click(csvBtn);
   });
+
+  it('Phân trang hiển thị 20 sản phẩm/trang, tính đúng STT và chuyển trang thành công', async () => {
+    renderProductPage();
+
+    expect(await screen.findByText(/Quản lý sản phẩm/i, {}, { timeout: 5000 })).toBeTruthy();
+
+    // Trang 1: có dải 1 - 20 và nút trang 1
+    expect(screen.getByText('1 - 20')).toBeTruthy();
+    expect(screen.getByRole('button', { name: '1' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '2' })).toBeTruthy();
+
+    // Chuyển sang trang 2
+    const page2Btn = screen.getByRole('button', { name: '2' });
+    fireEvent.click(page2Btn);
+
+    // Trang 2: STT bắt đầu từ 21 và dải 21 - 40
+    await waitFor(() => {
+      expect(screen.getByText('21')).toBeTruthy();
+      expect(screen.getByText('21 - 40')).toBeTruthy();
+    });
+
+    // Khi tìm kiếm -> tự reset về trang 1
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm theo tên...');
+    fireEvent.change(searchInput, { target: { value: 'Ensure' } });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '1' })).toBeTruthy();
+    });
+  });
 });
+
+

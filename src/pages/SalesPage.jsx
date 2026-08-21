@@ -7,9 +7,12 @@ import InvoiceModal from '../components/sales/InvoiceModal';
 import CheckoutConfirmModal from '../components/sales/CheckoutConfirmModal';
 import EmptyState from '../components/common/EmptyState';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import Pagination from '../components/common/Pagination';
 import { printInvoice } from '../utils/printInvoice';
 import { toast } from 'react-toastify';
 import './SalesPage.css';
+
+const PAGE_SIZE = 20;
 
 // Component render Product Thumbnail (Visual SVG/Image)
 const ProductThumbnail = ({ product, size = 44 }) => {
@@ -17,7 +20,7 @@ const ProductThumbnail = ({ product, size = 44 }) => {
   if (product.imageUrl || product.image) {
     return (
       <div className="pos-card-thumb-container" style={{ width: size, height: size }}>
-        <img src={product.imageUrl || product.image} alt={product.name} />
+        <img src={product.imageUrl || product.image} alt={product.name} loading="lazy" />
       </div>
     );
   }
@@ -88,6 +91,7 @@ const SalesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Cart additional states
   const [discount, setDiscount] = useState('0');
@@ -115,6 +119,25 @@ const SalesPage = () => {
       return matchSearch && matchCat;
     });
   }, [products, searchTerm, selectedCategory]);
+
+  const totalPages = Math.max(1, Math.ceil(displayProducts.length / PAGE_SIZE));
+
+  // Reset ve trang 1 khi tim kiem hoac danh muc thay doi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
+
+  // Tu dong lui ve trang cuoi neu currentPage vuot qua tong so trang
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    return displayProducts.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [displayProducts, currentPage]);
 
   // Tạm tính tong giỏ hang
   const subtotal = useMemo(() => {
@@ -353,7 +376,7 @@ const SalesPage = () => {
             <EmptyState message="Không tìm thấy sản phẩm phù hợp. Vui lòng kiểm tra lại từ khóa hoặc bộ lọc." />
           ) : viewMode === 'grid' ? (
             <div className="pos-products-grid">
-              {displayProducts.map((prod, idx) => {
+              {paginatedProducts.map((prod, idx) => {
                 const isOut = prod.stockQuantity <= 0;
                 const isLow = prod.stockQuantity > 0 && prod.stockQuantity <= Math.max(5, prod.minStockAlert || 5);
 
@@ -375,7 +398,7 @@ const SalesPage = () => {
             </div>
           ) : (
             <div className="pos-products-list">
-              {displayProducts.map((prod, idx) => {
+              {paginatedProducts.map((prod, idx) => {
                 const isOut = prod.stockQuantity <= 0;
                 const isLow = prod.stockQuantity > 0 && prod.stockQuantity <= Math.max(5, prod.minStockAlert || 5);
 
@@ -400,6 +423,13 @@ const SalesPage = () => {
               })}
             </div>
           )}
+
+          <Pagination
+            currentPage={currentPage}
+            totalItems={displayProducts.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setCurrentPage}
+          />
 
           {/* PANEL PHÍM TẮT Ở CUỐI TRANG */}
           <div className="pos-hotkeys-panel">

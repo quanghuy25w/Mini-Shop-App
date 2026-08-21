@@ -219,4 +219,35 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     // Cart still has product
     expect(screen.queryByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeNull();
   });
+
+  it('Phân trang bán hàng hiển thị 20 sản phẩm/trang ở cả dạng Grid và List, chuyển trang mượt mà', async () => {
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+    expect(await screen.findByText('1 - 20', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Chuyển sang chế độ xem danh sách (list view)
+    const toggleBtn = screen.getByTitle(/Chuyển sang dạng/i);
+    fireEvent.click(toggleBtn);
+
+    // Vẫn hiển thị phân trang
+    expect(screen.getByText('1 - 20')).toBeTruthy();
+
+    // Chuyển sang trang 2
+    const page2Btn = screen.getByRole('button', { name: '2' });
+    fireEvent.click(page2Btn);
+
+    await waitFor(() => {
+      expect(screen.getByText('21 - 40')).toBeTruthy();
+    });
+
+    // Khi tìm kiếm -> tự reset về trang 1
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+    fireEvent.change(searchInput, { target: { value: 'Ensure' } });
+
+    await waitFor(() => {
+      expect(screen.queryByText('21 - 40')).toBeNull();
+    });
+  });
 });
+

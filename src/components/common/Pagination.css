@@ -1,0 +1,103 @@
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* In table context (like ProductPage), seamlessly blend with the table footer */
+.table-responsive .pagination-container {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: 14px 20px;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+}
+
+.pagination-highlight {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--surface);
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+  background-color: var(--surface-sunk);
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.pagination-btn.active {
+  background-color: var(--ledger-dark);
+  border-color: var(--ledger-dark);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--border-color);
+  background-color: var(--surface);
+}
+
+.pagination-nav-btn {
+  padding: 0 6px;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 32px;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .pagination-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+}
