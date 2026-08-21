@@ -345,7 +345,156 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     expect(screen.queryByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeNull();
     expect(screen.getByRole('button', { name: /Đơn tạm \(0\)/i })).toBeTruthy();
   });
+
+  it('Nhập mã sản phẩm hoặc quét mã vạch và nhấn Enter tự động thêm vào giỏ hàng và reset ô tìm kiếm', async () => {
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    // Gõ mã SP001 và nhấn Enter
+    fireEvent.change(searchInput, { target: { value: 'SP001' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    // Sản phẩm Abbott Ensure Gold 380g được tự động thêm vào giỏ hàng
+    expect(screen.queryByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeNull();
+    expect(screen.getAllByText(/Ensure Gold 380g/i).length).toBeGreaterThan(0);
+
+    // Ô tìm kiếm được tự động xóa sạch để sẵn sàng cho lần gõ tiếp theo
+    expect(searchInput.value).toBe('');
+  });
+
+  it('Khi tìm kiếm trả về nhiều hơn 1 kết quả, nhấn Enter KHÔNG tự ý thêm sản phẩm và giữ nguyên input', async () => {
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    // Gõ "Ensure" (có nhiều sản phẩm Ensure 380g, 800g...)
+    fireEvent.change(searchInput, { target: { value: 'Ensure' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    // Giỏ hàng vẫn trống, KHÔNG tự động thêm sản phẩm đầu tiên
+    expect(screen.getByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
+
+    // Input vẫn giữ nguyên "Ensure" để người dùng tiếp tục xem danh sách lọc
+    expect(searchInput.value).toBe('Ensure');
+  });
+
+  it('Khi tìm mã không tồn tại, nhấn Enter không thêm vào giỏ và giữ nguyên input', async () => {
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    // Mã không tồn tại
+    fireEvent.change(searchInput, { target: { value: 'SP999' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    expect(screen.getByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
+    expect(searchInput.value).toBe('SP999');
+  });
+
+  it('Khi sản phẩm hết hàng trong kho, nhấn Enter không thêm vào giỏ và giữ nguyên input', async () => {
+    // Set 1 sản phẩm hết hàng trong kho trước khi render
+    const products = JSON.parse(localStorage.getItem('minishop_products'));
+    products[0].stockQuantity = 0;
+    localStorage.setItem('minishop_products', JSON.stringify(products));
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    fireEvent.change(searchInput, { target: { value: 'SP001' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    expect(screen.getByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
+    expect(searchInput.value).toBe('SP001');
+  });
+
+  it('F1 và F2 focus vào search input mà KHÔNG xóa dữ liệu người dùng đang nhập dở', async () => {
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    // Người dùng gõ dở chữ
+    fireEvent.change(searchInput, { target: { value: 'Ensure Gol' } });
+
+    // Bấm F2
+    fireEvent.keyDown(window, { key: 'F2', code: 'F2' });
+    expect(searchInput.value).toBe('Ensure Gol');
+
+    // Bấm F1
+    fireEvent.keyDown(window, { key: 'F1', code: 'F1' });
+    expect(searchInput.value).toBe('Ensure Gol');
+  });
+
+  it('Nhập mã liên tục SP001, SP002, SP003 đều được thêm đúng vào giỏ hàng mà không cần chuột', async () => {
+    const { container } = renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    // Nhập SP001
+    fireEvent.change(searchInput, { target: { value: 'SP001' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+    expect(searchInput.value).toBe('');
+
+    // Nhập SP002
+    fireEvent.change(searchInput, { target: { value: 'SP002' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+    expect(searchInput.value).toBe('');
+
+    // Nhập SP003
+    fireEvent.change(searchInput, { target: { value: 'SP003' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+    expect(searchInput.value).toBe('');
+
+    // Kiểm tra tổng số lượng món trong giỏ hàng là 3
+    expect(screen.getByText('Tổng số lượng')).toBeTruthy();
+    expect(container.querySelector('.summary-line-item .font-mono').textContent).toBe('3');
+  });
+
+  it('Không cho phép thêm vào giỏ vượt quá tồn kho khả dụng (stock = 2, cart = 2)', async () => {
+    // Set stock của SP001 = 2
+    const products = JSON.parse(localStorage.getItem('minishop_products'));
+    products[0].stockQuantity = 2;
+    localStorage.setItem('minishop_products', JSON.stringify(products));
+
+    const { container } = renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const searchInput = screen.getByPlaceholderText('Tìm kiếm sản phẩm (mã, tên...)');
+
+    // Lần 1: thêm thành công (cart = 1)
+    fireEvent.change(searchInput, { target: { value: 'SP001' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    // Lần 2: thêm thành công (cart = 2)
+    fireEvent.change(searchInput, { target: { value: 'SP001' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    // Lần 3: vượt quá tồn kho (cart = 2 = stock) -> Bị chặn
+    fireEvent.change(searchInput, { target: { value: 'SP001' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    // Giữ nguyên input SP001 và số lượng tổng vẫn là 2
+    expect(searchInput.value).toBe('SP001');
+    expect(container.querySelector('.summary-line-item .font-mono').textContent).toBe('2');
+  });
 });
+
+
+
 
 
 

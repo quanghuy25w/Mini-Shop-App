@@ -215,8 +215,10 @@ const SalesPage = () => {
         searchInputRef.current?.focus();
       } else if (e.key === 'F2') {
         e.preventDefault();
-        toast.info('Chức năng quét mã vạch (F2) sẵn sàng!');
         searchInputRef.current?.focus();
+        if (!searchTerm) {
+          toast.info('Sẵn sàng quét mã vạch...');
+        }
       } else if (e.key === 'F5') {
         e.preventDefault();
         handleSaveDraft();
@@ -235,7 +237,76 @@ const SalesPage = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems, isProcessing, subtotal, discountAmount, finalTotal]);
+  }, [cartItems, isProcessing, subtotal, discountAmount, finalTotal, searchTerm, draftOrders]);
+
+  // Xu ly khi bam Enter trong o tim kiem (hoac may quet ma vach gui tin hieu Enter)
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.repeat) return; // Chống double event khi giữ phím
+
+      const query = searchTerm.trim();
+      if (!query) return;
+
+      const qLower = query.toLowerCase();
+
+      // PRIORITY 1: Khớp chính xác Barcode
+      let matched = products.find(p => p.isActive && p.barcode && p.barcode.toLowerCase() === qLower);
+
+      // PRIORITY 2: Khớp chính xác SKU / Product Code
+      if (!matched) {
+        matched = products.find(p => 
+          p.isActive && (
+            getProductCode(p).toLowerCase() === qLower || 
+            (p.code && p.code.toLowerCase() === qLower)
+          )
+        );
+      }
+
+      // PRIORITY 3: Khớp chính xác 100% Tên sản phẩm
+      if (!matched) {
+        const exactNameMatches = products.filter(p => p.isActive && p.name.trim().toLowerCase() === qLower);
+        if (exactNameMatches.length === 1) {
+          matched = exactNameMatches[0];
+        }
+      }
+
+      // PRIORITY 4: Kết quả tìm kiếm còn lại (displayProducts)
+      if (!matched) {
+        if (displayProducts.length === 1) {
+          // Duy nhất 1 kết quả -> Được phép thêm
+          matched = displayProducts[0];
+        } else if (displayProducts.length > 1) {
+          // Nhiều hơn 1 kết quả -> TUYỆT ĐỐI KHÔNG tự động thêm, giữ nguyên input để người dùng chọn
+          toast.info(`Có ${displayProducts.length} sản phẩm phù hợp. Vui lòng chọn sản phẩm cụ thể hoặc nhập mã chính xác.`);
+          return;
+        } else {
+          // 0 kết quả -> Báo lỗi, giữ nguyên input
+          toast.error(`Không tìm thấy sản phẩm với từ khóa "${query}".`);
+          return;
+        }
+      }
+
+      // KIỂM TRA TỒN KHO KHẢ DỤNG
+      if (matched.stockQuantity <= 0) {
+        toast.error(`Sản phẩm "${matched.name}" đã hết hàng.`);
+        return;
+      }
+
+      const cartItem = cartItems.find(item => item.productId === matched.id);
+      const currentInCart = cartItem ? cartItem.quantity : 0;
+      if (currentInCart + 1 > matched.stockQuantity) {
+        toast.error(`Không thể thêm "${matched.name}". Số lượng trong giỏ (${currentInCart}) đã đạt tồn kho hiện tại (${matched.stockQuantity}).`);
+        return;
+      }
+
+      // THÊM VÀO GIỎ HÀNG THÀNH CÔNG
+      addToCart(matched, 1);
+      toast.success(`Đã thêm "${matched.name}" vào giỏ hàng!`);
+      setSearchTerm('');
+      searchInputRef.current?.focus();
+    }
+  };
 
   // Them san pham vao gio
   const handleProductClick = (prod) => {
@@ -473,6 +544,7 @@ const SalesPage = () => {
                 placeholder="Tìm kiếm sản phẩm (mã, tên...)" 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
               />
             </div>
 
