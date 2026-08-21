@@ -60,7 +60,7 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 64,
+      "stockQuantity": 61,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-380g-2-600x600.webp",
       "isActive": true,
@@ -75,7 +75,7 @@
       "unit": "Hộp",
       "costPrice": 830000,
       "sellPrice": 900000,
-      "stockQuantity": 33,
+      "stockQuantity": 32,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-800g-1-600x600.webp",
       "isActive": true,
@@ -135,7 +135,7 @@
       "unit": "Hộp",
       "costPrice": 540000,
       "sellPrice": 584000,
-      "stockQuantity": 34,
+      "stockQuantity": 30,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-1-3-nhap-600x600.webp",
       "isActive": true,
@@ -1613,6 +1613,51 @@
       "unitPrice": 900000,
       "note": "Bán hàng - HD028",
       "createdAt": "2026-08-21T06:50:06.832Z"
+    },
+    {
+      "id": "v-mumuwA3K8",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "OUT",
+      "quantity": 2,
+      "unitPrice": 436000,
+      "note": "Bán hàng - HD029",
+      "createdAt": "2026-08-21T07:30:15.203Z"
+    },
+    {
+      "id": "syVNclO-Njw",
+      "productId": "p0000000-0000-0000-0000-000000000008",
+      "type": "OUT",
+      "quantity": 3,
+      "unitPrice": 584000,
+      "note": "Bán hàng - HD030",
+      "createdAt": "2026-08-21T07:31:01.493Z"
+    },
+    {
+      "id": "x2VPcW5Ou48",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD031",
+      "createdAt": "2026-08-21T07:33:44.209Z"
+    },
+    {
+      "id": "iqIoVGaLTgc",
+      "productId": "p0000000-0000-0000-0000-000000000008",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 584000,
+      "note": "Bán hàng - HD032",
+      "createdAt": "2026-08-21T07:34:32.551Z"
+    },
+    {
+      "id": "sd2P_lwW0YQ",
+      "productId": "p0000000-0000-0000-0000-000000000003",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 436000,
+      "note": "Bán hàng - HD033",
+      "createdAt": "2026-08-21T07:35:35.192Z"
     }
   ],
   "orders": [
@@ -2135,6 +2180,91 @@
       "totalAmount": 720000,
       "status": "completed",
       "createdAt": "2026-08-21T06:50:06.821Z"
+    },
+    {
+      "id": "1Ypj7UZ13Uw",
+      "code": "HD029",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000003",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 380g ( Beta Glucan) mẫu mới",
+          "quantity": 2,
+          "price": 436000
+        }
+      ],
+      "subtotal": 872000,
+      "discountAmount": 0,
+      "totalAmount": 872000,
+      "status": "completed",
+      "createdAt": "2026-08-21T07:30:15.189Z"
+    },
+    {
+      "id": "Z4OZNPzupC4",
+      "code": "HD030",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000008",
+          "productName": "Meiji 1-3 year old Growingup Formula Premium 800g (Nhập khẩu)",
+          "quantity": 3,
+          "price": 584000
+        }
+      ],
+      "subtotal": 1752000,
+      "discountAmount": 0,
+      "totalAmount": 1752000,
+      "status": "completed",
+      "createdAt": "2026-08-21T07:31:01.480Z"
+    },
+    {
+      "id": "NFULjCd5VnM",
+      "code": "HD031",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 360000,
+      "totalAmount": 540000,
+      "status": "completed",
+      "createdAt": "2026-08-21T07:33:44.194Z"
+    },
+    {
+      "id": "vOydC1WCOtg",
+      "code": "HD032",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000008",
+          "productName": "Meiji 1-3 year old Growingup Formula Premium 800g (Nhập khẩu)",
+          "quantity": 1,
+          "price": 584000
+        }
+      ],
+      "subtotal": 584000,
+      "discountAmount": 1,
+      "totalAmount": 583999,
+      "status": "completed",
+      "createdAt": "2026-08-21T07:34:32.539Z"
+    },
+    {
+      "id": "j3ZGooTWl6w",
+      "code": "HD033",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000003",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 380g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 436000
+        }
+      ],
+      "subtotal": 436000,
+      "discountAmount": 218000,
+      "totalAmount": 218000,
+      "status": "completed",
+      "createdAt": "2026-08-21T07:35:35.178Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

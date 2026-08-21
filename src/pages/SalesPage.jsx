@@ -5,6 +5,7 @@ import { AppDataContext } from '../context/AppDataContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import InvoiceModal from '../components/sales/InvoiceModal';
 import CheckoutConfirmModal from '../components/sales/CheckoutConfirmModal';
+import DraftOrdersModal from '../components/sales/DraftOrdersModal';
 import EmptyState from '../components/common/EmptyState';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import Pagination from '../components/common/Pagination';
@@ -85,7 +86,7 @@ const getProductCode = (product, idx = 0) => {
 const SalesPage = () => {
   const { products } = useProducts();
   const { categories } = useContext(AppDataContext);
-  const { cartItems, addToCart, updateQuantity, removeFromCart, clearCart, checkout } = useCart();
+  const { cartItems, addToCart, updateQuantity, removeFromCart, clearCart, restoreCart, checkout } = useCart();
   
   // UI filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -98,6 +99,17 @@ const SalesPage = () => {
   const [discountType, setDiscountType] = useState('amount'); // 'amount' | 'percent'
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [orderNote, setOrderNote] = useState('');
+
+  // Draft orders state
+  const [draftOrders, setDraftOrders] = useState(() => {
+    try {
+      const saved = localStorage.getItem('minishop_draft_orders');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
 
   // Processing & Modal states
   const [isProcessing, setIsProcessing] = useState(false);
@@ -294,13 +306,99 @@ const SalesPage = () => {
     }
   };
 
-  // Luu đơn hang (F5)
+  // Luu đơn hang tạm (F5)
   const handleSaveDraft = () => {
     if (cartItems.length === 0) {
       toast.error('Giỏ hàng trống, không thể lưu đơn!');
       return;
     }
-    toast.success('Đã lưu tạm thông tin đơn hàng!');
+
+    const newDraft = {
+      id: `draft_${Date.now()}`,
+      code: `DT-${String(draftOrders.length + 1).padStart(2, '0')}`,
+      items: [...cartItems],
+      discount,
+      discountType,
+      orderNote,
+      subtotal,
+      discountAmount,
+      totalAmount: finalTotal,
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [newDraft, ...draftOrders];
+    setDraftOrders(updated);
+    try {
+      localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Lỗi lưu đơn tạm vào localStorage', e);
+    }
+
+    // Reset giỏ hàng hiện tại sau khi lưu tạm
+    clearCart();
+    setDiscount('0');
+    setDiscountType('amount');
+    setOrderNote('');
+    setShowNoteInput(false);
+    toast.success(`Đã lưu tạm đơn ${newDraft.code} thành công!`);
+  };
+
+  // Khôi phục đơn tạm vào giỏ
+  const doRestoreDraft = (draft) => {
+    restoreCart(draft.items || []);
+    setDiscount(draft.discount || '0');
+    setDiscountType(draft.discountType || 'amount');
+    setOrderNote(draft.orderNote || '');
+    setShowNoteInput(Boolean(draft.orderNote));
+
+    // Xóa đơn tạm khỏi danh sách sau khi đã nạp
+    const updated = draftOrders.filter(d => d.id !== draft.id);
+    setDraftOrders(updated);
+    try {
+      localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Lỗi cập nhật đơn tạm', e);
+    }
+
+    setIsDraftModalOpen(false);
+    toast.success(`Đã nạp lại đơn ${draft.code} vào giỏ hàng!`);
+  };
+
+  // Yêu cầu khôi phục đơn tạm (nếu giỏ đang có món thì hỏi xác nhận)
+  const handleRequestRestoreDraft = (draft) => {
+    if (cartItems.length > 0) {
+      setConfirmState({
+        type: 'RESTORE_DRAFT',
+        draft,
+        title: 'Xác nhận khôi phục đơn tạm',
+        message: `Giỏ hàng hiện tại đang có ${cartItems.length} sản phẩm. Bạn có chắc chắn muốn thay thế bằng đơn tạm ${draft.code}?`
+      });
+    } else {
+      doRestoreDraft(draft);
+    }
+  };
+
+  // Xóa 1 đơn tạm
+  const handleDeleteDraft = (draftId) => {
+    const updated = draftOrders.filter(d => d.id !== draftId);
+    setDraftOrders(updated);
+    try {
+      localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Lỗi xóa đơn tạm', e);
+    }
+    toast.info('Đã xóa đơn tạm.');
+  };
+
+  // Xóa toàn bộ đơn tạm
+  const handleClearAllDrafts = () => {
+    setDraftOrders([]);
+    try {
+      localStorage.removeItem('minishop_draft_orders');
+    } catch (e) {
+      console.warn('Lỗi xóa tất cả đơn tạm', e);
+    }
+    toast.info('Đã xóa tất cả đơn tạm.');
   };
 
   // In hóa đơn (F11)
@@ -345,6 +443,8 @@ const SalesPage = () => {
     } else if (confirmState.type === 'REMOVE_ITEM') {
       removeFromCart(confirmState.productId);
       toast.info('Đã xóa sản phẩm khỏi giỏ.');
+    } else if (confirmState.type === 'RESTORE_DRAFT') {
+      doRestoreDraft(confirmState.draft);
     }
     setConfirmState(null);
   };
@@ -519,15 +619,30 @@ const SalesPage = () => {
               <span>Giỏ hàng</span>
             </div>
 
-            {cartItems.length > 0 && (
+            <div className="pos-cart-header-actions">
               <button 
                 type="button" 
-                className="btn-clear-cart" 
-                onClick={handleRequestClearCart}
+                className={`btn-draft-orders-badge ${draftOrders.length > 0 ? 'has-drafts' : ''}`}
+                onClick={() => setIsDraftModalOpen(true)}
+                title="Xem danh sách đơn tạm đã lưu"
               >
-                Xóa tất cả
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                </svg>
+                <span>Đơn tạm ({draftOrders.length})</span>
               </button>
-            )}
+
+              {cartItems.length > 0 && (
+                <button 
+                  type="button" 
+                  className="btn-clear-cart" 
+                  onClick={handleRequestClearCart}
+                >
+                  Xóa tất cả
+                </button>
+              )}
+            </div>
           </div>
 
           {/* BẢNG SẢN PHẨM TRONG GIỎ HÀNG */}
@@ -760,6 +875,16 @@ const SalesPage = () => {
         isOpen={!!completedOrder} 
         order={completedOrder} 
         onClose={() => setCompletedOrder(null)} 
+      />
+
+      {/* DRAFT ORDERS MODAL */}
+      <DraftOrdersModal 
+        isOpen={isDraftModalOpen}
+        draftOrders={draftOrders}
+        onRestore={handleRequestRestoreDraft}
+        onDelete={handleDeleteDraft}
+        onClearAll={handleClearAllDrafts}
+        onClose={() => setIsDraftModalOpen(false)}
       />
     </div>
   );

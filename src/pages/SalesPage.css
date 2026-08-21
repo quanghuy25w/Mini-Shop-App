@@ -336,6 +336,44 @@
   gap: 8px;
 }
 
+.pos-cart-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-draft-orders-badge {
+  background: var(--surface-sunk, #f1f5f9);
+  border: 1px solid var(--border-color, #cbd5e1);
+  color: var(--ink-soft, #475569);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-draft-orders-badge:hover {
+  background: var(--paper, #f8fafc);
+  color: var(--ink, #0f172a);
+  border-color: var(--line-strong, #94a3b8);
+}
+
+.btn-draft-orders-badge.has-drafts {
+  background: var(--amber-tint, #fffbeb);
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.btn-draft-orders-badge.has-drafts:hover {
+  background: #fef3c7;
+  border-color: var(--amber, #f59e0b);
+}
+
 .btn-clear-cart {
   background: #ffffff;
   border: 1px solid #fca5a5;

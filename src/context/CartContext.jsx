@@ -66,6 +66,10 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setCartItems([]);
 
+  const restoreCart = (items = []) => {
+    setCartItems(items);
+  };
+
   const totalAmount = useMemo(() => {
     return cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
   }, [cartItems]);
@@ -73,10 +77,12 @@ export const CartProvider = ({ children }) => {
   return (
     <CartContext.Provider value={{
       cartItems,
+      setCartItems,
       addToCart,
       updateQuantity,
       removeFromCart,
       clearCart,
+      restoreCart,
       totalAmount
     }}>
       {children}

@@ -303,6 +303,49 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     // Đóng hóa đơn
     fireEvent.click(screen.getByText(/Đóng/i));
   });
+
+  it('Lưu đơn hàng tạm (F5), mở modal đơn tạm và nạp lại vào giỏ hàng thành công', async () => {
+    localStorage.removeItem('minishop_draft_orders');
+    const initialProds = await axiosClient.get('/products');
+    const testProd = initialProds.data[0];
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Thêm sản phẩm vào giỏ
+    const prodCard = await screen.findByText(testProd.name, {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
+
+    // Bấm nút Lưu đơn hàng (F5)
+    const saveDraftBtn = screen.getByRole('button', { name: /Lưu đơn hàng \(F5\)/i });
+    fireEvent.click(saveDraftBtn);
+
+    // Giỏ hàng bị làm trống
+    expect(await screen.findByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
+
+    // Badge Đơn tạm hiển thị (1)
+    const draftBadgeBtn = screen.getByRole('button', { name: /Đơn tạm \(1\)/i });
+    expect(draftBadgeBtn).toBeTruthy();
+
+    // Mở Modal Đơn tạm
+    fireEvent.click(draftBadgeBtn);
+    expect(await screen.findByText('Danh sách đơn hàng tạm')).toBeTruthy();
+    expect(screen.getByText(/Đang lưu trữ/i)).toBeTruthy();
+    expect(screen.getAllByText(/Ensure Gold 380g/i).length).toBeGreaterThan(0);
+
+    // Bấm "Nạp lại vào giỏ"
+    const restoreBtn = screen.getByRole('button', { name: /Nạp lại vào giỏ/i });
+    fireEvent.click(restoreBtn);
+
+    // Modal đóng và sản phẩm xuất hiện lại trong giỏ hàng
+    await waitFor(() => {
+      expect(screen.queryByText('Danh sách đơn hàng tạm')).toBeNull();
+    });
+    expect(screen.queryByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeNull();
+    expect(screen.getByRole('button', { name: /Đơn tạm \(0\)/i })).toBeTruthy();
+  });
 });
+
 
 
