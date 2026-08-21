@@ -95,7 +95,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
 
   // State cho san pham dang chon & danh sach tam
   const [selectedProductId, setSelectedProductId] = useState(initialProductId);
-  const [tempQuantity, setTempQuantity] = useState(type === 'IN' ? '20' : '1');
+  const [tempQuantity, setTempQuantity] = useState('');
   const [tempUnitPrice, setTempUnitPrice] = useState('');
   const [tempItems, setTempItems] = useState([]);
 
