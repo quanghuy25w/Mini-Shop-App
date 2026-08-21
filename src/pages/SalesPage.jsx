@@ -95,6 +95,7 @@ const SalesPage = () => {
 
   // Cart additional states
   const [discount, setDiscount] = useState('0');
+  const [discountType, setDiscountType] = useState('amount'); // 'amount' | 'percent'
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [orderNote, setOrderNote] = useState('');
 
@@ -149,17 +150,50 @@ const SalesPage = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   }, [cartItems]);
 
-  // So tien giam gia
+  // So tien giam gia (ho tro ca tien mat 'amount' va phan tram 'percent')
   const discountAmount = useMemo(() => {
     const val = Number(discount);
     if (isNaN(val) || val < 0) return 0;
+    if (discountType === 'percent') {
+      const clampedPercent = Math.min(val, 100);
+      return Math.round(subtotal * (clampedPercent / 100));
+    }
     return Math.min(subtotal, val);
-  }, [discount, subtotal]);
+  }, [discount, discountType, subtotal]);
 
   // Tong thanh toan sau giam gia
   const finalTotal = useMemo(() => {
     return Math.max(0, subtotal - discountAmount);
   }, [subtotal, discountAmount]);
+
+  // Xu ly thay doi gia tri giam gia
+  const handleDiscountChange = (e) => {
+    const val = e.target.value;
+    if (val === '') {
+      setDiscount('');
+      return;
+    }
+    const num = Number(val);
+    if (!isNaN(num) && num >= 0) {
+      if (discountType === 'percent') {
+        if (num > 100) {
+          setDiscount('100');
+        } else {
+          setDiscount(val);
+        }
+      } else {
+        setDiscount(val);
+      }
+    }
+  };
+
+  // Chuyen doi loai giam gia va reset gia tri ve '0'
+  const handleToggleDiscountType = (type) => {
+    if (type !== discountType) {
+      setDiscountType(type);
+      setDiscount('0');
+    }
+  };
 
   // Bind keyboard hotkeys (F1, F2, F5, F9, F11)
   useEffect(() => {
@@ -216,15 +250,21 @@ const SalesPage = () => {
     setIsProcessing(true);
     try {
       const order = await checkout(finalTotal);
+      const enrichedOrder = {
+        ...order,
+        discountType,
+        discountValue: Number(discount) || 0
+      };
       setIsCheckoutConfirmOpen(false);
-      setCompletedOrder(order);
+      setCompletedOrder(enrichedOrder);
       setDiscount('0');
+      setDiscountType('amount');
       setOrderNote('');
       setShowNoteInput(false);
       toast.success('Thanh toán đơn hàng thành công!');
       
       // In hóa đơn độc lập qua printInvoice (100% không bị trắng trang trên mọi trình duyệt)
-      printInvoice(order);
+      printInvoice(enrichedOrder);
     } catch (err) {
       toast.error(err.message || 'Lỗi khi thanh toán');
     } finally {
@@ -242,6 +282,7 @@ const SalesPage = () => {
       const order = await checkout(finalTotal);
       setIsCheckoutConfirmOpen(false);
       setDiscount('0');
+      setDiscountType('amount');
       setOrderNote('');
       setShowNoteInput(false);
       toast.success(`Thanh toán đơn ${order.code} thành công!`);
@@ -298,6 +339,7 @@ const SalesPage = () => {
     if (confirmState.type === 'CLEAR_ALL') {
       clearCart();
       setDiscount('0');
+      setDiscountType('amount');
       setOrderNote('');
       toast.info('Đã xóa toàn bộ giỏ hàng.');
     } else if (confirmState.type === 'REMOVE_ITEM') {
@@ -604,20 +646,35 @@ const SalesPage = () => {
 
             <div className="summary-discount-row">
               <span className="summary-label">Giảm giá</span>
-              <div className="discount-input-box">
-                <input 
-                  type="number"
-                  min="0"
-                  value={discount}
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val === '' || Number(val) >= 0) {
-                      setDiscount(val);
-                    }
-                  }}
-                  placeholder="0"
-                />
-                <span className="discount-currency-label">đ</span>
+              <div className="discount-input-wrapper">
+                <div className="discount-input-box">
+                  <input 
+                    type="number"
+                    min="0"
+                    max={discountType === 'percent' ? 100 : undefined}
+                    value={discount}
+                    onChange={handleDiscountChange}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="discount-type-toggle">
+                  <button
+                    type="button"
+                    className={`btn-discount-type ${discountType === 'amount' ? 'active' : ''}`}
+                    onClick={() => handleToggleDiscountType('amount')}
+                    title="Giảm theo số tiền (đ)"
+                  >
+                    đ
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn-discount-type ${discountType === 'percent' ? 'active' : ''}`}
+                    onClick={() => handleToggleDiscountType('percent')}
+                    title="Giảm theo phần trăm (%)"
+                  >
+                    %
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -646,7 +703,7 @@ const SalesPage = () => {
             <div className="pos-sub-actions-row">
               <button 
                 type="button" 
-                className="btn-sub-pos"
+                className="btn-sub-pos" 
                 onClick={handleSaveDraft}
                 disabled={cartItems.length === 0}
               >
@@ -659,7 +716,7 @@ const SalesPage = () => {
 
               <button 
                 type="button" 
-                className="btn-sub-pos"
+                className="btn-sub-pos" 
                 onClick={handlePrintInvoiceAction}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -680,6 +737,8 @@ const SalesPage = () => {
         totalQuantity={totalQuantity}
         subtotal={subtotal}
         discountAmount={discountAmount}
+        discountType={discountType}
+        discountValue={discount}
         totalAmount={finalTotal}
         isProcessing={isProcessing}
         onPayAndPrint={handlePayAndPrint}

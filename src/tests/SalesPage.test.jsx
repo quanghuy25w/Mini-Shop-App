@@ -249,5 +249,60 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
       expect(screen.queryByText('21 - 40')).toBeNull();
     });
   });
+
+  it('Tính giảm giá theo % chính xác, giới hạn tối đa 100%, reset khi đổi loại và hiển thị trên hóa đơn', async () => {
+    const initialProds = await axiosClient.get('/products');
+    const testProd = initialProds.data[0]; // Abbott Ensure Gold 380g, price 436.000đ
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Thêm sản phẩm vào giỏ (436.000đ)
+    const prodCard = await screen.findByText(testProd.name, {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
+
+    // Chuyển sang giảm giá %
+    const percentBtn = screen.getByRole('button', { name: '%' });
+    fireEvent.click(percentBtn);
+    expect(percentBtn.classList.contains('active')).toBe(true);
+
+    // Tìm ô input giảm giá
+    const discountInputs = screen.getAllByRole('spinbutton');
+    const discountInput = discountInputs[discountInputs.length - 1];
+
+    // Nhập 10% -> giảm 43.600đ, tổng còn 392.400đ
+    fireEvent.change(discountInput, { target: { value: '10' } });
+
+    // Kiểm tra tổng thanh toán cập nhật
+    expect(screen.getByText(/392\.400/)).toBeTruthy();
+
+    // Nhập quá 100% (ví dụ 150%) -> tự động clamp về 100%
+    fireEvent.change(discountInput, { target: { value: '150' } });
+    expect(discountInput.value).toBe('100');
+    expect(screen.getByText(/^0\s*₫$/)).toBeTruthy();
+
+    // Đổi lại 10%
+    fireEvent.change(discountInput, { target: { value: '10' } });
+
+    // Thanh toán & In hóa đơn để kiểm tra hiển thị trên hóa đơn
+    const checkoutBtn = screen.getByRole('button', { name: /Thanh toán \(F9\)/i });
+    fireEvent.click(checkoutBtn);
+
+    expect(await screen.findByText('Xác nhận thanh toán')).toBeTruthy();
+    expect(screen.getByText(/Giảm giá \(10%\)/i)).toBeTruthy();
+
+    const payAndPrintBtn = screen.getByRole('button', { name: /Thanh toán & In hóa đơn/i });
+    fireEvent.click(payAndPrintBtn);
+
+    // Invoice Modal xuất hiện và có dòng "Giảm giá (10%):"
+    await waitFor(() => {
+      expect(screen.getByText(/Giảm giá \(10%\)/i)).toBeTruthy();
+    }, { timeout: 5000 });
+
+    // Đóng hóa đơn
+    fireEvent.click(screen.getByText(/Đóng/i));
+  });
 });
+
 

@@ -8,6 +8,8 @@ const CheckoutConfirmModal = ({
   totalQuantity,
   subtotal,
   discountAmount,
+  discountType = 'amount',
+  discountValue = '0',
   totalAmount,
   isProcessing,
   onPayAndPrint,
@@ -44,7 +46,7 @@ const CheckoutConfirmModal = ({
           </div>
           {discountAmount > 0 && (
             <div className="summary-row discount-text">
-              <span>Giảm giá:</span>
+              <span>Giảm giá{discountType === 'percent' && discountValue ? ` (${discountValue}%)` : ''}:</span>
               <span className="font-mono font-medium">-{formatCurrency(discountAmount)}</span>
             </div>
           )}

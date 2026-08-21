@@ -75,7 +75,7 @@
       "unit": "Hộp",
       "costPrice": 830000,
       "sellPrice": 900000,
-      "stockQuantity": 34,
+      "stockQuantity": 33,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-800g-1-600x600.webp",
       "isActive": true,
@@ -1604,6 +1604,15 @@
       "unitPrice": 900000,
       "note": "Bán hàng - HD027",
       "createdAt": "2026-08-20T14:39:06.204Z"
+    },
+    {
+      "id": "jsnPnXpFwwA",
+      "productId": "p0000000-0000-0000-0000-000000000004",
+      "type": "OUT",
+      "quantity": 1,
+      "unitPrice": 900000,
+      "note": "Bán hàng - HD028",
+      "createdAt": "2026-08-21T06:50:06.832Z"
     }
   ],
   "orders": [
@@ -2109,6 +2118,23 @@
       "totalAmount": 900000,
       "status": "completed",
       "createdAt": "2026-08-20T14:39:06.186Z"
+    },
+    {
+      "id": "0J9EWVat9To",
+      "code": "HD028",
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000004",
+          "productName": "Abbott Ensure Gold ít ngọt Vanilla 800g ( Beta Glucan) mẫu mới",
+          "quantity": 1,
+          "price": 900000
+        }
+      ],
+      "subtotal": 900000,
+      "discountAmount": 180000,
+      "totalAmount": 720000,
+      "status": "completed",
+      "createdAt": "2026-08-21T06:50:06.821Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

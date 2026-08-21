@@ -218,7 +218,7 @@ export const printInvoice = (order) => {
           </div>
           ${order.discountAmount > 0 ? `
             <div class="summary-row">
-              <span>Giảm giá:</span>
+              <span>Giảm giá${order.discountType === 'percent' && order.discountValue ? ` (${order.discountValue}%)` : ''}:</span>
               <span class="font-mono">-${formatCurrency(order.discountAmount)}</span>
             </div>
           ` : ''}

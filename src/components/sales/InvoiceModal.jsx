@@ -69,7 +69,7 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
             </div>
             {order.discountAmount > 0 && (
               <div className="invoice-total-row invoice-discount-row">
-                <span>Giảm giá:</span>
+                <span>Giảm giá{order.discountType === 'percent' && order.discountValue ? ` (${order.discountValue}%)` : ''}:</span>
                 <span className="font-mono">-{formatCurrency(order.discountAmount)}</span>
               </div>
             )}
