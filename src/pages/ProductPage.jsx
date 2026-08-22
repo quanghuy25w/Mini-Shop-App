@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EmptyState from '../components/common/EmptyState';
@@ -49,10 +49,32 @@ const ProductPage = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const matchName = p.name.toLowerCase().includes(debouncedSearch.toLowerCase());
+      const matchCat = filterCategory ? p.categoryId === filterCategory : true;
+      let matchStatus = true;
+      if (filterStatus === 'inStock') matchStatus = p.stockQuantity > p.minStockAlert;
+      else if (filterStatus === 'lowStock') matchStatus = p.stockQuantity <= p.minStockAlert && p.stockQuantity > 0;
+      else if (filterStatus === 'outOfStock') matchStatus = p.stockQuantity === 0;
+
+      return matchName && matchCat && matchStatus;
+    });
+  }, [products, debouncedSearch, filterCategory, filterStatus]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (safePage - 1) * PAGE_SIZE;
+    return filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [filteredProducts, safePage]);
+
   const handleResetFilters = () => {
     setSearchTerm('');
     setFilterCategory('');
     setFilterStatus('');
+    setCurrentPage(1);
   };
   const getCategoryName = (id) => {
     const cat = categories.find(c => c.id === id);
@@ -82,7 +104,7 @@ const ProductPage = () => {
   };
 
   const handleSubmitForm = async (data) => {
-    let success = false;
+    let success;
     if (editingProduct) {
       success = await updateProduct(editingProduct.id, data);
     } else {
@@ -110,38 +132,6 @@ const ProductPage = () => {
     setIsConfirmOpen(false);
     setDeletingProduct(null);
   };
-
-  const filteredProducts = useMemo(() => {
-    return products.filter(p => {
-      const matchName = p.name.toLowerCase().includes(debouncedSearch.toLowerCase());
-      const matchCat = filterCategory ? p.categoryId === filterCategory : true;
-      let matchStatus = true;
-      if (filterStatus === 'inStock') matchStatus = p.stockQuantity > p.minStockAlert;
-      else if (filterStatus === 'lowStock') matchStatus = p.stockQuantity <= p.minStockAlert && p.stockQuantity > 0;
-      else if (filterStatus === 'outOfStock') matchStatus = p.stockQuantity === 0;
-
-      return matchName && matchCat && matchStatus;
-    });
-  }, [products, debouncedSearch, filterCategory, filterStatus]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
-
-  // Reset ve trang 1 khi tim kiem hoac bo loc thay doi
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch, filterCategory, filterStatus]);
-
-  // Tu dong lui ve trang cuoi neu currentPage vuot qua tong so trang (khi xoa sp)
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
-
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    return filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredProducts, currentPage]);
 
   const renderStockBadge = (product) => {
     if (product.stockQuantity === 0) {
@@ -200,14 +190,20 @@ const ProductPage = () => {
             type="text"
             placeholder="Tìm kiếm sản phẩm theo tên..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
             className="search-input"
           />
         </div>
 
         <select
           value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
+          onChange={(e) => {
+            setFilterCategory(e.target.value);
+            setCurrentPage(1);
+          }}
           className="filter-select"
         >
           <option value="">Tất cả danh mục</option>
@@ -218,7 +214,10 @@ const ProductPage = () => {
 
         <select
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
+          onChange={(e) => {
+            setFilterStatus(e.target.value);
+            setCurrentPage(1);
+          }}
           className="filter-select"
         >
           <option value="">Tất cả trạng thái</option>
@@ -257,7 +256,7 @@ const ProductPage = () => {
               <tbody>
                 {paginatedProducts.map((prod, idx) => (
                   <tr key={prod.id}>
-                    <td className="text-center text-muted font-mono">{(currentPage - 1) * PAGE_SIZE + idx + 1}</td>
+                    <td className="text-center text-muted font-mono">{(safePage - 1) * PAGE_SIZE + idx + 1}</td>
                     <td>
                       <div className="product-cell-group">
                         <ProductThumb product={prod} />
@@ -292,7 +291,7 @@ const ProductPage = () => {
             </table>
 
             <Pagination
-              currentPage={currentPage}
+              currentPage={safePage}
               totalItems={filteredProducts.length}
               pageSize={PAGE_SIZE}
               onPageChange={setCurrentPage}

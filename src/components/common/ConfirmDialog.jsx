@@ -1,4 +1,3 @@
-import React from 'react';
 import './ConfirmDialog.css';
 
 const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, showCancel = true }) => {

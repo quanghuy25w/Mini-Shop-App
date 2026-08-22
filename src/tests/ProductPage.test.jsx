@@ -1,11 +1,9 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, beforeEach } from 'vitest';
 import ProductPage from '../pages/ProductPage';
 import { AppDataProvider } from '../context/AppDataContext';
 import { initSeedData } from '../api/localStorageAdapter';
-import axiosClient from '../api/axiosClient';
 
 const renderProductPage = () => {
   return render(
@@ -125,6 +123,40 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
       expect(screen.getByRole('button', { name: '1' })).toBeTruthy();
     });
   });
+
+  it('Đồng bộ dữ liệu modal sửa sản phẩm: mở sửa SP A -> đóng -> mở sửa SP B không bị dính dữ liệu cũ', async () => {
+    const { container } = renderProductPage();
+
+    expect(await screen.findByText(/Quản lý sản phẩm/i, {}, { timeout: 10000 })).toBeTruthy();
+    expect(await screen.findByText('Abbott Ensure Gold 380g (Beta Glucan)', {}, { timeout: 10000 })).toBeTruthy();
+
+    const editBtns = await screen.findAllByTitle('Chỉnh sửa');
+
+    // Mở sửa sản phẩm A (Abbott Ensure Gold)
+    fireEvent.click(editBtns[0]);
+    await waitFor(() => {
+      const nameInput = container.querySelector('input[name="name"]');
+      expect(nameInput?.value).toBe('Abbott Ensure Gold 380g (Beta Glucan)');
+    });
+
+    // Đóng modal
+    fireEvent.click(screen.getByText('Hủy'));
+
+    // Mở sửa sản phẩm B (Abbott Ensure Gold 800g)
+    fireEvent.click(editBtns[1]);
+    await waitFor(() => {
+      const nameInputB = container.querySelector('input[name="name"]');
+      expect(nameInputB?.value).toBe('Abbott Ensure Gold 800g (Beta Glucan)');
+    });
+
+    // Đóng và mở Thêm mới -> dữ liệu được reset
+    fireEvent.click(screen.getByText('Hủy'));
+    fireEvent.click(screen.getByText('Thêm sản phẩm'));
+    await waitFor(() => {
+      const nameInputNew = container.querySelector('input[name="name"]');
+      expect(nameInputNew?.value).toBe('');
+    });
+  }, 15000);
 });
 
 

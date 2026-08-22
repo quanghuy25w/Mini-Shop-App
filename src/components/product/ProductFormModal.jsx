@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { generateId } from '../../utils/generateId';
 import './ProductFormModal.css';
 
@@ -17,7 +17,12 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+
+  if (prevIsOpen !== isOpen || prevInitialData !== initialData) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialData(initialData);
     if (isOpen) {
       if (initialData) {
         setFormData({
@@ -45,7 +50,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
       setError('');
       setWarning('');
     }
-  }, [isOpen, initialData]);
+  }
 
   if (!isOpen) return null;
 

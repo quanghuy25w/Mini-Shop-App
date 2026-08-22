@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { generateId } from '../../utils/generateId';
 import './CategoryFormModal.css';
 
@@ -7,13 +7,18 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData, categories 
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+
+  if (prevIsOpen !== isOpen || prevInitialData !== initialData) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialData(initialData);
     if (isOpen) {
       setName(initialData ? initialData.name : '');
       setDescription(initialData ? (initialData.description || '') : '');
       setError('');
     }
-  }, [isOpen, initialData]);
+  }
 
   if (!isOpen) return null;
 

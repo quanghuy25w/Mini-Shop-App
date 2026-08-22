@@ -47,7 +47,7 @@ export const useInventory = () => {
           console.error("Lỗi hoàn tác transaction:", rollbackError);
         }
       }
-      throw new Error("Có lỗi xảy ra khi nhập kho, đã hoàn tác dữ liệu.");
+      throw new Error("Có lỗi xảy ra khi nhập kho, đã hoàn tác dữ liệu.", { cause: error });
     }
   };
 
@@ -89,7 +89,7 @@ export const useInventory = () => {
           console.error("Lỗi hoàn tác transaction:", rollbackError);
         }
       }
-      throw new Error("Có lỗi xảy ra khi xuất kho, đã hoàn tác dữ liệu.");
+      throw new Error("Có lỗi xảy ra khi xuất kho, đã hoàn tác dữ liệu.", { cause: error });
     }
   };
 

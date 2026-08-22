@@ -8,7 +8,7 @@ import { generateId } from '../utils/generateId';
 
 export const useCart = () => {
   const cartContext = useContext(CartContext);
-  const { refreshProducts, products } = useContext(AppDataContext);
+  const { refreshProducts } = useContext(AppDataContext);
 
   const checkout = async (customTotalAmount) => {
     if (cartContext.cartItems.length === 0) {
@@ -20,7 +20,7 @@ export const useCart = () => {
     try {
       orderCode = await orderApi.generateOrderCode();
     } catch (e) {
-      throw new Error("Lỗi khi tạo mã hóa đơn tự động.");
+      throw new Error("Lỗi khi tạo mã hóa đơn tự động.", { cause: e });
     }
 
     const subtotal = cartContext.totalAmount; // tổng giá gốc chưa giảm
@@ -68,7 +68,7 @@ export const useCart = () => {
       }
     } catch (e) {
       console.error('[useCart] orderApi.create thất bại:', e);
-      throw new Error("Lỗi khi khởi tạo đơn hàng mới trên hệ thống.");
+      throw new Error("Lỗi khi khởi tạo đơn hàng mới trên hệ thống.", { cause: e });
     }
 
     // Biến lưu trữ lịch sử các bước để rollback khi cần
@@ -78,40 +78,40 @@ export const useCart = () => {
     try {
       for (const item of cartContext.cartItems) {
         // Lấy dữ liệu sản phẩm gốc để chắc chắn số tồn kho là mới nhất
-        const dbProduct = products.find(p => p.id === item.productId);
-        if (!dbProduct || dbProduct.stockQuantity < item.quantity) {
+        const pRes = await productApi.getById(item.productId);
+        const currentProd = pRes.data;
+
+        if (currentProd.stockQuantity < item.quantity) {
           throw new Error(`Sản phẩm "${item.productName}" không đủ tồn kho để thanh toán!`);
         }
 
-        // Tạo inventory transaction type OUT
+        // Tạo bản ghi giao dịch OUT
         const transactionData = {
           id: generateId(),
           productId: item.productId,
-          type: "OUT",
+          type: 'OUT',
           quantity: item.quantity,
           unitPrice: item.price,
-          note: `Bán hàng - ${orderCode}`,
+          note: `Bán lẻ qua đơn hàng ${orderCode}`,
           createdAt: new Date().toISOString()
         };
-        const txRes = await inventoryApi.createTransaction(transactionData);
-        const createdTx = txRes.data;
+        const transRes = await inventoryApi.createTransaction(transactionData);
+        
+        // Trừ tồn kho sản phẩm (PATCH)
+        const updatedStock = currentProd.stockQuantity - item.quantity;
+        await productApi.patch(item.productId, { stockQuantity: updatedStock });
 
-        // Trừ tồn kho
-        const newStock = dbProduct.stockQuantity - item.quantity;
-        await productApi.patch(item.productId, { stockQuantity: newStock });
-
-        // Ghi lại bước này đã thành công để rollback nếu các item sau bị lỗi
+        // Ghi lại bước đã thực hiện thành công để sẵn sàng hoàn tác nếu bước sau gãy
         rollbackSteps.push({
           productId: item.productId,
-          transactionId: createdTx.id,
-          restoredStock: dbProduct.stockQuantity // Tồn kho cũ để khôi phục
+          transactionId: transRes.data.id,
+          restoredStock: currentProd.stockQuantity
         });
       }
     } catch (err) {
-      // d. NẾU LỖI: ROLLBACK các bước đã thực hiện
-      console.error("Lỗi khi thanh toán từng phần, bắt đầu quá trình rollback...", err);
-      
-      // 1. Hoàn tác số lượng tồn kho & Xóa transaction tương ứng
+      console.error("[useCart] Lỗi xảy ra trong quá trình trừ kho:", err);
+      // d. NẾU BẤT KỲ BƯỚC NÀO LỖI -> ROLLBACK TOÀN BỘ
+      // 1. Phục hồi tồn kho và xóa transaction các sản phẩm đã trừ trước đó
       for (const step of rollbackSteps) {
         try {
           await productApi.patch(step.productId, { stockQuantity: step.restoredStock });
@@ -130,7 +130,7 @@ export const useCart = () => {
         console.error("Rollback xóa order thất bại:", rollbackErr);
       }
 
-      throw new Error(err.message || "Quá trình thanh toán gặp sự cố. Hệ thống đã hoàn tác toàn bộ dữ liệu giỏ hàng.");
+      throw new Error(err.message || "Quá trình thanh toán gặp sự cố. Hệ thống đã hoàn tác toàn bộ dữ liệu giỏ hàng.", { cause: err });
     }
 
     // e. Thành công toàn bộ

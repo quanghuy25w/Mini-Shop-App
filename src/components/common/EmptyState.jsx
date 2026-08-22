@@ -1,5 +1,3 @@
-import React from 'react';
-
 const EmptyState = ({ message = 'Không có dữ liệu' }) => (
   <div style={{ padding: '40px', textAlign: 'center', color: '#999', backgroundColor: '#fff', borderRadius: '8px', border: '1px dashed #ccc' }}>
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '16px', opacity: 0.5 }}>

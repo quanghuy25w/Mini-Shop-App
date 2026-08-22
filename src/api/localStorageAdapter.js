@@ -18,7 +18,7 @@ export const initSeedData = () => {
       }
       JSON.parse(raw);
       return false;
-    } catch (e) {
+    } catch {
       return true;
     }
   };

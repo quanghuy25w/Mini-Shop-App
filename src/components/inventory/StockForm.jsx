@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext, useMemo, useRef } from 'react';
+import { useState, useEffect, useContext, useMemo, useRef, useCallback } from 'react';
 import { AppDataContext } from '../../context/AppDataContext';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { calculateTotalAmount } from '../../utils/calculateTotal';
 import { validateStock } from '../../utils/validate';
 import { toast } from 'react-toastify';
 import './StockForm.css';
@@ -79,10 +78,10 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
   // Chi chon cac san pham đang active
   const activeProducts = useMemo(() => products.filter(p => p.isActive), [products]);
 
-  const getCategoryName = (catId) => {
+  const getCategoryName = useCallback((catId) => {
     const cat = categories.find(c => c.id === catId);
     return cat ? cat.name : 'Khác';
-  };
+  }, [categories]);
 
   // State cho Nhap hang & Xuat hang
   const [supplier, setSupplier] = useState('');
@@ -95,8 +94,14 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
 
   // State cho san pham dang chon & danh sach tam
   const [selectedProductId, setSelectedProductId] = useState(initialProductId);
-  const [tempQuantity, setTempQuantity] = useState('');
-  const [tempUnitPrice, setTempUnitPrice] = useState('');
+  const [tempQuantity, setTempQuantity] = useState(() => (initialProductId ? '1' : ''));
+  const [tempUnitPrice, setTempUnitPrice] = useState(() => {
+    if (initialProductId && products.length > 0) {
+      const prod = products.find(p => p.id === initialProductId);
+      return prod ? String(prod.costPrice || 0) : '';
+    }
+    return '';
+  });
   const [tempItems, setTempItems] = useState([]);
 
   // Custom dropdown / popover picker state
@@ -109,17 +114,19 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
     return activeProducts.find(p => p.id === selectedProductId) || null;
   }, [activeProducts, selectedProductId]);
 
-  // Initial Product ID from props
-  useEffect(() => {
-    if (initialProductId && activeProducts.length > 0) {
-      setSelectedProductId(initialProductId);
+  // Adjust state if initialProductId changes from parent
+  const [prevInitialProductId, setPrevInitialProductId] = useState(initialProductId);
+  if (prevInitialProductId !== initialProductId) {
+    setPrevInitialProductId(initialProductId);
+    setSelectedProductId(initialProductId);
+    if (initialProductId) {
       const prod = activeProducts.find(p => p.id === initialProductId);
       if (prod) {
         setTempUnitPrice(String(prod.costPrice || 0));
         setTempQuantity('1');
       }
     }
-  }, [initialProductId, activeProducts]);
+  }
 
   // Dong dropdown khi click outside
   useEffect(() => {
@@ -141,7 +148,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
       getProductCode(p).toLowerCase().includes(q) ||
       getCategoryName(p.categoryId).toLowerCase().includes(q)
     );
-  }, [activeProducts, dropdownSearch, categories]);
+  }, [activeProducts, dropdownSearch, getCategoryName]);
 
   // Thanh tien tam tinh cho o dang chon (Nhap hang)
   const tempTotalAmount = useMemo(() => {
@@ -279,7 +286,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
           setTempUnitPrice('');
         }
       });
-    } catch (err) {
+    } catch {
       // Handled in parent
     }
   };
@@ -393,7 +400,7 @@ const StockForm = ({ type, onSubmit, isLoading, initialProductId = '' }) => {
           setNote('');
         }
       });
-    } catch (err) {
+    } catch {
       // Handled in parent
     }
   };

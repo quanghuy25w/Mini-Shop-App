@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, useContext } from 'react';
+import { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
 import { useCart } from '../hooks/useCart';
 import { useProducts } from '../hooks/useProducts';
 import { AppDataContext } from '../context/AppDataContext';
@@ -105,7 +105,7 @@ const SalesPage = () => {
     try {
       const saved = localStorage.getItem('minishop_draft_orders');
       return saved ? JSON.parse(saved) : [];
-    } catch (e) {
+    } catch {
       return [];
     }
   });
@@ -134,23 +134,12 @@ const SalesPage = () => {
   }, [products, searchTerm, selectedCategory]);
 
   const totalPages = Math.max(1, Math.ceil(displayProducts.length / PAGE_SIZE));
-
-  // Reset ve trang 1 khi tim kiem hoac danh muc thay doi
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory]);
-
-  // Tu dong lui ve trang cuoi neu currentPage vuot qua tong so trang
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  const safePage = Math.min(currentPage, totalPages);
 
   const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const startIndex = (safePage - 1) * PAGE_SIZE;
     return displayProducts.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [displayProducts, currentPage]);
+  }, [displayProducts, safePage]);
 
   // Tạm tính tong giỏ hang
   const subtotal = useMemo(() => {
@@ -207,6 +196,63 @@ const SalesPage = () => {
     }
   };
 
+  // Mở Popup xác nhận thanh toán (F9)
+  const handleOpenCheckoutConfirm = useCallback(() => {
+    if (cartItems.length === 0) {
+      toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
+      return;
+    }
+    setIsCheckoutConfirmOpen(true);
+  }, [cartItems.length]);
+
+  // Luu đơn hang tạm (F5)
+  const handleSaveDraft = useCallback(() => {
+    if (cartItems.length === 0) {
+      toast.error('Giỏ hàng trống, không thể lưu đơn!');
+      return;
+    }
+
+    const newDraft = {
+      id: `draft_${Date.now()}`,
+      code: `DT-${String(draftOrders.length + 1).padStart(2, '0')}`,
+      items: [...cartItems],
+      discount,
+      discountType,
+      orderNote,
+      subtotal,
+      discountAmount,
+      totalAmount: finalTotal,
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [newDraft, ...draftOrders];
+    setDraftOrders(updated);
+    try {
+      localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
+    } catch {
+      console.warn('Lỗi lưu đơn tạm vào localStorage');
+    }
+
+    // Reset giỏ hàng hiện tại sau khi lưu tạm
+    clearCart();
+    setDiscount('0');
+    setDiscountType('amount');
+    setOrderNote('');
+    setShowNoteInput(false);
+    toast.success(`Đã lưu tạm đơn ${newDraft.code} thành công!`);
+  }, [cartItems, clearCart, discount, discountAmount, discountType, draftOrders, finalTotal, orderNote, subtotal]);
+
+  // In hóa đơn (F11)
+  const handlePrintInvoiceAction = useCallback(() => {
+    if (completedOrder) {
+      printInvoice(completedOrder);
+    } else if (cartItems.length > 0) {
+      toast.info('Vui lòng hoàn tất thanh toán trước khi in hóa đơn.');
+    } else {
+      toast.error('Chưa có hóa đơn để in!');
+    }
+  }, [completedOrder, cartItems.length]);
+
   // Bind keyboard hotkeys (F1, F2, F5, F9, F11)
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -237,7 +283,7 @@ const SalesPage = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems, isProcessing, subtotal, discountAmount, finalTotal, searchTerm, draftOrders]);
+  }, [cartItems.length, isProcessing, searchTerm, handleSaveDraft, handleOpenCheckoutConfirm, handlePrintInvoiceAction]);
 
   // Xu ly khi bam Enter trong o tim kiem (hoac may quet ma vach gui tin hieu Enter)
   const handleSearchKeyDown = (e) => {
@@ -317,15 +363,6 @@ const SalesPage = () => {
     addToCart(prod, 1);
   };
 
-  // Mở Popup xác nhận thanh toán (F9)
-  const handleOpenCheckoutConfirm = () => {
-    if (cartItems.length === 0) {
-      toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
-      return;
-    }
-    setIsCheckoutConfirmOpen(true);
-  };
-
   // Thanh toán & In hóa đơn
   const handlePayAndPrint = async () => {
     if (isSubmittingRef.current) return;
@@ -377,43 +414,6 @@ const SalesPage = () => {
     }
   };
 
-  // Luu đơn hang tạm (F5)
-  const handleSaveDraft = () => {
-    if (cartItems.length === 0) {
-      toast.error('Giỏ hàng trống, không thể lưu đơn!');
-      return;
-    }
-
-    const newDraft = {
-      id: `draft_${Date.now()}`,
-      code: `DT-${String(draftOrders.length + 1).padStart(2, '0')}`,
-      items: [...cartItems],
-      discount,
-      discountType,
-      orderNote,
-      subtotal,
-      discountAmount,
-      totalAmount: finalTotal,
-      createdAt: new Date().toISOString()
-    };
-
-    const updated = [newDraft, ...draftOrders];
-    setDraftOrders(updated);
-    try {
-      localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
-    } catch (e) {
-      console.warn('Lỗi lưu đơn tạm vào localStorage', e);
-    }
-
-    // Reset giỏ hàng hiện tại sau khi lưu tạm
-    clearCart();
-    setDiscount('0');
-    setDiscountType('amount');
-    setOrderNote('');
-    setShowNoteInput(false);
-    toast.success(`Đã lưu tạm đơn ${newDraft.code} thành công!`);
-  };
-
   // Khôi phục đơn tạm vào giỏ
   const doRestoreDraft = (draft) => {
     restoreCart(draft.items || []);
@@ -427,8 +427,8 @@ const SalesPage = () => {
     setDraftOrders(updated);
     try {
       localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
-    } catch (e) {
-      console.warn('Lỗi cập nhật đơn tạm', e);
+    } catch {
+      console.warn('Lỗi cập nhật đơn tạm');
     }
 
     setIsDraftModalOpen(false);
@@ -455,8 +455,8 @@ const SalesPage = () => {
     setDraftOrders(updated);
     try {
       localStorage.setItem('minishop_draft_orders', JSON.stringify(updated));
-    } catch (e) {
-      console.warn('Lỗi xóa đơn tạm', e);
+    } catch {
+      console.warn('Lỗi xóa đơn tạm');
     }
     toast.info('Đã xóa đơn tạm.');
   };
@@ -466,21 +466,10 @@ const SalesPage = () => {
     setDraftOrders([]);
     try {
       localStorage.removeItem('minishop_draft_orders');
-    } catch (e) {
-      console.warn('Lỗi xóa tất cả đơn tạm', e);
+    } catch {
+      console.warn('Lỗi xóa tất cả đơn tạm');
     }
     toast.info('Đã xóa tất cả đơn tạm.');
-  };
-
-  // In hóa đơn (F11)
-  const handlePrintInvoiceAction = () => {
-    if (completedOrder) {
-      printInvoice(completedOrder);
-    } else if (cartItems.length > 0) {
-      toast.info('Vui lòng hoàn tất thanh toán trước khi in hóa đơn.');
-    } else {
-      toast.error('Chưa có hóa đơn để in!');
-    }
   };
 
   // Xac nhan Xoá tat ca gio hang
@@ -543,14 +532,20 @@ const SalesPage = () => {
                 type="text" 
                 placeholder="Tìm kiếm sản phẩm (mã, tên...)" 
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={e => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 onKeyDown={handleSearchKeyDown}
               />
             </div>
 
             <select 
               value={selectedCategory} 
-              onChange={e => setSelectedCategory(e.target.value)}
+              onChange={e => {
+                setSelectedCategory(e.target.value);
+                setCurrentPage(1);
+              }}
               className="sales-category-select"
             >
               <option value="">Tất cả danh mục</option>
@@ -590,7 +585,7 @@ const SalesPage = () => {
             <EmptyState message="Không tìm thấy sản phẩm phù hợp. Vui lòng kiểm tra lại từ khóa hoặc bộ lọc." />
           ) : viewMode === 'grid' ? (
             <div className="pos-products-grid">
-              {paginatedProducts.map((prod, idx) => {
+              {paginatedProducts.map((prod) => {
                 const isOut = prod.stockQuantity <= 0;
                 const isLow = prod.stockQuantity > 0 && prod.stockQuantity <= Math.max(5, prod.minStockAlert || 5);
 
@@ -612,7 +607,7 @@ const SalesPage = () => {
             </div>
           ) : (
             <div className="pos-products-list">
-              {paginatedProducts.map((prod, idx) => {
+              {paginatedProducts.map((prod) => {
                 const isOut = prod.stockQuantity <= 0;
                 const isLow = prod.stockQuantity > 0 && prod.stockQuantity <= Math.max(5, prod.minStockAlert || 5);
 
@@ -639,7 +634,7 @@ const SalesPage = () => {
           )}
 
           <Pagination
-            currentPage={currentPage}
+            currentPage={safePage}
             totalItems={displayProducts.length}
             pageSize={PAGE_SIZE}
             onPageChange={setCurrentPage}

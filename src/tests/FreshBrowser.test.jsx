@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { handleLocalStorageRequest, initSeedData } from '../api/localStorageAdapter';
+import { initSeedData } from '../api/localStorageAdapter';
 import { seedData } from '../api/seedData';
 import axiosClient from '../api/axiosClient';
 

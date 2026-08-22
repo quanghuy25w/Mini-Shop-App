@@ -1,21 +1,19 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { categoryApi } from '../api/categoryApi';
 import { AppDataContext } from '../context/AppDataContext';
 import { toast } from 'react-toastify';
 
 export const useCategories = () => {
   const { categories, refreshCategories, loadingInitial } = useContext(AppDataContext);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isRefetching, setIsRefetching] = useState(false);
+  const [error] = useState(null);
 
-  useEffect(() => {
-    setLoading(loadingInitial);
-  }, [loadingInitial]);
+  const loading = loadingInitial || isRefetching;
 
   const refetch = async () => {
-    setLoading(true);
+    setIsRefetching(true);
     await refreshCategories();
-    setLoading(false);
+    setIsRefetching(false);
   };
 
   const createCategory = async (data) => {
@@ -24,7 +22,7 @@ export const useCategories = () => {
       toast.success('Thêm danh mục thành công');
       await refreshCategories();
       return true;
-    } catch (err) {
+    } catch {
       toast.error('Thêm danh mục thất bại');
       return false;
     }
@@ -36,7 +34,7 @@ export const useCategories = () => {
       toast.success('Cập nhật danh mục thành công');
       await refreshCategories();
       return true;
-    } catch (err) {
+    } catch {
       toast.error('Cập nhật danh mục thất bại');
       return false;
     }
@@ -48,7 +46,7 @@ export const useCategories = () => {
       toast.success('Xóa danh mục thành công');
       await refreshCategories();
       return true;
-    } catch (err) {
+    } catch {
       toast.error('Xóa danh mục thất bại');
       return false;
     }

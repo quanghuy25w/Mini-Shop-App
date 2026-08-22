@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCategories } from '../hooks/useCategories';
 import { productApi } from '../api/productApi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -30,7 +30,7 @@ const CategoryPage = () => {
   };
 
   const handleSubmitForm = async (data) => {
-    let success = false;
+    let success;
     if (editingCategory) {
       success = await updateCategory(editingCategory.id, data);
     } else {
@@ -78,7 +78,7 @@ const CategoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [productCounts, setProductCounts] = useState({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchProductCounts = async () => {
       try {
         const res = await productApi.getAll();
@@ -96,7 +96,7 @@ const CategoryPage = () => {
     fetchProductCounts();
   }, []);
 
-  const filteredCategories = React.useMemo(() => {
+  const filteredCategories = useMemo(() => {
     return categories.filter(c =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.description && c.description.toLowerCase().includes(searchTerm.toLowerCase()))

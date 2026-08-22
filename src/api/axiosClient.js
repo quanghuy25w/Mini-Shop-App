@@ -16,6 +16,7 @@ export const isLocalHostname = (hostname) => {
 
 export const checkDemoMode = () => {
   // 1. Kiểm tra môi trường test (Vitest / Jest) hoặc biến VITE_DEMO_MODE
+  // eslint-disable-next-line no-undef
   const procObj = typeof process !== 'undefined' ? process.env : null;
   if (procObj && (procObj['NODE_ENV'] === 'test' || procObj['VITEST'] || String(procObj['VITE_DEMO_MODE']) === 'true' || procObj['VITE_DEMO_MODE'] === '1')) {
     return true;

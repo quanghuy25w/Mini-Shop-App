@@ -718,3 +718,38 @@
   border-color: #94a3b8;
   color: #0f172a;
 }
+
+/* Responsive Sales POS Page */
+@media (max-width: 768px) {
+  .sales-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .sales-category-select {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .btn-view-toggle {
+    display: none;
+  }
+
+  .pos-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .pos-sub-actions-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pos-card-card {
+    padding: 14px;
+  }
+
+  .hotkeys-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

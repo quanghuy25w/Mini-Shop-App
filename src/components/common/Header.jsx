@@ -1,8 +1,7 @@
-import React from 'react';
 import { useLocation } from 'react-router-dom';
 import './Header.css';
 
-const Header = () => {
+const Header = ({ onToggleNav }) => {
   const location = useLocation();
 
   const getBreadcrumb = () => {
@@ -27,6 +26,19 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-left">
+        <button
+          type="button"
+          className="btn-drawer-toggle"
+          onClick={onToggleNav}
+          aria-label="Mở menu điều hướng"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
         <div className="header-title-group">
           <span className="header-title">Hệ thống Quản lý Shop</span>
           <span className="breadcrumb-separator">•</span>

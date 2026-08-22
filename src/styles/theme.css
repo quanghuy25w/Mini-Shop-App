@@ -241,3 +241,37 @@ button {
 
 .text-right { text-align: right !important; }
 .text-center { text-align: center !important; }
+
+/* Responsive Base */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .page-header h2 {
+    font-size: 22px;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

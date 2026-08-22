@@ -1,30 +1,26 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import { productApi } from '../api/productApi';
 import { AppDataContext } from '../context/AppDataContext';
 import { toast } from 'react-toastify';
 
 export const useProducts = (includeInactive = false) => {
   const { products: cachedProducts, refreshProducts, categories, loadingInitial } = useContext(AppDataContext);
-  
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isRefetching, setIsRefetching] = useState(false);
+  const [error] = useState(null);
 
-  useEffect(() => {
-    setLoading(loadingInitial);
-    if (!loadingInitial) {
-      let filtered = cachedProducts;
-      if (!includeInactive) {
-        filtered = cachedProducts.filter(p => p.isActive === true);
-      }
-      setProducts(filtered);
+  const products = useMemo(() => {
+    if (!includeInactive) {
+      return cachedProducts.filter(p => p.isActive === true);
     }
-  }, [cachedProducts, includeInactive, loadingInitial]);
+    return cachedProducts;
+  }, [cachedProducts, includeInactive]);
+
+  const loading = loadingInitial || isRefetching;
 
   const refetch = async () => {
-    setLoading(true);
+    setIsRefetching(true);
     await refreshProducts();
-    setLoading(false);
+    setIsRefetching(false);
   };
 
   const createProduct = async (data) => {
@@ -33,7 +29,7 @@ export const useProducts = (includeInactive = false) => {
       toast.success('Thêm sản phẩm thành công');
       await refreshProducts();
       return true;
-    } catch (err) {
+    } catch {
       toast.error('Thêm sản phẩm thất bại');
       return false;
     }
@@ -45,7 +41,7 @@ export const useProducts = (includeInactive = false) => {
       toast.success('Cập nhật sản phẩm thành công');
       await refreshProducts();
       return true;
-    } catch (err) {
+    } catch {
       toast.error('Cập nhật sản phẩm thất bại');
       return false;
     }
@@ -57,7 +53,7 @@ export const useProducts = (includeInactive = false) => {
       toast.success('Xóa sản phẩm thành công');
       await refreshProducts();
       return true;
-    } catch (err) {
+    } catch {
       toast.error('Xóa sản phẩm thất bại');
       return false;
     }

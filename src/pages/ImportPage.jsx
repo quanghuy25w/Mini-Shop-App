@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import StockForm from '../components/inventory/StockForm';
 import ConfirmDialog from '../components/common/ConfirmDialog';

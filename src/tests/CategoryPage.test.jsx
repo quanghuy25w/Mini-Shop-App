@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -118,4 +117,31 @@ describe('Group 1: Danh mục (CategoryPage) Tests', () => {
       expect(screen.queryByText('Danh mục rỗng Test')).toBeNull();
     }, { timeout: 5000 });
   });
+
+  it('Đồng bộ dữ liệu modal chính xác: mở sửa A -> đóng -> mở sửa B không bị dính dữ liệu cũ', async () => {
+    renderCategoryPage();
+
+    expect(await screen.findByRole('heading', { name: /Quản lý Danh mục/i }, { timeout: 10000 })).toBeTruthy();
+    expect(await screen.findByText('Sữa bột', {}, { timeout: 10000 })).toBeTruthy();
+
+    const editBtns = await screen.findAllByTitle('Chỉnh sửa');
+
+    // Mở sửa danh mục đầu tiên (Sữa bột)
+    fireEvent.click(editBtns[0]);
+    expect(await screen.findByDisplayValue('Sữa bột')).toBeTruthy();
+
+    // Đóng modal
+    fireEvent.click(screen.getByText('Hủy'));
+
+    // Mở sửa danh mục thứ hai (Sữa nước)
+    fireEvent.click(editBtns[1]);
+    expect(await screen.findByDisplayValue('Sữa nước')).toBeTruthy();
+    expect(screen.queryByDisplayValue('Sữa bột')).toBeNull();
+
+    // Đóng và mở Thêm mới -> dữ liệu rỗng
+    fireEvent.click(screen.getByText('Hủy'));
+    fireEvent.click(screen.getByText('Thêm danh mục'));
+    const input = await screen.findByPlaceholderText('Nhập tên danh mục');
+    expect(input.value).toBe('');
+  }, 15000);
 });

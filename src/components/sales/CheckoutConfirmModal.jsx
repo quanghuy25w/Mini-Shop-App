@@ -1,4 +1,3 @@
-import React from 'react';
 import { createPortal } from 'react-dom';
 import { formatCurrency } from '../../utils/formatCurrency';
 import './CheckoutConfirmModal.css';

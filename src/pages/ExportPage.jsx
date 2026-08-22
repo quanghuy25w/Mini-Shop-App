@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import StockForm from '../components/inventory/StockForm';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useInventory } from '../hooks/useInventory';
-import { formatCurrency } from '../utils/formatCurrency';
 import { toast } from 'react-toastify';
 
 const ExportPage = () => {

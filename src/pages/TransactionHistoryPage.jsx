@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { orderApi } from '../api/orderApi';
 import { inventoryApi } from '../api/inventoryApi';
 import { productApi } from '../api/productApi';
@@ -32,8 +32,7 @@ const TransactionHistoryPage = () => {
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [cancellingOrder, setCancellingOrder] = useState(null);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = useCallback(async () => {
     try {
       if (activeTab === 'orders') {
         const res = await orderApi.getAll();
@@ -44,16 +43,25 @@ const TransactionHistoryPage = () => {
         const sorted = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setTransactions(sorted);
       }
-    } catch (error) {
+    } catch {
       toast.error('Lỗi khi tải dữ liệu');
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
   useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+    let ignore = false;
+    const runFetch = async () => {
+      if (!ignore) {
+        await fetchData();
+      }
+    };
+    runFetch();
+    return () => {
+      ignore = true;
+    };
+  }, [fetchData]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(tx => {
@@ -200,7 +208,12 @@ const TransactionHistoryPage = () => {
       <div className="tabs">
         <button
           className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
-          onClick={() => setActiveTab('inventory')}
+          onClick={() => {
+            if (activeTab !== 'inventory') {
+              setLoading(true);
+              setActiveTab('inventory');
+            }
+          }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="12 8 12 12 14 14"></polyline>
@@ -210,7 +223,12 @@ const TransactionHistoryPage = () => {
         </button>
         <button
           className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-          onClick={() => setActiveTab('orders')}
+          onClick={() => {
+            if (activeTab !== 'orders') {
+              setLoading(true);
+              setActiveTab('orders');
+            }
+          }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="9" cy="21" r="1"></circle>
