@@ -121,14 +121,25 @@ const SalesPage = () => {
 
   const searchInputRef = useRef(null);
   const isSubmittingRef = useRef(false); // khóa đồng bộ chống double-submit tức thời
+  const isMountedRef = useRef(true);
 
-  // Filter san pham hien thi
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Filter san pham hien thi (đảm bảo an toàn null/undefined)
   const displayProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
     return products.filter(p => {
-      if (!p.isActive) return false;
+      if (!p || !p.isActive) return false;
       const q = searchTerm.trim().toLowerCase();
-      const matchSearch = p.name.toLowerCase().includes(q) || getProductCode(p).toLowerCase().includes(q);
-      const matchCat = selectedCategory ? p.categoryId === selectedCategory : true;
+      const pName = (p.name || '').toLowerCase();
+      const pCode = (getProductCode(p) || '').toLowerCase();
+      const matchSearch = pName.includes(q) || pCode.includes(q);
+      const matchCat = selectedCategory ? String(p.categoryId) === String(selectedCategory) : true;
       return matchSearch && matchCat;
     });
   }, [products, searchTerm, selectedCategory]);
@@ -198,15 +209,17 @@ const SalesPage = () => {
 
   // Mở Popup xác nhận thanh toán (F9)
   const handleOpenCheckoutConfirm = useCallback(() => {
+    if (isSubmittingRef.current || isProcessing) return;
     if (cartItems.length === 0) {
       toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
       return;
     }
     setIsCheckoutConfirmOpen(true);
-  }, [cartItems.length]);
+  }, [cartItems.length, isProcessing]);
 
   // Luu đơn hang tạm (F5)
   const handleSaveDraft = useCallback(() => {
+    if (isSubmittingRef.current || isProcessing) return;
     if (cartItems.length === 0) {
       toast.error('Giỏ hàng trống, không thể lưu đơn!');
       return;
@@ -240,7 +253,7 @@ const SalesPage = () => {
     setOrderNote('');
     setShowNoteInput(false);
     toast.success(`Đã lưu tạm đơn ${newDraft.code} thành công!`);
-  }, [cartItems, clearCart, discount, discountAmount, discountType, draftOrders, finalTotal, orderNote, subtotal]);
+  }, [cartItems, clearCart, discount, discountAmount, discountType, draftOrders, finalTotal, isProcessing, orderNote, subtotal]);
 
   // In hóa đơn (F11)
   const handlePrintInvoiceAction = useCallback(() => {
@@ -270,9 +283,10 @@ const SalesPage = () => {
         handleSaveDraft();
       } else if (e.key === 'F9') {
         e.preventDefault();
-        if (cartItems.length > 0 && !isProcessing && !isSubmittingRef.current) {
+        if (isProcessing || isSubmittingRef.current) return;
+        if (cartItems.length > 0) {
           handleOpenCheckoutConfirm();
-        } else if (cartItems.length === 0) {
+        } else {
           toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
         }
       } else if (e.key === 'F11') {
@@ -365,11 +379,12 @@ const SalesPage = () => {
 
   // Thanh toán & In hóa đơn
   const handlePayAndPrint = async () => {
-    if (isSubmittingRef.current) return;
+    if (isSubmittingRef.current || isProcessing) return;
     isSubmittingRef.current = true;
     setIsProcessing(true);
     try {
       const order = await checkout(finalTotal);
+      if (!isMountedRef.current) return;
       const enrichedOrder = {
         ...order,
         discountType,
@@ -386,31 +401,44 @@ const SalesPage = () => {
       // In hóa đơn độc lập qua printInvoice (100% không bị trắng trang trên mọi trình duyệt)
       printInvoice(enrichedOrder);
     } catch (err) {
-      toast.error(err.message || 'Lỗi khi thanh toán');
+      if (isMountedRef.current) {
+        toast.error(err.message || 'Lỗi khi thanh toán');
+      }
     } finally {
-      setIsProcessing(false);
-      isSubmittingRef.current = false;
+      if (isMountedRef.current) {
+        setIsProcessing(false);
+        isSubmittingRef.current = false;
+      } else {
+        isSubmittingRef.current = false;
+      }
     }
   };
 
   // Chỉ thanh toán (không in)
   const handlePayOnly = async () => {
-    if (isSubmittingRef.current) return;
+    if (isSubmittingRef.current || isProcessing) return;
     isSubmittingRef.current = true;
     setIsProcessing(true);
     try {
       const order = await checkout(finalTotal);
+      if (!isMountedRef.current) return;
       setIsCheckoutConfirmOpen(false);
       setDiscount('0');
       setDiscountType('amount');
       setOrderNote('');
       setShowNoteInput(false);
-      toast.success(`Thanh toán đơn ${order.code} thành công!`);
+      toast.success(`Thanh toán đơn ${order?.code || ''} thành công!`);
     } catch (err) {
-      toast.error(err.message || 'Lỗi khi thanh toán');
+      if (isMountedRef.current) {
+        toast.error(err.message || 'Lỗi khi thanh toán');
+      }
     } finally {
-      setIsProcessing(false);
-      isSubmittingRef.current = false;
+      if (isMountedRef.current) {
+        setIsProcessing(false);
+        isSubmittingRef.current = false;
+      } else {
+        isSubmittingRef.current = false;
+      }
     }
   };
 
