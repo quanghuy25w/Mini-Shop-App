@@ -30,7 +30,7 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 69,
+      "stockQuantity": 76,
       "minStockAlert": 10,
       "image": "https://thegioisua.com/wp-content/uploads/2026/08/ensure-380g2-600x600.webp",
       "isActive": true,
@@ -1658,6 +1658,15 @@
       "unitPrice": 436000,
       "note": "Bán hàng - HD033",
       "createdAt": "2026-08-21T07:35:35.192Z"
+    },
+    {
+      "id": "0uihoXhGLWU",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "IN",
+      "quantity": 7,
+      "unitPrice": 400000,
+      "note": "[Phiếu PN008] NCC: Nhà phân phối Abbott",
+      "createdAt": "2026-08-22T04:40:38.547Z"
     }
   ],
   "orders": [
