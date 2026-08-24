@@ -9,10 +9,11 @@ export const useProducts = (includeInactive = false) => {
   const [error] = useState(null);
 
   const products = useMemo(() => {
+    if (!Array.isArray(cachedProducts)) return [];
     if (!includeInactive) {
-      return cachedProducts.filter(p => p.isActive === true);
+      return cachedProducts.filter(p => p && p.isActive === true);
     }
-    return cachedProducts;
+    return cachedProducts.filter(Boolean);
   }, [cachedProducts, includeInactive]);
 
   const loading = loadingInitial || isRefetching;

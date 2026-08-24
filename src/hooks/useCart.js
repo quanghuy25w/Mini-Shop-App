@@ -42,32 +42,39 @@ export const useCart = () => {
       const discountAmount = Math.max(0, subtotal - finalAmount);
 
       // b. Tạo order với status "completed"
+      const nowIso = new Date().toISOString();
       const orderData = {
         id: generateId(),
         code: orderCode,
         items: itemsToProcess.map(i => ({
           productId: i.productId,
-          productName: i.productName,
-          quantity: i.quantity,
-          price: i.price          // giá gốc niêm yết từng dòng, KHÔNG chia đều discount
+          productName: i.productName || '',
+          quantity: i.quantity || 1,
+          price: i.price || 0          // giá gốc niêm yết từng dòng, KHÔNG chia đều discount
         })),
         subtotal: subtotal,
         discountAmount: discountAmount,
         totalAmount: finalAmount,
         status: "completed",
-        createdAt: new Date().toISOString()
+        createdAt: nowIso
       };
 
       let createdOrder = null;
       try {
         const res = await orderApi.create(orderData);
-        createdOrder = res.data;
+        createdOrder = res.data || orderData;
+        if (!createdOrder.createdAt) {
+          createdOrder.createdAt = nowIso;
+        }
+        if (!createdOrder.items) {
+          createdOrder.items = orderData.items;
+        }
 
         // FIX 3: Xác nhận cuối — phát hiện trường hợp cực hiếm 2 request lọt qua
         // generateOrderCode cùng lúc (sau khi đã có FIX1 + FIX2, xác suất gần như 0)
         try {
           const dupCheck = await orderApi.getAll();
-          const sameCode = dupCheck.data.filter(o => o.code === createdOrder.code);
+          const sameCode = (dupCheck.data || []).filter(o => o && o.code === createdOrder.code);
           if (sameCode.length > 1) {
             console.warn(
               `[useCart] DUPLICATE ORDER CODE DETECTED: "${createdOrder.code}" xuất hiện ${sameCode.length} lần. ` +
@@ -93,7 +100,7 @@ export const useCart = () => {
           const pRes = await productApi.getById(item.productId);
           const currentProd = pRes.data;
 
-          if (currentProd.stockQuantity < item.quantity) {
+          if (!currentProd || currentProd.stockQuantity < item.quantity) {
             throw new Error(`Sản phẩm "${item.productName}" không đủ tồn kho để thanh toán!`);
           }
 
@@ -146,7 +153,11 @@ export const useCart = () => {
       }
 
       // e. Thành công toàn bộ: Cập nhật dữ liệu sản phẩm trong AppDataContext trước, sau đó xóa giỏ hàng
-      await refreshProducts(); // Refresh để UI tự động cập nhật số lượng mới nhất
+      try {
+        await refreshProducts(); // Refresh để UI tự động cập nhật số lượng mới nhất
+      } catch (refreshErr) {
+        console.warn("[useCart] refreshProducts gặp sự cố:", refreshErr);
+      }
       cartContext.clearCart();
       
       return createdOrder; 

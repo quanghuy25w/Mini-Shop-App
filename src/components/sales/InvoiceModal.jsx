@@ -7,10 +7,21 @@ import './InvoiceModal.css';
 const InvoiceModal = ({ isOpen, order, onClose }) => {
   if (!isOpen || !order) return null;
 
-  const totalQty = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalQty = order.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
   const subtotalValue = (order.subtotal !== undefined && order.subtotal !== null)
     ? order.subtotal
-    : (order.items?.reduce((s, i) => s + i.price * i.quantity, 0) || 0);
+    : (order.items?.reduce((s, i) => s + (i.price || 0) * (i.quantity || 0), 0) || 0);
+
+  const formattedDate = (() => {
+    try {
+      if (!order.createdAt) return format(new Date(), 'dd/MM/yyyy HH:mm');
+      const d = new Date(order.createdAt);
+      if (isNaN(d.getTime())) return format(new Date(), 'dd/MM/yyyy HH:mm');
+      return format(d, 'dd/MM/yyyy HH:mm');
+    } catch {
+      return format(new Date(), 'dd/MM/yyyy HH:mm');
+    }
+  })();
 
   const modalContent = (
     <div className="modal-overlay invoice-modal-overlay">
@@ -26,8 +37,8 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
 
           <h2 className="receipt-title">Hóa Đơn Bán Hàng</h2>
           <div className="receipt-meta">
-            <div>Mã HĐ: <strong>{order.code}</strong></div>
-            <div>Ngày: {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm')}</div>
+            <div>Mã HĐ: <strong>{order.code || ''}</strong></div>
+            <div>Ngày: {formattedDate}</div>
             <div>Thu ngân: Nhân viên bán hàng</div>
           </div>
         </div>

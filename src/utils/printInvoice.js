@@ -8,10 +8,17 @@ import { format } from 'date-fns';
 export const printInvoice = (order) => {
   if (!order) return;
 
-  const totalQty = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const formattedDate = order.createdAt 
-    ? format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm') 
-    : format(new Date(), 'dd/MM/yyyy HH:mm');
+  const totalQty = order.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  const formattedDate = (() => {
+    try {
+      if (!order.createdAt) return format(new Date(), 'dd/MM/yyyy HH:mm');
+      const d = new Date(order.createdAt);
+      if (isNaN(d.getTime())) return format(new Date(), 'dd/MM/yyyy HH:mm');
+      return format(d, 'dd/MM/yyyy HH:mm');
+    } catch {
+      return format(new Date(), 'dd/MM/yyyy HH:mm');
+    }
+  })();
 
   // Tạo iframe chuyên dụng
   const iframe = document.createElement('iframe');

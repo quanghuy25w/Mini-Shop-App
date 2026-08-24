@@ -42,8 +42,8 @@ const Header = ({ onToggleNav }) => {
         inventoryApi.getAllTransactions()
       ]);
 
-      const rawOrders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
-      const rawTrans = Array.isArray(transRes.data) ? transRes.data : [];
+      const rawOrders = Array.isArray(ordersRes?.data) ? ordersRes.data : [];
+      const rawTrans = Array.isArray(transRes?.data) ? transRes.data : [];
 
       const isToday = (dateStr) => {
         if (!dateStr) return false;
@@ -58,11 +58,11 @@ const Header = ({ onToggleNav }) => {
       };
 
       const todayOrders = rawOrders
-        .filter((o) => isToday(o.createdAt))
+        .filter((o) => o && isToday(o.createdAt))
         .map((o) => ({ ...o, _kind: 'order' }));
 
       const todayTrans = rawTrans
-        .filter((t) => isToday(t.createdAt))
+        .filter((t) => t && isToday(t.createdAt))
         .map((t) => ({ ...t, _kind: 'transaction' }));
 
       const combined = [...todayOrders, ...todayTrans]
@@ -76,10 +76,53 @@ const Header = ({ onToggleNav }) => {
   };
 
   useEffect(() => {
+    let isMounted = true;
     const loadActivities = async () => {
-      await fetchActivities();
+      try {
+        const [ordersRes, transRes] = await Promise.all([
+          orderApi.getAll(),
+          inventoryApi.getAllTransactions()
+        ]);
+        if (!isMounted) return;
+
+        const rawOrders = Array.isArray(ordersRes?.data) ? ordersRes.data : [];
+        const rawTrans = Array.isArray(transRes?.data) ? transRes.data : [];
+
+        const isToday = (dateStr) => {
+          if (!dateStr) return false;
+          const date = new Date(dateStr);
+          if (isNaN(date.getTime())) return false;
+          const now = new Date();
+          return (
+            date.getFullYear() === now.getFullYear() &&
+            date.getMonth() === now.getMonth() &&
+            date.getDate() === now.getDate()
+          );
+        };
+
+        const todayOrders = rawOrders
+          .filter((o) => o && isToday(o.createdAt))
+          .map((o) => ({ ...o, _kind: 'order' }));
+
+        const todayTrans = rawTrans
+          .filter((t) => t && isToday(t.createdAt))
+          .map((t) => ({ ...t, _kind: 'transaction' }));
+
+        const combined = [...todayOrders, ...todayTrans]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 10);
+
+        setActivities(combined);
+      } catch (error) {
+        if (isMounted) {
+          console.error('Lỗi khi tải hoạt động hôm nay:', error);
+        }
+      }
     };
     loadActivities();
+    return () => {
+      isMounted = false;
+    };
   }, [location.pathname]);
 
   useEffect(() => {
@@ -137,26 +180,29 @@ const Header = ({ onToggleNav }) => {
   const unreadCount = lastSeenAt === null
     ? activities.length
     : activities.filter((item) => {
-        if (!item.createdAt) return false;
-        return new Date(item.createdAt) > lastSeenAt;
+        if (!item?.createdAt) return false;
+        const d = new Date(item.createdAt);
+        if (isNaN(d.getTime())) return false;
+        return d > lastSeenAt;
       }).length;
 
   const badgeText = unreadCount > 9 ? '9+' : String(unreadCount);
 
   const renderItemContent = (item) => {
+    if (!item) return '';
     if (item._kind === 'order') {
       const statusText =
         item.status === 'completed'
           ? 'thanh toán'
           : item.status === 'cancelled'
             ? 'bị hủy'
-            : item.status;
-      return `Đơn hàng #${item.code} vừa ${statusText} · ${formatCurrency(item.totalAmount)}`;
+            : item.status || '';
+      return `Đơn hàng #${item.code || ''} vừa ${statusText} · ${formatCurrency(item.totalAmount)}`;
     }
-    const prod = products?.find((p) => String(p.id) === String(item.productId));
-    const prodName = prod ? prod.name : 'Sản phẩm';
+    const prod = products?.find((p) => p && String(p.id) === String(item.productId));
+    const prodName = prod ? prod.name : (item.productName || 'Sản phẩm');
     const typeText = item.type === 'IN' ? 'Nhập kho' : 'Xuất kho';
-    return `${typeText} ${item.quantity} ${prodName}`;
+    return `${typeText} ${item.quantity || 0} ${prodName}`;
   };
 
   return (
