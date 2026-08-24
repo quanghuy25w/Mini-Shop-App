@@ -13,6 +13,7 @@ const Header = ({ onToggleNav }) => {
 
   const [activities, setActivities] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [lastSeenAt, setLastSeenAt] = useState(null);
   const dropdownRef = useRef(null);
 
   const getBreadcrumb = () => {
@@ -96,14 +97,14 @@ const Header = ({ onToggleNav }) => {
     };
   }, [isDropdownOpen]);
 
-  const handleToggleDropdown = () => {
-    setIsDropdownOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        fetchActivities();
-      }
-      return next;
-    });
+  const handleToggleDropdown = async () => {
+    if (!isDropdownOpen) {
+      setIsDropdownOpen(true);
+      await fetchActivities();
+      setLastSeenAt(new Date());
+    } else {
+      setIsDropdownOpen(false);
+    }
   };
 
   const handleViewAllHistory = () => {
@@ -133,8 +134,14 @@ const Header = ({ onToggleNav }) => {
     return `${diffInDays} ngày trước`;
   };
 
-  const count = activities.length;
-  const badgeText = count > 9 ? '9+' : String(count);
+  const unreadCount = lastSeenAt === null
+    ? activities.length
+    : activities.filter((item) => {
+        if (!item.createdAt) return false;
+        return new Date(item.createdAt) > lastSeenAt;
+      }).length;
+
+  const badgeText = unreadCount > 9 ? '9+' : String(unreadCount);
 
   const renderItemContent = (item) => {
     if (item._kind === 'order') {
@@ -194,7 +201,7 @@ const Header = ({ onToggleNav }) => {
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            {count > 0 && (
+            {unreadCount > 0 && (
               <span className="notification-badge">{badgeText}</span>
             )}
           </button>
@@ -203,10 +210,10 @@ const Header = ({ onToggleNav }) => {
             <div className="notification-dropdown">
               <div className="notification-dropdown-header">
                 <span className="notification-dropdown-title">Hoạt động hôm nay</span>
-                <span className="notification-dropdown-count">{count}</span>
+                <span className="notification-dropdown-count">{activities.length}</span>
               </div>
 
-              {count === 0 ? (
+              {activities.length === 0 ? (
                 <div className="notification-empty">Chưa có hoạt động nào hôm nay</div>
               ) : (
                 <ul className="notification-dropdown-list">
