@@ -919,3 +919,73 @@
 .stock-qty-badge {
   font-weight: 600;
 }
+
+/* Responsive StockForm on Mobile */
+@media (max-width: 640px) {
+  .import-card {
+    padding: 16px;
+  }
+
+  .form-row-2col {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .product-inputs-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .btn-add-to-list {
+    width: 100%;
+    height: 44px;
+  }
+
+  .summary-footer-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .summary-col-right {
+    align-items: flex-start;
+  }
+
+  .summary-val-qty,
+  .summary-val-amount {
+    font-size: 24px;
+  }
+
+  .export-top-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .btn-open-prod-picker {
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+  }
+
+  .import-card-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .btn-reset-form,
+  .btn-submit-import {
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+  }
+
+  .import-table-container {
+    overflow-x: auto;
+  }
+
+  .import-temp-table {
+    min-width: 460px;
+  }
+}

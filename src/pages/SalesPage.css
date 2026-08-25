@@ -395,6 +395,7 @@
 .pos-cart-table-container {
   max-height: 280px;
   overflow-y: auto;
+  overflow-x: auto;
   border: 1px solid #f1f5f9;
   border-radius: 8px;
   margin-bottom: 14px;
@@ -448,6 +449,7 @@
 }
 
 .btn-spinner {
+  position: relative;
   background: #f8fafc;
   border: none;
   width: 26px;
@@ -459,6 +461,18 @@
   font-weight: 700;
   color: #334155;
   transition: background-color 0.12s;
+}
+
+.btn-spinner::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
 }
 
 .btn-spinner:hover {
@@ -477,6 +491,7 @@
 }
 
 .btn-cart-remove {
+  position: relative;
   background: #fef2f2;
   border: 1px solid #fee2e2;
   color: #ef4444;
@@ -488,6 +503,18 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.12s ease;
+}
+
+.btn-cart-remove::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
 }
 
 .btn-cart-remove:hover {
@@ -611,16 +638,34 @@
 }
 
 .btn-discount-type {
+  position: relative;
   border: none;
   background: transparent;
   color: var(--ink-soft, #475569);
   font-size: 12px;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 10px 14px;
+  min-height: 38px;
+  min-width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
   line-height: 1.2;
+}
+
+.btn-discount-type::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
 }
 
 .btn-discount-type:hover:not(.active) {
@@ -745,11 +790,15 @@
     grid-template-columns: 1fr;
   }
 
-  .pos-card-card {
+  .pos-cart-card {
     padding: 14px;
   }
 
-  .hotkeys-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .pos-cart-table {
+    min-width: 320px;
+  }
+
+  .pos-hotkeys-panel {
+    display: none;
   }
 }

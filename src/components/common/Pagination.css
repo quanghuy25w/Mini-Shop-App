@@ -99,5 +99,16 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    padding: 12px 10px;
+  }
+
+  .table-responsive .pagination-container {
+    padding: 12px 10px;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
   }
 }

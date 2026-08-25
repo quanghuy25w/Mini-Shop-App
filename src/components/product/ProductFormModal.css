@@ -64,3 +64,16 @@
   object-fit: cover;
   display: block;
 }
+
+@media (max-width: 768px) {
+  .product-modal {
+    padding: 20px 16px;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .image-preview {
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+}

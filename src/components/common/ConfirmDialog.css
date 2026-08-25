@@ -11,6 +11,8 @@
   align-items: center;
   z-index: 1000;
   padding: 16px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .modal-content {
@@ -21,6 +23,12 @@
   max-width: 480px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border-color);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  margin: auto;
 }
 
 .confirm-dialog {
@@ -81,4 +89,29 @@
 
 .btn-submit:hover {
   background: #0369a1;
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal-content {
+    padding: 20px 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
