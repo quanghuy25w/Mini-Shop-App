@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+﻿import { describe, it, expect, beforeEach } from 'vitest';
 import axiosClient from '../api/axiosClient';
 import { workSessionApi } from '../api/workSessionApi';
 import { inventoryApi } from '../api/inventoryApi';
@@ -17,7 +17,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
       code: 'CA-TEST-001',
       date: '2026-09-01',
       shiftType: 'morning',
-      name: 'Ca Kiểm Thử',
+      name: 'Ca Kiá»ƒm Thá»­',
       status: 'active',
       initialCash: 1000000,
     });
@@ -32,7 +32,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
     expect(caughtError).toBeDefined();
     expect(caughtError.response?.status).toBe(403);
     expect(caughtError.response?.data?.error).toBe('WORKSESSION_DELETION_RESTRICTED');
-    expect(caughtError.message).toMatch(/KHÔNG ĐƯỢC PHÉP XÓA/i);
+    expect(caughtError.message).toMatch(/KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
   });
 
   it('2. Raw DELETE /workSessionMembers/:id rejects with HTTP 403 and Vietnamese error message', async () => {
@@ -46,7 +46,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
     expect(caughtError).toBeDefined();
     expect(caughtError.response?.status).toBe(403);
     expect(caughtError.response?.data?.error).toBe('WORKSESSION_MEMBER_DELETION_RESTRICTED');
-    expect(caughtError.message).toMatch(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+    expect(caughtError.message).toMatch(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
   });
 
   it('3. Attempted DELETE does not remove the workSession record from database', async () => {
@@ -55,7 +55,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
       code: 'CA-RETAIN-01',
       date: '2026-09-02',
       shiftType: 'morning',
-      name: 'Ca Giữ Nguyên',
+      name: 'Ca Giá»¯ NguyÃªn',
       status: 'active',
       initialCash: 500000,
     });
@@ -69,7 +69,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
     const sessionRes = await workSessionApi.getById('ws-retain-001');
     expect(sessionRes.data).toBeDefined();
     expect(sessionRes.data.id).toBe('ws-retain-001');
-    expect(sessionRes.data.name).toBe('Ca Giữ Nguyên');
+    expect(sessionRes.data.name).toBe('Ca Giá»¯ NguyÃªn');
   });
 
   it('4. Existing GET, POST, and PATCH operations on workSessions remain fully functional', async () => {
@@ -79,7 +79,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
       code: 'CA-CRUD-01',
       date: '2026-09-03',
       shiftType: 'afternoon',
-      name: 'Ca Thử Nghiệm CRUD',
+      name: 'Ca Thá»­ Nghiá»‡m CRUD',
       status: 'planned',
       initialCash: 2000000,
     });
@@ -91,11 +91,11 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
 
     // PATCH
     const patchedRes = await workSessionApi.patch('ws-crud-001', {
-      note: 'Ghi chú cập nhật',
+      note: 'Ghi chÃº cáº­p nháº­t',
       status: 'active',
     });
     expect(patchedRes.data.status).toBe('active');
-    expect(patchedRes.data.note).toBe('Ghi chú cập nhật');
+    expect(patchedRes.data.note).toBe('Ghi chÃº cáº­p nháº­t');
   });
 
   it('5. Existing allowed DELETE routes (e.g. inventoryTransactions) remain functional', async () => {
@@ -106,7 +106,7 @@ describe('Server DELETE Protection & Historical Data Integrity Tests', () => {
       quantity: 1,
       unitPrice: 10000,
     };
-    await inventoryApi.createSystemTransaction(txData);
+    await inventoryApi.createTransaction(txData);
 
     // Allowed deletion of in-flight transaction
     const deleteRes = await inventoryApi.removeTransaction('tx-allowed-delete-01', { id: 'acc-admin', role: 'admin' });

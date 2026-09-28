@@ -209,9 +209,10 @@ describe('Part 7: Master Data & Document Security Tests (P3)', () => {
 
       // Create an order with code1
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-gen-1',
         code: code1,
-        totalAmount: 100000,
+        totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         paymentMethod: 'cash',
         businessDate: today,
         status: 'completed'

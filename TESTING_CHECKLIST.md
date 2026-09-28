@@ -1,4 +1,4 @@
-# KẾCH BẢN KIỂM THỬ (TESTING CHECKLIST) - MINI SHOP
+# KỊCH BẢN KIỂM THỬ (TESTING CHECKLIST) - MINI SHOP
 
 Dưới đây là các bước kiểm thử thủ công theo luồng nghiệp vụ. 
 Bạn hãy thực hiện lần lượt các bước này trên UI và đánh dấu vào cột kết quả.

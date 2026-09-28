@@ -1,4 +1,4 @@
-import { initSeedData } from './mockApi';
+﻿import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React, { useContext } from 'react';
 import { render, act, waitFor } from '@testing-library/react';
@@ -67,47 +67,49 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
     it('Rejects order creation without seller identity', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           accountId: null,
           sellerId: null,
           code: 'HD-TEST-01',
-          totalAmount: 100000,
-          items: [{ productId: 'p1', quantity: 1, price: 100000 }]
+          totalAmount: 100000, items: [{ productId: 'p1', quantity: 1, price: 100000 }]
         }, { role: 'admin', permissions: ['order.create'] });
-      }).toThrow(/ORDER_VALIDATION_ERROR.*người bán/i);
+      }).toThrow(/ORDER_VALIDATION_ERROR.*ngÆ°á»i bÃ¡n/i);
     });
 
     it('Rejects order creation with negative total amount', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           accountId: 'acc-emp',
           code: 'HD-TEST-02',
           totalAmount: -50000,
           items: [{ productId: 'p1', quantity: 1, price: 50000 }]
         }, employeeActor);
-      }).toThrow(/ORDER_VALIDATION_ERROR.*âm/i);
+      }).toThrow(/ORDER_VALIDATION_ERROR.*Ã¢m/i);
     });
 
     it('Rejects order creation with invalid item quantities (<= 0)', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           accountId: 'acc-emp',
           code: 'HD-TEST-03',
-          totalAmount: 50000,
-          items: [{ productId: 'p1', quantity: 0, price: 50000 }]
+          totalAmount: 50000, items: [{ productId: 'p1', quantity: 0, price: 50000 }]
         }, employeeActor);
-      }).toThrow(/ORDER_VALIDATION_ERROR.*số lượng/i);
+      }).toThrow(/ORDER_VALIDATION_ERROR.*sá»‘ lÆ°á»£ng/i);
     });
 
     it('Rejects completed order creation when requireSellingContext is enabled and workSessionId is missing', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           accountId: 'acc-emp',
           code: 'HD-TEST-04',
-          totalAmount: 50000,
+          totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
           status: 'completed',
           items: [{ productId: 'p1', quantity: 1, price: 50000 }]
         }, employeeActor, { requireSellingContext: true });
-      }).toThrow(/ORDER_VALIDATION_ERROR.*ca làm việc/i);
+      }).toThrow(/ORDER_VALIDATION_ERROR.*ca lÃ m viá»‡c/i);
     });
 
     it('Creates valid order with full authoritative selling context', async () => {
@@ -120,7 +122,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
         registerId: 'POS01',
         businessDate: today,
         paymentMethod: 'cash',
-        totalAmount: 200000,
+        totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
         subtotal: 200000,
         status: 'completed',
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 100000 }]
@@ -162,7 +164,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
         actionRef.current.addToCart(testProd, 1);
       });
 
-      await expect(actionRef.current.checkout()).rejects.toThrow(/ngừng kinh doanh/i);
+      await expect(actionRef.current.checkout()).rejects.toThrow(/ngá»«ng kinh doanh/i);
 
       // Verify stock untouched
       const prodAfter = (await productApi.getById(testProd.id)).data;
@@ -191,7 +193,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       // Another user bought out stock before checkout: stock becomes 2 (< 5)
       await productApi.updateStock(testProd.id, 2, adminActor, { source: 'pos_checkout' });
 
-      await expect(actionRef.current.checkout()).rejects.toThrow(/không đủ tồn kho/i);
+      await expect(actionRef.current.checkout()).rejects.toThrow(/khÃ´ng Ä‘á»§ tá»“n kho/i);
 
       const prodAfter = (await productApi.getById(testProd.id)).data;
       expect(prodAfter.stockQuantity).toBe(2);
@@ -234,12 +236,12 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       const originalUpdateStock = productApi.updateStock;
       vi.spyOn(productApi, 'updateStock').mockImplementation(async (id, newStock, actor, ctx) => {
         if (id === prod2.id) {
-          throw new Error('Mô phỏng lỗi mạng khi trừ prod2!');
+          throw new Error('MÃ´ phá»ng lá»—i máº¡ng khi trá»« prod2!');
         }
         return originalUpdateStock(id, newStock, actor, ctx);
       });
 
-      await expect(actionRef.current.checkout()).rejects.toThrow(/Mô phỏng lỗi mạng/);
+      await expect(actionRef.current.checkout()).rejects.toThrow(/MÃ´ phá»ng lá»—i máº¡ng/);
 
       // Verify prod1 stock fully restored to original
       const p1After = (await productApi.getById(prod1.id)).data;
@@ -285,7 +287,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           return res;
         }
         if (id === prod2.id) {
-          throw new Error('Lỗi trừ prod2 mô phỏng!');
+          throw new Error('Lá»—i trá»« prod2 mÃ´ phá»ng!');
         }
         return originalUpdateStock(id, newStock, actor, ctx);
       });
@@ -359,7 +361,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
   // 5. CANCELLATION LIFECYCLE, PERMISSIONS & IDEMPOTENCE
   // =========================================================================
   describe('5. Order Cancellation Lifecycle & Idempotence', () => {
-    it('Employee cannot cancel another seller’s order', () => {
+    it('Employee cannot cancel another sellerâ€™s order', () => {
       const otherOrder = {
         id: 'ord-other-seller',
         accountId: 'acc-other',
@@ -371,11 +373,11 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       expect(() => {
         orderApi.cancel('ord-other-seller', {
           actor: employeeActor,
-          reason: 'Lý do hủy',
+          reason: 'LÃ½ do há»§y',
           order: otherOrder,
           currentSessionId: 'ws-active-1'
         });
-      }).toThrow(/CANCEL_DENIED.*chính mình tạo/i);
+      }).toThrow(/CANCEL_DENIED.*chÃ­nh mÃ¬nh táº¡o/i);
     });
 
     it('Employee cannot cancel order outside current session', () => {
@@ -390,11 +392,11 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       expect(() => {
         orderApi.cancel('ord-diff-session', {
           actor: employeeActor,
-          reason: 'Lý do hủy',
+          reason: 'LÃ½ do há»§y',
           order: orderDiffSession,
           currentSessionId: 'ws-active-1'
         });
-      }).toThrow(/CANCEL_DENIED.*thuộc ca làm việc hiện tại/i);
+      }).toThrow(/CANCEL_DENIED.*thuá»™c ca lÃ m viá»‡c hiá»‡n táº¡i/i);
     });
 
     it('Employee cannot cancel order after 15-minute window', () => {
@@ -409,11 +411,11 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       expect(() => {
         orderApi.cancel('ord-old-emp', {
           actor: employeeActor,
-          reason: 'Lý do hủy',
+          reason: 'LÃ½ do há»§y',
           order: oldOrder,
           currentSessionId: 'ws-active-1'
         });
-      }).toThrow(/CANCEL_DENIED.*quá 15 phút/i);
+      }).toThrow(/CANCEL_DENIED.*quÃ¡ 15 phÃºt/i);
     });
 
     it('Staff cannot cancel orders from past business dates', () => {
@@ -428,10 +430,10 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       expect(() => {
         orderApi.cancel('ord-past-date', {
           actor: staffActor,
-          reason: 'Quản lý muốn hủy ngày cũ',
+          reason: 'Quáº£n lÃ½ muá»‘n há»§y ngÃ y cÅ©',
           order: pastDateOrder
         });
-      }).toThrow(/CANCEL_DENIED.*trong ngày làm việc hiện tại/i);
+      }).toThrow(/CANCEL_DENIED.*trong ngÃ y lÃ m viá»‡c hiá»‡n táº¡i/i);
     });
 
     it('Rejects cancellation without reason', () => {
@@ -450,7 +452,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           order: validOrder,
           currentSessionId: 'ws-active-1'
         });
-      }).toThrow(/CANCEL_DENIED.*lý do hủy/i);
+      }).toThrow(/CANCEL_DENIED.*lÃ½ do há»§y/i);
     });
 
     it('Idempotence: Rejects repeated cancellation of already cancelled order', async () => {
@@ -460,16 +462,16 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
         code: 'HD-IDEMP-01',
         accountId: employeeActor.id,
         workSessionId: 'ws-active-1',
-        totalAmount: 150000,
+        totalAmount: 150000, items: [{ productId: 'p4', quantity: 150000, price: 1 }],
         status: 'completed',
         createdAt: nowIso,
-        items: [{ productId: 'p1', quantity: 1, price: 150000 }]
+        items: [{ productId: 'p2', quantity: 1, price: 150000 }]
       }, employeeActor);
 
       // First cancellation
       await orderApi.cancel('ord-to-cancel-idemp', {
         actor: employeeActor,
-        reason: 'Khách yêu cầu hoàn tiền',
+        reason: 'KhÃ¡ch yÃªu cáº§u hoÃ n tiá»n',
         currentSessionId: 'ws-active-1'
       });
 
@@ -477,7 +479,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       await expect(
         orderApi.cancel('ord-to-cancel-idemp', {
           actor: employeeActor,
-          reason: 'Cố hủy lần 2',
+          reason: 'Cá»‘ há»§y láº§n 2',
           currentSessionId: 'ws-active-1'
         })
       ).rejects.toThrow(/ORDER_ALREADY_CANCELLED/);
@@ -515,7 +517,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       // 2. Cancel and restock
       const cancelRes = await orderApi.cancelAndRestock(order.id, {
         actor: adminActor,
-        reason: 'Khách hàng trả toàn bộ hàng lỗi',
+        reason: 'KhÃ¡ch hÃ ng tráº£ toÃ n bá»™ hÃ ng lá»—i',
         currentSessionId: 'ws-active-1'
       });
 
@@ -537,7 +539,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       await expect(
         orderApi.cancelAndRestock(order.id, {
           actor: adminActor,
-          reason: 'Cố hoàn kho lần 2'
+          reason: 'Cá»‘ hoÃ n kho láº§n 2'
         })
       ).rejects.toThrow(/ORDER_ALREADY_CANCELLED/);
     });
@@ -554,7 +556,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
         code: 'HD-PAST-99',
         accountId: adminActor.id,
         businessDate: pastDate,
-        totalAmount: 500000,
+        totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }],
         status: 'completed',
         createdAt: '2026-08-10T14:00:00.000Z',
         items: [{ productId: 'p1', quantity: 1, price: 500000 }]
@@ -563,7 +565,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
 
       const cancelRes = await orderApi.cancel(pastOrder.id, {
         actor: adminActor,
-        reason: 'Hủy đơn lịch sử theo phán quyết của Giám đốc',
+        reason: 'Há»§y Ä‘Æ¡n lá»‹ch sá»­ theo phÃ¡n quyáº¿t cá»§a GiÃ¡m Ä‘á»‘c',
         order: pastOrder
       });
 
@@ -587,7 +589,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       });
 
       await waitFor(() => expect(actionRef.current?.products?.length).toBeGreaterThan(0));
-      const testProd = actionRef.current.products[0]; // 436,000đ
+      const testProd = actionRef.current.products[0]; // 436,000Ä‘
 
       await act(async () => {
         actionRef.current.addToCart(testProd, 1);
@@ -596,7 +598,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       // Customer gives only 300,000 for a 436,000 order
       await expect(
         actionRef.current.checkout('cash', 300000)
-      ).rejects.toThrow(/không đủ để thanh toán/i);
+      ).rejects.toThrow(/khÃ´ng Ä‘á»§ Ä‘á»ƒ thanh toÃ¡n/i);
     });
 
     it('Calculates change correctly when customer pays sufficient cash', async () => {
@@ -608,7 +610,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       });
 
       await waitFor(() => expect(actionRef.current?.products?.length).toBeGreaterThan(0));
-      const testProd = actionRef.current.products[0]; // 436,000đ
+      const testProd = actionRef.current.products[0]; // 436,000Ä‘
 
       await act(async () => {
         actionRef.current.addToCart(testProd, 1);
@@ -655,8 +657,8 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
     it('Rejects checkout with REGISTER_INACTIVE when registered POS is marked inactive in registerApi/db.json', async () => {
       const originalGetAll = registerApi.getAll;
       registerApi.getAll = vi.fn().mockResolvedValue([
-        { id: 'POS01', name: 'Quầy Thu Ngân 01', isActive: false },
-        { id: 'POS02', name: 'Quầy Thu Ngân 02', isActive: true },
+        { id: 'POS01', name: 'Quáº§y Thu NgÃ¢n 01', isActive: false },
+        { id: 'POS02', name: 'Quáº§y Thu NgÃ¢n 02', isActive: true },
       ]);
 
       const actionRef = { current: null };

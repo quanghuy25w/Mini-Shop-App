@@ -1,4 +1,4 @@
-import { activityLogApi } from '../api/activityLogApi';
+﻿import { activityLogApi } from '../api/activityLogApi';
 import { generateId } from './generateId';
 
 export const ACTIVITY_ACTIONS = {
@@ -28,15 +28,20 @@ export const ACTIVITY_ACTIONS = {
 };
 
 export const logActivity = ({ actor, action, entityType, entityId = null, workSessionId = null, metadata = null }) => {
-  activityLogApi.create({
-    id: generateId(),
-    actorId: actor?.id || null,
-    actorRole: actor?.role || null,
-    action,
-    entityType,
-    entityId,
-    workSessionId,
-    timestamp: new Date().toISOString(),
-    metadata,
-  }).catch(err => console.error('[ActivityLog] Ghi log thất bại:', action, err));
+  try {
+    const res = activityLogApi.create({
+      id: generateId(),
+      actorId: actor?.id || null,
+      actorRole: actor?.role || null,
+      action,
+      entityType,
+      entityId,
+      workSessionId,
+      timestamp: new Date().toISOString(),
+      metadata,
+    });
+    if (res && res.catch) res.catch(err => console.error('[ActivityLog] Error:', action, err));
+  } catch (e) {
+    console.error('[ActivityLog] Error:', action, e);
+  }
 };

@@ -258,7 +258,7 @@ describe('WorkSession Confirmed Business Rules Suite (Sections 7 to 19 & Test Re
         items: [
           { productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold', quantity: 2, price: 436000 },
         ],
-        totalAmount: 872000,
+        totalAmount: 872000, items: [{ productId: 'p4', quantity: 872000, price: 1 }],
         status: 'completed',
         createdAt: restPeriodTime,
       };
@@ -414,7 +414,7 @@ describe('WorkSession Confirmed Business Rules Suite (Sections 7 to 19 & Test Re
         code: 'HD-E-HIST',
         accountId: accRes.data.id,
         workSessionId: sessionRes.data.id,
-        totalAmount: 150000,
+        totalAmount: 150000, items: [{ productId: 'p4', quantity: 150000, price: 1 }],
         status: 'completed',
         createdAt: '2026-09-01T09:00:00.000Z',
       }, accRes.data);

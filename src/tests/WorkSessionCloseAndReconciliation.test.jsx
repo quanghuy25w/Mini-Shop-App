@@ -36,7 +36,7 @@ describe('WorkSession Close & Cash Reconciliation Tests (Part 6)', () => {
         code: 'HD-C1',
         workSessionId: 'ws-close-test-1',
         paymentMethod: 'cash',
-        totalAmount: 300000,
+        totalAmount: 300000, items: [{ productId: 'p4', quantity: 300000, price: 1 }],
         status: 'completed'
       }, mockDefaultAdmin);
 
@@ -46,7 +46,7 @@ describe('WorkSession Close & Cash Reconciliation Tests (Part 6)', () => {
         code: 'HD-T1',
         workSessionId: 'ws-close-test-1',
         paymentMethod: 'transfer',
-        totalAmount: 200000,
+        totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
         status: 'completed'
       }, mockDefaultAdmin);
 
@@ -56,7 +56,7 @@ describe('WorkSession Close & Cash Reconciliation Tests (Part 6)', () => {
         code: 'HD-C2',
         workSessionId: 'ws-close-test-1',
         paymentMethod: 'cash',
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         status: 'cancelled'
       }, mockDefaultAdmin);
 
@@ -167,7 +167,7 @@ describe('WorkSession Close & Cash Reconciliation Tests (Part 6)', () => {
           code: 'HD-M1',
           workSessionId: 'ws-modal-1',
           paymentMethod: 'cash',
-          totalAmount: 250000,
+          totalAmount: 250000, items: [{ productId: 'p4', quantity: 250000, price: 1 }],
           status: 'completed',
           businessDate: '2026-09-13'
         }

@@ -1,4 +1,4 @@
-import { initSeedData } from './mockApi';
+﻿import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithProviders } from './testUtils';
@@ -15,7 +15,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
   const adminActor = {
     id: 'acc-admin-main',
     role: ROLES.ADMIN,
-    name: 'Quản trị viên',
+    name: 'Quáº£n trá»‹ viÃªn',
     email: 'admin@shop.vn',
     permissions: [],
     isActive: true,
@@ -24,7 +24,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
   const staffActor = {
     id: 'acc-staff-manager',
     role: ROLES.STAFF,
-    name: 'Quản lý Cửa Hàng',
+    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
     employeeCode: 'NV001',
     employeeId: 'staff-001',
     permissions: [],
@@ -34,7 +34,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
   const employee1Actor = {
     id: 'acc-emp-1',
     role: ROLES.EMPLOYEE,
-    name: 'Nguyễn Văn A',
+    name: 'Nguyá»…n VÄƒn A',
     employeeCode: 'NV002',
     employeeId: 'staff-002',
     permissions: [],
@@ -44,7 +44,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
   const employee2Actor = {
     id: 'acc-emp-2',
     role: ROLES.EMPLOYEE,
-    name: 'Trần Thị B',
+    name: 'Tráº§n Thá»‹ B',
     employeeCode: 'NV003',
     employeeId: 'staff-003',
     permissions: [],
@@ -110,9 +110,9 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       });
 
       await waitFor(() => {
-        expect(screen.getAllByText('Lịch sử hoạt động').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Lá»‹ch sá»­ hoáº¡t Ä‘á»™ng').length).toBeGreaterThan(0);
         expect(screen.getByText('Check-in ca')).toBeTruthy();
-        expect(screen.getByText('Tạo đơn hàng')).toBeTruthy();
+        expect(screen.getByText('Táº¡o Ä‘Æ¡n hÃ ng')).toBeTruthy();
       });
     });
 
@@ -131,7 +131,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       });
 
       await waitFor(() => {
-        expect(screen.getAllByText('Lịch sử hoạt động').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Lá»‹ch sá»­ hoáº¡t Ä‘á»™ng').length).toBeGreaterThan(0);
       });
     });
 
@@ -190,25 +190,27 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
 
       // Employee 1 creates 2 completed orders today (100k + 200k = 300k)
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-emp1-today1',
         code: 'HD001',
         accountId: employee1Actor.id,
         employeeId: employee1Actor.employeeId,
-        totalAmount: 100000,
+        totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
-        items: [{ productId: 'p1', productName: 'Bút', quantity: 2, price: 50000 }],
+        items: [{ productId: 'p1', productName: 'BÃºt', quantity: 2, price: 50000 }],
       }, employee1Actor);
 
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-emp1-today2',
         code: 'HD002',
         accountId: employee1Actor.id,
         employeeId: employee1Actor.employeeId,
-        totalAmount: 200000,
+        totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
-        items: [{ productId: 'p2', productName: 'Vở', quantity: 4, price: 50000 }],
+        items: [{ productId: 'p2', productName: 'Vá»Ÿ', quantity: 4, price: 50000 }],
       }, employee1Actor);
 
       renderWithProviders(<DashboardPage />, {
@@ -222,43 +224,45 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Tổng Quan (Dashboard)')).toBeTruthy();
-        expect(screen.getByText(/Hiệu suất bán hàng cá nhân của Nguyễn Văn A/)).toBeTruthy();
+        expect(screen.getByText('Tá»•ng Quan (Dashboard)')).toBeTruthy();
+        expect(screen.getByText(/Hiá»‡u suáº¥t bÃ¡n hÃ ng cÃ¡ nhÃ¢n cá»§a Nguyá»…n VÄƒn A/)).toBeTruthy();
       });
 
       // Today KPI card checks
-      expect(screen.getByText('Doanh số hôm nay')).toBeTruthy();
+      expect(screen.getByText('Doanh sá»‘ hÃ´m nay')).toBeTruthy();
       expect(screen.getAllByText(/300\.000/).length).toBeGreaterThan(0);
-      expect(screen.getByText('2 đơn hàng hôm nay')).toBeTruthy();
+      expect(screen.getByText('2 Ä‘Æ¡n hÃ ng hÃ´m nay')).toBeTruthy();
 
       // This Week KPI card checks
-      expect(screen.getByText('Doanh số tuần này')).toBeTruthy();
+      expect(screen.getByText('Doanh sá»‘ tuáº§n nÃ y')).toBeTruthy();
       expect(screen.getAllByText(/300\.000/).length).toBeGreaterThan(0);
-      expect(screen.getByText('2 đơn hàng tuần này')).toBeTruthy();
+      expect(screen.getByText('2 Ä‘Æ¡n hÃ ng tuáº§n nÃ y')).toBeTruthy();
     });
 
     it('3. Employee CANNOT view another employee sales data on Dashboard', async () => {
       const now = new Date();
       const todayIso = now.toISOString();
 
-      // Employee 1 has 1 order of 50.000đ
+      // Employee 1 has 1 order of 50.000Ä‘
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-emp1',
         code: 'HD-EMP1',
         accountId: employee1Actor.id,
         employeeId: employee1Actor.employeeId,
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
       }, employee1Actor);
 
-      // Employee 2 (different employee) has 1 order of 5.000.000đ
+      // Employee 2 (different employee) has 1 order of 5.000.000Ä‘
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-emp2',
         code: 'HD-EMP2',
         accountId: employee2Actor.id,
         employeeId: employee2Actor.employeeId,
-        totalAmount: 5000000,
+        totalAmount: 5000000, items: [{ productId: 'p4', quantity: 5000000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
       }, employee2Actor);
@@ -278,7 +282,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
         expect(screen.getAllByText(/50\.000/).length).toBeGreaterThan(0);
       });
 
-      // Must NOT see Employee 2's 5.000.000đ
+      // Must NOT see Employee 2's 5.000.000Ä‘
       expect(screen.queryByText(/5\.000\.000/)).toBeNull();
       expect(screen.queryByText(/5\.050\.000/)).toBeNull();
 
@@ -292,19 +296,21 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       const todayIso = now.toISOString();
 
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-emp1',
         code: 'HD-E1',
         accountId: employee1Actor.id,
-        totalAmount: 80000,
+        totalAmount: 80000, items: [{ productId: 'p4', quantity: 80000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
       }, employee1Actor);
 
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-emp2',
         code: 'HD-E2',
         accountId: employee2Actor.id,
-        totalAmount: 999000,
+        totalAmount: 999000, items: [{ productId: 'p4', quantity: 999000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
       }, employee2Actor);
@@ -335,20 +341,22 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
 
       // 1 completed order (120k)
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-completed',
         code: 'HD-OK',
         accountId: employee1Actor.id,
-        totalAmount: 120000,
+        totalAmount: 120000, items: [{ productId: 'p4', quantity: 120000, price: 1 }],
         status: 'completed',
         createdAt: todayIso,
       }, employee1Actor);
 
       // 1 cancelled order (500k)
       await orderApi.create({
+          workSessionId: 'ws-mock-test',
         id: 'ord-cancelled',
         code: 'HD-CANCEL',
         accountId: employee1Actor.id,
-        totalAmount: 500000,
+        totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }],
         status: 'cancelled',
         createdAt: todayIso,
       }, employee1Actor);
@@ -370,7 +378,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       // 500k cancelled order is NOT added into sales total
       expect(screen.queryByText(/620\.000/)).toBeNull();
       expect(screen.queryByText(/500\.000/)).toBeNull();
-      expect(screen.getByText('1 đơn hàng hôm nay')).toBeTruthy();
+      expect(screen.getByText('1 Ä‘Æ¡n hÃ ng hÃ´m nay')).toBeTruthy();
     });
   });
 
@@ -390,10 +398,10 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Sản phẩm đang bán')).toBeTruthy();
-        expect(screen.getByText('Tổng giá trị tồn kho')).toBeTruthy();
-        expect(screen.getByText('Doanh thu 7 ngày')).toBeTruthy();
-        expect(screen.getByText('Đơn hàng 7 ngày')).toBeTruthy();
+        expect(screen.getByText('Sáº£n pháº©m Ä‘ang bÃ¡n')).toBeTruthy();
+        expect(screen.getByText('Tá»•ng giÃ¡ trá»‹ tá»“n kho')).toBeTruthy();
+        expect(screen.getByText('Doanh thu 7 ngÃ y')).toBeTruthy();
+        expect(screen.getByText('ÄÆ¡n hÃ ng 7 ngÃ y')).toBeTruthy();
       });
     });
   });

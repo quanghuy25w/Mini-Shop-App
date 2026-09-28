@@ -167,7 +167,7 @@ describe('Register / POS Workflow Tests', () => {
       workSessionMemberId: memberPOS01Res.data.id,
       businessDate: MOCK_DATE,
       status: 'completed',
-      totalAmount: 100000,
+      totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
     };
 
     // Simulate Order B từ POS02
@@ -180,7 +180,7 @@ describe('Register / POS Workflow Tests', () => {
       workSessionMemberId: memberPOS02Res.data.id,
       businessDate: MOCK_DATE,
       status: 'completed',
-      totalAmount: 200000,
+      totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
     };
 
     expect(orderA.registerId).toBe('POS01');

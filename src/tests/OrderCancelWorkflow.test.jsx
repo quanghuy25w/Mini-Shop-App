@@ -27,7 +27,7 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
       items: [
         { productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold 380g (Beta Glucan)', quantity: 2, price: 436000 }
       ],
-      totalAmount: 872000,
+      totalAmount: 872000, items: [{ productId: 'p4', quantity: 872000, price: 1 }],
       status: 'completed',
       createdAt: new Date().toISOString()
     };
@@ -168,7 +168,7 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
       items: [
         { productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold', quantity: 1, price: 436000 }
       ],
-      totalAmount: 436000,
+      totalAmount: 436000, items: [{ productId: 'p4', quantity: 436000, price: 1 }],
       status: 'completed',
       createdAt: new Date().toISOString()
     };
@@ -217,7 +217,7 @@ describe('Group 5: Hủy đơn (OrderCancelWorkflow) Tests', () => {
       items: [
         { productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold', quantity: 1, price: 436000 }
       ],
-      totalAmount: 436000,
+      totalAmount: 436000, items: [{ productId: 'p4', quantity: 436000, price: 1 }],
       status: 'completed',
       createdAt: twentyMinsAgo
     };

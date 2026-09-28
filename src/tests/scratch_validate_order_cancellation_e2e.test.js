@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+﻿import { describe, it, expect, beforeEach } from 'vitest';
 import { orderApi } from '../api/orderApi.js';
 import { productApi } from '../api/productApi.js';
 import { inventoryApi } from '../api/inventoryApi.js';
@@ -13,10 +13,10 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
   });
 
   it('Executes all 10 core order cancellation workflow scenarios with 100% pass', async () => {
-    const adminActor = { id: 'acc-admin-main', role: 'admin', name: 'Quản trị viên' };
-    const staffActor = { id: 'acc-staff-manager', role: 'staff', name: 'Quản lý' };
-    const emp1Actor = { id: 'acc-emp-1', role: 'employee', name: 'Nhân viên 1' };
-    const emp2Actor = { id: 'acc-emp-2', role: 'employee', name: 'Nhân viên 2' };
+    const adminActor = { id: 'acc-admin-main', role: 'admin', name: 'Quáº£n trá»‹ viÃªn' };
+    const staffActor = { id: 'acc-staff-manager', role: 'staff', name: 'Quáº£n lÃ½' };
+    const emp1Actor = { id: 'acc-emp-1', role: 'employee', name: 'NhÃ¢n viÃªn 1' };
+    const emp2Actor = { id: 'acc-emp-2', role: 'employee', name: 'NhÃ¢n viÃªn 2' };
 
     // Setup product
     const products = (await productApi.getAll()).data;
@@ -40,14 +40,14 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
     // 2. Employee cancels own eligible order within 15 minutes
     const cancelRes1 = await orderApi.cancel(order1Data.id, {
       actor: emp1Actor,
-      reason: 'Khách hàng đổi ý muốn mua loại khác',
+      reason: 'KhÃ¡ch hÃ ng Ä‘á»•i Ã½ muá»‘n mua loáº¡i khÃ¡c',
       order: order1Data,
       currentSessionId: 'ws-e2e-shift',
     });
     expect(cancelRes1.data.status).toBe('cancelled');
 
     // 3. Stock is restored
-    await productApi.updateStock(testProd.id, initialStock + 2, emp1Actor, { source: 'order_cancellation', orderCode: 'HD-E2E-01' });
+    
     const prodAfter1 = (await productApi.getById(testProd.id)).data;
     expect(prodAfter1.stockQuantity).toBe(initialStock + 2);
 
@@ -60,7 +60,7 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
       unitPrice: testProd.sellPrice,
       accountId: emp1Actor.id,
       workSessionId: 'ws-e2e-shift',
-      note: 'Hoàn kho - hủy HD-E2E-01',
+      note: 'HoÃ n kho - há»§y HD-E2E-01',
       createdAt: new Date().toISOString(),
     };
     await inventoryApi.createSystemTransaction(inTxData);
@@ -89,7 +89,7 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
     expect(() => {
       orderApi.cancel(order2Data.id, {
         actor: emp1Actor,
-        reason: 'Hủy hộ đồng nghiệp',
+        reason: 'Há»§y há»™ Ä‘á»“ng nghiá»‡p',
         order: order2Data,
         currentSessionId: 'ws-e2e-shift',
       });
@@ -111,7 +111,7 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
     expect(() => {
       orderApi.cancel(order3Data.id, {
         actor: emp1Actor,
-        reason: 'Hủy đơn quá hạn',
+        reason: 'Há»§y Ä‘Æ¡n quÃ¡ háº¡n',
         order: order3Data,
         currentSessionId: 'ws-e2e-shift',
       });
@@ -120,7 +120,7 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
     // 8. Staff performs approved management cancellation (on old order from different seller)
     const staffCancelRes = await orderApi.cancel(order3Data.id, {
       actor: staffActor,
-      reason: 'Quản lý duyệt hủy đơn sau đối soát ca',
+      reason: 'Quáº£n lÃ½ duyá»‡t há»§y Ä‘Æ¡n sau Ä‘á»‘i soÃ¡t ca',
       order: order3Data,
       currentSessionId: 'ws-e2e-shift',
     });
@@ -129,7 +129,7 @@ describe('10-Step E2E Browser & Acceptance Scenarios Validation', () => {
     // 9. Admin performs approved cancellation
     const adminCancelRes = await orderApi.cancel(order2Data.id, {
       actor: adminActor,
-      reason: 'Admin can thiệp hủy giao dịch lỗi',
+      reason: 'Admin can thiá»‡p há»§y giao dá»‹ch lá»—i',
       order: order2Data,
       currentSessionId: 'ws-e2e-shift',
     });

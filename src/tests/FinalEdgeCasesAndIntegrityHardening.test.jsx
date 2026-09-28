@@ -80,10 +80,11 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
     it('Rejects order creation with an unregistered register ID', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-invalid-pos',
           registerId: 'POS99',
           items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 10000 }],
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
           paymentMethod: 'cash',
         }, employee1);
       }).toThrow(/Quầy bán hàng "POS99" không tồn tại/i);
@@ -92,10 +93,11 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
     it('Rejects order creation with an invalid payment method', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-invalid-method',
           registerId: 'POS01',
           items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 10000 }],
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
           paymentMethod: 'crypto',
         }, employee1);
       }).toThrow(/Phương thức thanh toán "crypto" không hợp lệ/i);
@@ -301,10 +303,11 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
 
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-deactivated-user',
           registerId: 'POS01',
           items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 10000 }],
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
           paymentMethod: 'cash',
         }, deactivatedActor);
       }).toThrow(/ACCOUNT_INACTIVE/i);
@@ -322,7 +325,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
         registerId: 'POS01',
         workSessionId: 'ws-cancel-rules',
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         paymentMethod: 'cash',
         businessDate: today,
         createdAt: new Date().toISOString(),
@@ -345,7 +348,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
         registerId: 'POS01',
         workSessionId: 'ws-cancel-window',
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         paymentMethod: 'cash',
         createdAt: twentyMinutesAgo,
       }, employee1);
@@ -365,7 +368,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
         registerId: 'POS01',
         workSessionId: 'ws-cancel-double',
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         paymentMethod: 'cash',
         createdAt: new Date().toISOString(),
       }, employee1);
@@ -397,7 +400,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
         registerId: 'POS01',
         workSessionId: 'ws-cancel-rb',
         items: [{ productId: testProd.id, quantity: 2, price: 10000 }],
-        totalAmount: 20000,
+        totalAmount: 20000, items: [{ productId: 'p4', quantity: 20000, price: 1 }],
         paymentMethod: 'cash',
         createdAt: new Date().toISOString(),
       }, adminActor);
@@ -434,7 +437,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
           {
             id: 'ord-no-reg',
             businessDate: today,
-            totalAmount: 100000,
+            totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
             paymentMethod: 'cash',
             status: 'completed',
             registerId: null, // MISSING
@@ -455,7 +458,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
           {
             id: 'ord-bad-reg',
             businessDate: today,
-            totalAmount: 100000,
+            totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
             paymentMethod: 'cash',
             status: 'completed',
             registerId: 'POS99', // INVALID
@@ -476,7 +479,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
           {
             id: 'ord-bad-refund',
             businessDate: today,
-            totalAmount: 100000,
+            totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
             refundAmount: 250000, // EXCEEDS totalAmount
             paymentMethod: 'cash',
             status: 'cancelled',
@@ -500,7 +503,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
             id: 'ord-dup-sale',
             code: 'HD-DUP-01',
             businessDate: today,
-            totalAmount: 50000,
+            totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
             paymentMethod: 'cash',
             status: 'completed',
             registerId: 'POS01',
@@ -545,7 +548,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
             id: 'ord-dup-restock',
             code: 'HD-DUP-02',
             businessDate: today,
-            totalAmount: 50000,
+            totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
             refundAmount: 50000,
             paymentMethod: 'cash',
             status: 'cancelled',
@@ -591,7 +594,7 @@ describe('Phase 6B: Final Edge Cases, Business Integrity & Pre-Audit QA', () => 
             id: 'ord-pristine',
             code: 'HD-OK-01',
             businessDate: today,
-            totalAmount: 50000,
+            totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
             paymentMethod: 'cash',
             status: 'completed',
             registerId: 'POS01',

@@ -63,8 +63,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
       const orderPayload = {
         id: 'ord-admin-01',
         code: 'HD-ADM-01',
-        totalAmount: 150000,
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 150000 }],
+        totalAmount: 150000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 150000 }],
         paymentMethod: 'cash',
       };
 
@@ -82,7 +81,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         code: 'HD-OLD-ADM',
         accountId: employee1Actor.id,
         workSessionId: 'ws-active-1',
-        totalAmount: 100000,
+        totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         status: 'completed',
         createdAt: oneHourAgo,
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }],
@@ -319,8 +318,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
       const order = {
         id: 'ord-emp1-legit',
         code: 'HD-E1-01',
-        totalAmount: 50000,
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+        totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
       };
 
       const res = await orderApi.create(order, employee1Actor);
@@ -334,27 +332,27 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
       // Trying to specify another accountId
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           accountId: employee2Actor.id,
-          totalAmount: 50000,
-          items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+          totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
         }, employee1Actor);
       }).toThrow(/PERMISSION_DENIED/);
 
       // Trying to specify another sellerId
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           sellerId: employee2Actor.id,
-          totalAmount: 50000,
-          items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+          totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
         }, employee1Actor);
       }).toThrow(/PERMISSION_DENIED/);
 
       // Trying to specify another employeeId
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           employeeId: employee2Actor.employeeId,
-          totalAmount: 50000,
-          items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+          totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
         }, employee1Actor);
       }).toThrow(/PERMISSION_DENIED/);
     });
@@ -366,7 +364,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         code: 'HD-E1-FRESH',
         accountId: employee1Actor.id,
         workSessionId: 'ws-active-1',
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         status: 'completed',
         createdAt: fiveMinsAgo,
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
@@ -391,7 +389,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         code: 'HD-E1-EXP',
         accountId: employee1Actor.id,
         workSessionId: 'ws-active-1',
-        totalAmount: 50000,
+        totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         status: 'completed',
         createdAt: twentyMinsAgo,
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
@@ -416,7 +414,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         accountId: employee2Actor.id,
         sellerId: employee2Actor.id,
         workSessionId: 'ws-active-1',
-        totalAmount: 70000,
+        totalAmount: 70000, items: [{ productId: 'p4', quantity: 70000, price: 1 }],
         status: 'completed',
         createdAt: fiveMinsAgo,
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 70000 }],
@@ -530,7 +528,8 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
   describe('4. Fail-closed Behavior & Integrity', () => {
     it('4.1. Missing actor on protected mutation throws NOT_AUTHENTICATED', async () => {
       expect(() => {
-        orderApi.create({ totalAmount: 10000 }, null);
+        orderApi.create({
+          workSessionId: 'ws-mock-test', totalAmount: 10000 }, null);
       }).toThrow(/NOT_AUTHENTICATED/);
 
       await expect(

@@ -74,7 +74,7 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
           workSessionId: 'ws-5b-01',
           businessDate: today,
           registerId: 'POS01',
-          totalAmount: 500000,
+          totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }],
           paymentMethod: 'cash',
           status: 'completed',
         },
@@ -83,7 +83,7 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
           workSessionId: 'ws-5b-01',
           businessDate: today,
           registerId: 'POS02',
-          totalAmount: 300000,
+          totalAmount: 300000, items: [{ productId: 'p4', quantity: 300000, price: 1 }],
           paymentMethod: 'transfer',
           status: 'completed',
         },
@@ -93,7 +93,7 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
           businessDate: today,
           registerId: 'POS01',
           cancelledRegisterId: 'POS02', // cross-POS refund
-          totalAmount: 100000,
+          totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
           refundAmount: 100000,
           paymentMethod: 'cash',
           refundMethod: 'cash',
@@ -146,7 +146,7 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
           workSessionId: 'ws-5b-hist',
           businessDate: today,
           registerId: 'POS01',
-          totalAmount: 400000,
+          totalAmount: 400000, items: [{ productId: 'p4', quantity: 400000, price: 1 }],
           paymentMethod: 'cash',
           status: 'completed',
         },
@@ -159,7 +159,7 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
           cancelledBusinessDate: today,
           registerId: 'POS01',
           cancelledRegisterId: 'POS01',
-          totalAmount: 150000,
+          totalAmount: 150000, items: [{ productId: 'p4', quantity: 150000, price: 1 }],
           refundAmount: 150000,
           paymentMethod: 'cash',
           refundMethod: 'cash',
@@ -229,7 +229,7 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
           id: 'ord-lunch-sale',
           code: 'HD-LUNCH',
           accountId: employee1.id,
-          totalAmount: 150000,
+          totalAmount: 150000, items: [{ productId: 'p4', quantity: 150000, price: 1 }],
           status: 'completed',
           businessDate: '2026-09-25',
           createdAt: '2026-09-25T05:20:00.000Z', // 12:20 VN
@@ -293,8 +293,8 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
         },
       ];
       const orders = [
-        { id: 'o-m1', accountId: employee1.id, totalAmount: 400000, status: 'completed', businessDate: '2026-09-01' },
-        { id: 'o-m2', accountId: employee1.id, totalAmount: 600000, status: 'completed', businessDate: '2026-09-02' },
+        { id: 'o-m1', accountId: employee1.id, totalAmount: 400000, items: [{ productId: 'p4', quantity: 400000, price: 1 }], status: 'completed', businessDate: '2026-09-01' },
+        { id: 'o-m2', accountId: employee1.id, totalAmount: 600000, items: [{ productId: 'p4', quantity: 600000, price: 1 }], status: 'completed', businessDate: '2026-09-02' },
       ];
 
       const monthly = calculateMonthlyWorkSummary({
@@ -403,9 +403,9 @@ describe('Phase 5B: Reporting Domain Hardening & Data Consistency Validation', (
       };
 
       const orders = [
-        { id: 'ord-pos1-cash', registerId: 'POS01', totalAmount: 500000, paymentMethod: 'cash', status: 'completed', businessDate: today },
-        { id: 'ord-pos1-card', registerId: 'POS01', totalAmount: 200000, paymentMethod: 'transfer', status: 'completed', businessDate: today },
-        { id: 'ord-pos2-cash', registerId: 'POS02', totalAmount: 300000, paymentMethod: 'cash', status: 'completed', businessDate: today },
+        { id: 'ord-pos1-cash', registerId: 'POS01', totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }], paymentMethod: 'cash', status: 'completed', businessDate: today },
+        { id: 'ord-pos1-card', registerId: 'POS01', totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }], paymentMethod: 'transfer', status: 'completed', businessDate: today },
+        { id: 'ord-pos2-cash', registerId: 'POS02', totalAmount: 300000, items: [{ productId: 'p4', quantity: 300000, price: 1 }], paymentMethod: 'cash', status: 'completed', businessDate: today },
       ];
 
       const members = [

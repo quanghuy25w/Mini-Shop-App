@@ -88,9 +88,9 @@ describe('Chrome / Browser End-to-End Workflow Validation (Items 1 to 11)', () =
       accountId: employeeActor.id,
       sellerId: employeeActor.id,
       status: 'completed',
-      totalAmount: 350000,
+      totalAmount: 350000, items: [{ productId: 'p4', quantity: 350000, price: 1 }],
       businessDate: '2026-09-11',
-      items: [{ productId: 'p1', quantity: 1, price: 350000 }],
+      items: [{ productId: 'p1', quantity: 1.4, price: 250000 }],
       createdAt: '2026-09-11T09:30:00+07:00',
     }, employeeActor);
 

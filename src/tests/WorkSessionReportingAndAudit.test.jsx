@@ -1,4 +1,4 @@
-import { initSeedData } from './mockApi';
+﻿import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { reportApi } from '../api/reportApi';
@@ -21,7 +21,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     id: 'acc-admin-rep',
     employeeId: null,
     role: ROLES.ADMIN,
-    name: 'Quản trị viên',
+    name: 'Quáº£n trá»‹ viÃªn',
     email: 'admin@shop.vn',
     isActive: true,
   };
@@ -30,7 +30,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     id: 'acc-staff-rep',
     employeeId: 'st-staff-rep',
     role: ROLES.STAFF,
-    name: 'Quản lý Cửa Hàng',
+    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
     employeeCode: 'NVSTAFF',
     isActive: true,
   };
@@ -39,7 +39,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     id: 'acc-emp-a',
     employeeId: 'st-emp-a',
     role: ROLES.EMPLOYEE,
-    name: 'Nguyễn Anh',
+    name: 'Nguyá»…n Anh',
     employeeCode: 'NV001',
     isActive: true,
   };
@@ -48,7 +48,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     id: 'acc-emp-b',
     employeeId: 'st-emp-b',
     role: ROLES.EMPLOYEE,
-    name: 'Trần Bình',
+    name: 'Tráº§n BÃ¬nh',
     employeeCode: 'NV002',
     isActive: true,
   };
@@ -121,7 +121,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
           lateMinutes: 0,
         },
       ];
-      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyễn Anh' }];
+      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh' }];
       const accountList = [{ id: 'acc-emp-a', employeeId: 'st-emp-a', role: 'employee' }];
 
       const summary = calculateDailyWorkSummary({
@@ -173,7 +173,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
           checkOutTime: '2026-09-10T15:00:00.000Z', // 22:00 VN (180 mins)
         },
       ];
-      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyễn Anh' }];
+      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh' }];
       const accountList = [{ id: 'acc-emp-a', employeeId: 'st-emp-a', role: 'employee' }];
 
       const summary = calculateDailyWorkSummary({
@@ -236,7 +236,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
         accountId: 'acc-emp-a',
         members,
         sessions,
-        staffList: [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyễn Anh' }],
+        staffList: [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh' }],
         accountList: [{ id: 'acc-emp-a', employeeId: 'st-emp-a', role: 'employee' }],
       });
 
@@ -247,10 +247,10 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     it('7, 8 & 9. Completed order count, sales amount, and cancelled orders exclusion follow accounting rules', () => {
       const dateStr = '2026-09-10';
       const orders = [
-        { id: 'o1', code: 'HD001', accountId: 'acc-emp-a', totalAmount: 468000, status: 'completed', businessDate: dateStr, createdAt: '2026-09-10T02:12:15.000Z' },
-        { id: 'o2', code: 'HD002', accountId: 'acc-emp-a', totalAmount: 625000, status: 'completed', businessDate: dateStr, createdAt: '2026-09-10T02:45:32.000Z' },
-        { id: 'o3', code: 'HD003', accountId: 'acc-emp-a', totalAmount: 300000, status: 'cancelled', businessDate: dateStr, createdAt: '2026-09-10T03:00:00.000Z' }, // Cancelled
-        { id: 'o4', code: 'HD004', accountId: 'acc-emp-b', totalAmount: 1000000, status: 'completed', businessDate: dateStr, createdAt: '2026-09-10T03:15:00.000Z' }, // Other seller
+        { id: 'o1', code: 'HD001', accountId: 'acc-emp-a', totalAmount: 468000, items: [{ productId: 'p4', quantity: 468000, price: 1 }], status: 'completed', businessDate: dateStr, createdAt: '2026-09-10T02:12:15.000Z' },
+        { id: 'o2', code: 'HD002', accountId: 'acc-emp-a', totalAmount: 625000, items: [{ productId: 'p4', quantity: 625000, price: 1 }], status: 'completed', businessDate: dateStr, createdAt: '2026-09-10T02:45:32.000Z' },
+        { id: 'o3', code: 'HD003', accountId: 'acc-emp-a', totalAmount: 300000, items: [{ productId: 'p4', quantity: 300000, price: 1 }], status: 'cancelled', businessDate: dateStr, createdAt: '2026-09-10T03:00:00.000Z' }, // Cancelled
+        { id: 'o4', code: 'HD004', accountId: 'acc-emp-b', totalAmount: 1000000, items: [{ productId: 'p4', quantity: 1000000, price: 1 }], status: 'completed', businessDate: dateStr, createdAt: '2026-09-10T03:15:00.000Z' }, // Other seller
       ];
 
       const summary = calculateDailyWorkSummary({
@@ -259,7 +259,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
         members: [],
         sessions: [],
         orders,
-        staffList: [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyễn Anh' }],
+        staffList: [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh' }],
         accountList: [{ id: 'acc-emp-a', employeeId: 'st-emp-a', role: 'employee' }],
       });
 
@@ -288,11 +288,11 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
         { id: 'm-03', workSessionId: 'ws-03', accountId: 'acc-emp-a', shiftType: 'morning', checkInTime: '2026-09-03T00:30:00.000Z', checkOutTime: '2026-09-03T05:00:00.000Z' },
       ];
       const orders = [
-        { id: 'o-01', accountId: 'acc-emp-a', totalAmount: 500000, status: 'completed', businessDate: '2026-09-01', createdAt: '2026-09-01T03:00:00.000Z' },
-        { id: 'o-02', accountId: 'acc-emp-a', totalAmount: 700000, status: 'completed', businessDate: '2026-09-02', createdAt: '2026-09-02T07:00:00.000Z' },
-        { id: 'o-03', accountId: 'acc-emp-a', totalAmount: 800000, status: 'completed', businessDate: '2026-09-03', createdAt: '2026-09-03T02:00:00.000Z' },
+        { id: 'o-01', accountId: 'acc-emp-a', totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }], status: 'completed', businessDate: '2026-09-01', createdAt: '2026-09-01T03:00:00.000Z' },
+        { id: 'o-02', accountId: 'acc-emp-a', totalAmount: 700000, items: [{ productId: 'p4', quantity: 700000, price: 1 }], status: 'completed', businessDate: '2026-09-02', createdAt: '2026-09-02T07:00:00.000Z' },
+        { id: 'o-03', accountId: 'acc-emp-a', totalAmount: 800000, items: [{ productId: 'p4', quantity: 800000, price: 1 }], status: 'completed', businessDate: '2026-09-03', createdAt: '2026-09-03T02:00:00.000Z' },
       ];
-      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyễn Anh' }];
+      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh' }];
       const accountList = [{ id: 'acc-emp-a', employeeId: 'st-emp-a', role: 'employee' }];
 
       const monthlySummary = calculateMonthlyWorkSummary({
@@ -328,7 +328,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
           code: 'HD00125',
           accountId: 'acc-emp-a',
           workSessionId: 'ws-morn',
-          totalAmount: 468000,
+          totalAmount: 468000, items: [{ productId: 'p4', quantity: 468000, price: 1 }],
           status: 'completed',
           businessDate: '2026-09-10',
           createdAt: restPeriodSaleTime,
@@ -339,7 +339,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
         },
       ];
 
-      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyễn Anh' }];
+      const staffList = [{ id: 'st-emp-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh' }];
       const accountList = [{ id: 'acc-emp-a', employeeId: 'st-emp-a', role: 'employee' }];
 
       const summary = calculateDailyWorkSummary({
@@ -357,7 +357,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
       expect(sale.orderCode).toBe('HD00125');
       expect(sale.createdAt).toBe(restPeriodSaleTime);
       expect(sale.seller.employeeCode).toBe('NV001');
-      expect(sale.seller.employeeName).toBe('Nguyễn Anh');
+      expect(sale.seller.employeeName).toBe('Nguyá»…n Anh');
       expect(sale.items.length).toBe(2);
       expect(sale.items[0].productName).toBe('Abbott Grow 900g');
       expect(sale.items[0].quantity).toBe(2);
@@ -375,8 +375,8 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     it('19, 20, 21, 22, 23 & 24. Generates complete End-of-Day Audit non-mutatively with store totals, employee summaries, traceable sales, and activity logs', async () => {
       const dateStr = '2026-09-10';
 
-      const staffResA = await staffApi.create({ id: 'st-aud-a', employeeCode: 'NV001', name: 'Nguyễn Anh', isActive: true });
-      const staffResB = await staffApi.create({ id: 'st-aud-b', employeeCode: 'NV002', name: 'Trần Bình', isActive: true });
+      const staffResA = await staffApi.create({ id: 'st-aud-a', employeeCode: 'NV001', name: 'Nguyá»…n Anh', isActive: true });
+      const staffResB = await staffApi.create({ id: 'st-aud-b', employeeCode: 'NV002', name: 'Tráº§n BÃ¬nh', isActive: true });
 
       const accResA = await accountApi.create({ id: 'acc-aud-a', employeeId: staffResA.data.id, role: 'employee', pin: '123456', isActive: true });
       const accResB = await accountApi.create({ id: 'acc-aud-b', employeeId: staffResB.data.id, role: 'employee', pin: '123456', isActive: true });
@@ -414,7 +414,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
         code: 'HD-AUD-01',
         accountId: accResA.data.id,
         workSessionId: sessRes.data.id,
-        totalAmount: 468000,
+        totalAmount: 468000, items: [{ productId: 'p4', quantity: 468000, price: 1 }],
         status: 'completed',
         businessDate: dateStr,
         createdAt: '2026-09-10T02:12:15.000Z', // 09:12 VN
@@ -426,7 +426,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
         code: 'HD-AUD-02',
         accountId: accResB.data.id,
         workSessionId: sessRes.data.id,
-        totalAmount: 625000,
+        totalAmount: 625000, items: [{ productId: 'p4', quantity: 625000, price: 1 }],
         status: 'completed',
         businessDate: dateStr,
         createdAt: '2026-09-10T03:45:00.000Z', // 10:45 VN
@@ -562,13 +562,13 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/Báo cáo & Kiểm toán Ca làm việc/i)).toBeTruthy();
+        expect(screen.getByText(/BÃ¡o cÃ¡o & Kiá»ƒm toÃ¡n Ca lÃ m viá»‡c/i)).toBeTruthy();
       });
 
-      expect(screen.getByText(/Báo cáo Ngày/i)).toBeTruthy();
-      expect(screen.getByText(/Báo cáo Tháng/i)).toBeTruthy();
+      expect(screen.getByText(/BÃ¡o cÃ¡o NgÃ y/i)).toBeTruthy();
+      expect(screen.getByText(/BÃ¡o cÃ¡o ThÃ¡ng/i)).toBeTruthy();
       // Audit tab must NOT be visible to employee
-      expect(screen.queryByText(/Kiểm toán Cuối ngày/i)).toBeNull();
+      expect(screen.queryByText(/Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i)).toBeNull();
     });
 
     it('Renders ReportPage for Admin/Staff with full access including End-of-Day Audit tab', async () => {
@@ -588,21 +588,21 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/Báo cáo & Kiểm toán Ca làm việc/i)).toBeTruthy();
+        expect(screen.getByText(/BÃ¡o cÃ¡o & Kiá»ƒm toÃ¡n Ca lÃ m viá»‡c/i)).toBeTruthy();
       }, { timeout: 4000 });
 
-      expect(screen.getByText(/Báo cáo Ngày/i)).toBeTruthy();
-      expect(screen.getByText(/Báo cáo Tháng/i)).toBeTruthy();
-      expect(screen.getByText(/Kiểm toán Cuối ngày/i)).toBeTruthy();
+      expect(screen.getByText(/BÃ¡o cÃ¡o NgÃ y/i)).toBeTruthy();
+      expect(screen.getByText(/BÃ¡o cÃ¡o ThÃ¡ng/i)).toBeTruthy();
+      expect(screen.getByText(/Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i)).toBeTruthy();
 
       // Click on Audit tab
-      const auditBtn = screen.getByRole('button', { name: /Kiểm toán Cuối ngày/i });
+      const auditBtn = screen.getByRole('button', { name: /Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i });
       await act(async () => {
         fireEvent.click(auditBtn);
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/Tổng quan hoạt động/i)).toBeTruthy();
+        expect(screen.getByText(/Tá»•ng quan hoáº¡t Ä‘á»™ng/i)).toBeTruthy();
       }, { timeout: 4000 });
     });
   });

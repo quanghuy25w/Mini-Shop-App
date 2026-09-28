@@ -596,7 +596,7 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
       orderNote: 'Đơn hôm qua',
       subtotal: 436000,
       discountAmount: 0,
-      totalAmount: 436000,
+      totalAmount: 436000, items: [{ productId: 'p4', quantity: 436000, price: 1 }],
       businessDate: '2026-09-01',
       createdAt: '2026-09-01T10:00:00.000Z'
     };

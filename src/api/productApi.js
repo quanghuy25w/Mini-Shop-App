@@ -82,26 +82,8 @@ export const productApi = {
       throw err;
     }
 
-    let requiredPermission = PERMISSIONS.INVENTORY_ADJUST;
-    if (context.source === 'inventory_import') {
-      requiredPermission = PERMISSIONS.INVENTORY_IMPORT;
-    } else if (context.source === 'inventory_opening') {
-      requiredPermission = PERMISSIONS.PRODUCT_MANAGE;
-    } else if (context.source === 'inventory_export') {
-      requiredPermission = PERMISSIONS.INVENTORY_EXPORT;
-    } else if (context.source === 'pos_checkout' || context.source === 'checkout' || context.source === 'pos_checkout_compensation') {
-      requiredPermission = PERMISSIONS.ORDER_CREATE;
-    } else if (context.source === 'order_cancellation') {
-      const canCancel = hasPermission(actor, PERMISSIONS.ORDER_CANCEL) || hasPermission(actor, PERMISSIONS.ORDER_CANCEL_MANAGEMENT);
-      if (!canCancel && actor.role !== 'admin') {
-        const err = new Error('PERMISSION_DENIED: Unauthorized stock mutation for order cancellation.');
-        err.code = 'PERMISSION_DENIED';
-        throw err;
-      }
-      requiredPermission = null;
-    }
-
-    if (requiredPermission && !hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
+    const requiredPermission = PERMISSIONS.INVENTORY_ADJUST;
+    if (!hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
       const err = new Error(`PERMISSION_DENIED: Cần quyền "${requiredPermission}" để thay đổi tồn kho.`);
       err.code = 'PERMISSION_DENIED';
       err.requiredPermission = requiredPermission;
@@ -148,6 +130,65 @@ export const productApi = {
     }
 
     return res;
+  },
+
+  deductStockForCheckout: async (id, quantity, actor) => {
+    if (!actor || !actor.id) {
+      const err = new Error('NOT_AUTHENTICATED: Authentication required for stock mutation.');
+      err.code = 'NOT_AUTHENTICATED';
+      throw err;
+    }
+    const requiredPermission = PERMISSIONS.ORDER_CREATE;
+    if (!hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
+      const err = new Error('PERMISSION_DENIED');
+      err.code = 'PERMISSION_DENIED';
+      err.requiredPermission = requiredPermission;
+      throw err;
+    }
+    const stockNum = Number(quantity);
+    if (isNaN(stockNum) || stockNum <= 0) {
+      const err = new Error('INVALID_STOCK');
+      err.code = 'INVALID_STOCK';
+      throw err;
+    }
+    
+    let attempt = 0;
+    while (attempt < 3) {
+      attempt++;
+      try {
+        const prodRes = await axiosClient.get(`/products/${id}`);
+        const prod = prodRes.data;
+        const currentStock = Number(prod.stockQuantity) || 0;
+        const newStock = currentStock - stockNum;
+        if (newStock < 0) {
+          const err = new Error('INVALID_STOCK');
+          err.code = 'INVALID_STOCK';
+          throw err;
+        }
+        
+        const expectedNextVersion = (prod.stockVersion || 0) + 1;
+        const occSessionId = Math.random().toString(36).substring(2);
+        const patchData = {
+          stockQuantity: newStock,
+          stockVersion: expectedNextVersion,
+          _occSession: occSessionId,
+          updatedAt: new Date().toISOString()
+        };
+        
+        const res = await axiosClient.patch(`/products/${id}`, patchData);
+        
+        const verifyRes = await axiosClient.get(`/products/${id}`);
+        if (verifyRes.data.stockVersion !== expectedNextVersion || verifyRes.data._occSession !== occSessionId) {
+          const err = new Error('OCC_CONFLICT');
+          err.code = 'OCC_CONFLICT';
+          throw err;
+        }
+        return res;
+      } catch (err) {
+        if (err.code === 'OCC_CONFLICT' && attempt < 3) continue;
+        throw err;
+      }
+    }
   },
 
   adjustStockDelta: async (id, delta, actor, context = {}, maxRetries = 3) => {

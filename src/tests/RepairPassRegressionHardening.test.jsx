@@ -113,7 +113,7 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
         accountId: employee1.id,
         registerId: 'POS01',
         paymentMethod: 'cash',
-        totalAmount: 150000,
+        totalAmount: 150000, items: [{ productId: 'p4', quantity: 150000, price: 1 }],
         subtotal: 150000,
         status: 'completed',
         businessDate: '2026-09-24',
@@ -169,7 +169,7 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
         accountId: employee1.id,
         registerId: 'POS01',
         paymentMethod: 'cash',
-        totalAmount: 100000,
+        totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         status: 'cancelled',
         businessDate: '2026-09-24',
         createdAt: new Date().toISOString(),
@@ -193,10 +193,11 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
     it('Rejects order creation with an unregistered POS register (POS99) synchronously', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-rp-inv-pos',
           registerId: 'POS99',
           items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 10000 }],
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
           paymentMethod: 'cash',
         }, employee1);
       }).toThrow(/Quầy bán hàng "POS99" không tồn tại/i);
@@ -205,20 +206,22 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
     it('Rejects order creation with invalid payment methods and accepts valid methods', async () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-rp-inv-pay',
           registerId: 'POS01',
           paymentMethod: 'crypto',
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, employee1);
       }).toThrow(/Phương thức thanh toán "crypto" không hợp lệ/i);
 
       // Valid methods
       for (const method of ['cash', 'transfer', 'card']) {
         const res = await orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: `ord-rp-valid-${method}`,
           registerId: 'POS01',
           paymentMethod: method,
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, employee1);
         expect(res.data.paymentMethod).toBe(method);
       }
@@ -230,15 +233,16 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
           id: 'ord-rp-no-items',
           workSessionId: 'ws-active-1',
           items: [],
-          totalAmount: 0,
+          totalAmount: 0, items: [{ productId: 'p4', quantity: 0, price: 1 }],
         }, employee1, { requireSellingContext: true });
       }).toThrow(/phải có ít nhất 1 sản phẩm/i);
 
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-rp-no-ws',
           items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 10000 }],
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, employee1, { requireSellingContext: true });
       }).toThrow(/bắt buộc phải gắn với ca làm việc/i);
     });
@@ -246,17 +250,19 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
     it('Forbids Employee from spoofing another accountId or sellerId', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-rp-spoof-acc',
           accountId: employee2.id,
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, employee1);
       }).toThrow(/không thể tạo đơn hàng thay mặt tài khoản khác/i);
 
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           id: 'ord-rp-spoof-seller',
           sellerId: employee2.id,
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, employee1);
       }).toThrow(/không thể tạo đơn hàng thay mặt người bán khác/i);
     });

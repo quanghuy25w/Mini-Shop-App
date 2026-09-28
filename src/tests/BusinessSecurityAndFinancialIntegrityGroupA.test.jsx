@@ -100,10 +100,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('1. _internalSystemPatch cannot bypass protection on completed orders', async () => {
     const orderRes = await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-a1-imm',
       code: 'HD-A1-001',
       status: 'completed',
-      totalAmount: 100000,
+      totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       subtotal: 100000,
       paymentMethod: 'cash',
       items: [{ productId: 'p-test', productName: 'Item', quantity: 1, price: 100000 }]
@@ -167,10 +168,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('5. internalLink cannot bypass immutability of inventoryTransactionIds', async () => {
     const orderRes = await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-a5-link',
       code: 'HD-A5-001',
       status: 'completed',
-      totalAmount: 100000,
+      totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       inventoryTransactionIds: ['tx-orig-1'],
       items: [{ productId: 'p-test', quantity: 1, price: 100000 }]
     }, adminActor);
@@ -207,7 +209,8 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // 7. missing actor fails closed
   // ---------------------------------------------------------------------------
   it('7. missing actor fails closed on all protected mutations', async () => {
-    expect(() => orderApi.create({ totalAmount: 10000 }, null)).toThrow(/NOT_AUTHENTICATED/);
+    expect(() => orderApi.create({
+          workSessionId: 'ws-mock-test', totalAmount: 10000 }, null)).toThrow(/NOT_AUTHENTICATED/);
     expect(() => orderApi.patch('ord-1', { note: 'test' }, null)).toThrow(/NOT_AUTHENTICATED/);
     expect(() => inventoryApi.createTransaction({ type: 'OUT' }, null)).toThrow(/NOT_AUTHENTICATED/);
     await expect(inventoryApi.removeTransaction('tx-1', null)).rejects.toThrow(/NOT_AUTHENTICATED/);
@@ -219,7 +222,8 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('8. unknown role fails closed with PERMISSION_DENIED', () => {
     expect(() => {
-      orderApi.create({ totalAmount: 10000 }, { id: 'acc-guest', role: 'guest' });
+      orderApi.create({
+          workSessionId: 'ws-mock-test', totalAmount: 10000 }, { id: 'acc-guest', role: 'guest' });
     }).toThrow(/PERMISSION_DENIED/);
   });
 
@@ -230,7 +234,8 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
     expect(ROLE_DISCOUNT_CAPS.employee).toBe(10);
     expect(() => {
       orderApi.create({
-        totalAmount: 85000,
+          workSessionId: 'ws-mock-test',
+        totalAmount: 85000, items: [{ productId: 'p4', quantity: 85000, price: 1 }],
         discountType: 'percent',
         discountValue: 15,
         items: [{ productId: 'p-1', quantity: 1, price: 100000 }]
@@ -245,7 +250,8 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
     expect(ROLE_DISCOUNT_CAPS.staff).toBe(20);
     expect(() => {
       orderApi.create({
-        totalAmount: 75000,
+          workSessionId: 'ws-mock-test',
+        totalAmount: 75000, items: [{ productId: 'p4', quantity: 75000, price: 1 }],
         discountType: 'percent',
         discountValue: 25,
         items: [{ productId: 'p-1', quantity: 1, price: 100000 }]
@@ -260,7 +266,8 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
     expect(ROLE_DISCOUNT_CAPS.admin).toBe(100);
     expect(() => {
       orderApi.create({
-        totalAmount: 0,
+          workSessionId: 'ws-mock-test',
+        totalAmount: 0, items: [{ productId: 'p4', quantity: 0, price: 1 }],
         discountType: 'percent',
         discountValue: 101,
         items: [{ productId: 'p-1', quantity: 1, price: 100000 }]
@@ -274,9 +281,10 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   it('12. forged totalAmount is rejected when strict totals is enforced', () => {
     expect(() => {
       orderApi.create({
+          workSessionId: 'ws-mock-test',
         status: 'completed',
-        items: [{ productId: 'p1', quantity: 1, price: 50000 }],
-        totalAmount: 10000, // Forged total (actual is 50000)
+        items: [{ productId: 'p1', quantity: 0.2, price: 250000 }],
+        totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }], // Forged total (actual is 50000)
         workSessionId: 'ws-active-1',
         registerId: 'POS01'
       }, adminActor, { requireStrictTotals: true });
@@ -324,10 +332,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('14. completed order financial fields cannot be patched', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-imm-fields',
       code: 'HD-IMM-01',
       status: 'completed',
-      totalAmount: 200000,
+      totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
       subtotal: 200000,
       paymentMethod: 'cash',
       businessDate: '2026-09-25',
@@ -348,10 +357,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('15. completed order inventory linkage cannot be patched through a bypass', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-imm-link',
       code: 'HD-LINK-01',
       status: 'completed',
-      totalAmount: 100000,
+      totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       inventoryTransactionIds: ['tx-initial-1'],
       items: [{ productId: 'p1', quantity: 1, price: 100000 }]
     }, adminActor)).data;
@@ -369,11 +379,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('16. invalid SALE transaction is rejected if product is not in order or quantity mismatches', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-sale-check',
       code: 'HD-SALE-01',
       status: 'completed',
-      totalAmount: 100000,
-      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 50000 }]
+      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 50000 }]
     }, adminActor)).data;
 
     // Reject product not in order
@@ -406,11 +416,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('17. duplicate SALE transaction for the same order and product is rejected', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-dup-sale',
       code: 'HD-DUP-SALE',
       status: 'completed',
-      totalAmount: 100000,
-      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     // 1st SALE transaction succeeds
@@ -441,11 +451,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('18. CANCEL_RESTOCK transaction is rejected if order is not cancelled', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-not-cancelled',
       code: 'HD-NOT-CANCEL',
       status: 'completed', // Not cancelled!
-      totalAmount: 100000,
-      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     await expect(
@@ -465,11 +475,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('19. duplicate CANCEL_RESTOCK for the same cancelled order and product is rejected', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-dup-cancel',
       code: 'HD-DUP-CANCEL',
       status: 'cancelled',
-      totalAmount: 100000,
-      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     // 1st RESTOCK succeeds
@@ -564,10 +574,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   it('22. checkout rollback cannot delete unrelated orders or transactions', async () => {
     // Legitimate completed order 1
     const order1 = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-unrelated-safe',
       code: 'HD-SAFE-01',
       status: 'completed',
-      totalAmount: 100000,
+      totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       accountId: 'acc-other',
       sellerId: 'acc-other',
       items: [{ productId: 'p1', quantity: 1, price: 100000 }]
@@ -632,11 +643,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('24. cancellation failure does not create invalid restock records or modify stock', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-fail-cancel',
       code: 'HD-FAIL-CANCEL',
       status: 'completed',
-      totalAmount: 100000,
-      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 50000 }]
+      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 50000 }]
     }, adminActor)).data;
 
     const initialStock = (await productApi.getById('p0000000-0000-0000-0000-000000000001')).data.stockQuantity;
@@ -670,10 +681,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
     const stock2Before = (await productApi.getById(prod2Id)).data.stockQuantity;
 
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-multi-restock',
       code: 'HD-MULTI-RESTOCK',
       status: 'completed',
-      totalAmount: 200000,
+      totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
       accountId: adminActor.id,
       sellerId: adminActor.id,
       items: [
@@ -716,10 +728,11 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('26. retry-safe: fully restocked order rejects redundant cancelAndRestock', async () => {
     const order = (await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-retry-safe',
       code: 'HD-RETRY-SAFE',
       status: 'completed',
-      totalAmount: 100000,
+      totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       accountId: adminActor.id,
       sellerId: adminActor.id,
       items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]

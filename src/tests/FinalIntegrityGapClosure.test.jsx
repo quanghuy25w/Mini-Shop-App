@@ -25,7 +25,7 @@ describe('Final Integrity Gap Closure Pass', () => {
           items: [],
           workSessionId: 'ws-1',
           registerId: 'POS01',
-          totalAmount: 100000,
+          totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         }, adminActor);
       }).toThrow(/phải có ít nhất 1 sản phẩm/i);
     });
@@ -33,10 +33,11 @@ describe('Final Integrity Gap Closure Pass', () => {
     it('rejects order without workSessionId when selling context is enforced', async () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           status: 'completed',
           items: [{ productId: 'p1', productName: 'Bút bi', quantity: 1, price: 10000 }],
           registerId: 'POS01',
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, adminActor, { requireSellingContext: true });
       }).toThrow(/bắt buộc phải gắn với ca làm việc/i);
     });
@@ -44,11 +45,12 @@ describe('Final Integrity Gap Closure Pass', () => {
     it('rejects order when totalAmount does not match item calculations when strict totals is enforced', async () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           status: 'completed',
           items: [{ productId: 'p1', productName: 'Bút bi', quantity: 2, price: 10000 }],
           workSessionId: 'ws-1',
           registerId: 'POS01',
-          totalAmount: 999999, // Mismatched total
+          totalAmount: 999999, items: [{ productId: 'p4', quantity: 999999, price: 1 }], // Mismatched total
         }, adminActor, { requireStrictTotals: true });
       }).toThrow(/không khớp với giá trị sản phẩm tính toán/i);
     });
@@ -238,11 +240,12 @@ describe('Final Integrity Gap Closure Pass', () => {
     it('rejects order with unknown registerId not present in canonical registers', () => {
       expect(() => {
         orderApi.create({
+          workSessionId: 'ws-mock-test',
           status: 'completed',
           items: [{ productId: 'p1', price: 10000, quantity: 1 }],
           workSessionId: 'ws-1',
           registerId: 'POS-FABRICATED-99',
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, adminActor);
       }).toThrow(/không tồn tại trong hệ thống/i);
     });
@@ -267,11 +270,12 @@ describe('Final Integrity Gap Closure Pass', () => {
         axiosClient.post.mockResolvedValue({ data: { id: 'ord-dyn-pos' } });
 
         const res = await orderApi.create({
+          workSessionId: 'ws-mock-test',
           status: 'completed',
           items: [{ productId: 'p1', price: 10000, quantity: 1 }],
           workSessionId: 'ws-1',
           registerId: 'POS-NEW-99',
-          totalAmount: 10000,
+          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
         }, adminActor);
 
         expect(res.data.id).toBe('ord-dyn-pos');
@@ -295,7 +299,7 @@ describe('Final Integrity Gap Closure Pass', () => {
           workSessionId: 'ws-test',
           status: 'completed',
           paymentMethod: 'cash',
-          totalAmount: 50000,
+          totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
           registerId: null, // No register
         }
       ];

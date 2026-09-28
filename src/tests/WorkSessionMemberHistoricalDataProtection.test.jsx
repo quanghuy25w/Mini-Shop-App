@@ -1,4 +1,4 @@
-import { initSeedData } from './mockApi';
+﻿import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { workSessionApi } from '../api/workSessionApi';
 import { staffApi } from '../api/staffApi';
@@ -14,7 +14,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
     id: 'acc-admin-hist',
     employeeId: null,
     role: ROLES.ADMIN,
-    name: 'Quản trị viên',
+    name: 'Quáº£n trá»‹ viÃªn',
     email: 'admin@shop.vn',
     isActive: true,
   };
@@ -23,7 +23,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
     id: 'acc-staff-hist',
     employeeId: 'st-staff-hist',
     role: ROLES.STAFF,
-    name: 'Quản lý Ca',
+    name: 'Quáº£n lÃ½ Ca',
     employeeCode: 'NVSTAFF',
     isActive: true,
   };
@@ -32,7 +32,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
     id: 'acc-emp-hist',
     employeeId: 'st-emp-hist',
     role: ROLES.EMPLOYEE,
-    name: 'Nhân viên A',
+    name: 'NhÃ¢n viÃªn A',
     employeeCode: 'NV001',
     isActive: true,
   };
@@ -52,7 +52,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
     await staffApi.create({
       id: 'st-emp-hist',
       employeeCode: 'NV001',
-      name: 'Nhân viên A',
+      name: 'NhÃ¢n viÃªn A',
       employmentStatus: 'working',
       isActive: true,
     }, adminActor);
@@ -71,7 +71,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
       code: 'CA-20260910-01',
       date: '2026-09-10',
       shiftType: 'morning',
-      name: 'Ca sáng 10/09',
+      name: 'Ca sÃ¡ng 10/09',
       startTime: '2026-09-10T00:30:00.000Z', // 07:30 VN
       endTime: '2026-09-10T05:00:00.000Z',   // 12:00 VN
       status: 'closed',
@@ -94,7 +94,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
       workingStatus: 'offline',
       isLate: true,
       lateMinutes: 5,
-      note: 'Nhân viên ca sáng',
+      note: 'NhÃ¢n viÃªn ca sÃ¡ng',
     });
 
     // Create baseline completed order attached to session
@@ -105,8 +105,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
       accountId: 'acc-emp-hist',
       sellerId: 'acc-emp-hist',
       status: 'completed',
-      totalAmount: 500000,
-      items: [{ productId: 'p1', quantity: 2, price: 250000 }],
+      totalAmount: 500000, items: [{ productId: 'p1', quantity: 2, price: 250000 }],
       businessDate: '2026-09-10',
       createdAt: '2026-09-10T02:00:00.000Z', // 09:00 VN
     }, employeeActor);
@@ -119,37 +118,37 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
     it('1. workSessionApi.removeMember(existingHistoricalMember) is rejected', () => {
       expect(() => {
         workSessionApi.removeMember('wsm-hist-001');
-      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
     });
 
     it('2. Admin cannot delete a historical WorkSessionMember', () => {
       expect(() => {
         workSessionApi.removeMember('wsm-hist-001', adminActor);
-      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
     });
 
     it('3. Staff cannot delete a historical WorkSessionMember', () => {
       expect(() => {
         workSessionApi.removeMember('wsm-hist-001', staffActor);
-      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
     });
 
     it('4. Employee cannot delete a historical WorkSessionMember', () => {
       expect(() => {
         workSessionApi.removeMember('wsm-hist-001', employeeActor);
-      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
     });
 
     it('5. Unauthenticated caller cannot delete a historical WorkSessionMember (via API or raw DELETE)', async () => {
       // Direct API method
       expect(() => {
         workSessionApi.removeMember('wsm-hist-001', null);
-      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+      }).toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
 
       // Raw axiosClient DELETE
       await expect(
         axiosClient.delete('/workSessionMembers/wsm-hist-001')
-      ).rejects.toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÔNG ĐƯỢC PHÉP XÓA/i);
+      ).rejects.toThrow(/WORKSESSION_MEMBER_DELETION_RESTRICTED|KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
     });
 
     it('6. Attempted deletion does not remove the record from storage', async () => {
@@ -399,7 +398,7 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
       });
 
       expect(auditRes.data.employeeSummaries.length).toBe(1);
-      expect(auditRes.data.employeeSummaries[0].employee.name).toBe('Nhân viên A');
+      expect(auditRes.data.employeeSummaries[0].employee.name).toBe('NhÃ¢n viÃªn A');
       expect(auditRes.data.employeeSummaries[0].shiftsParticipated.length).toBe(1);
       expect(auditRes.data.employeeSummaries[0].shiftsParticipated[0].workSessionCode).toBe('CA-20260910-01');
     });
@@ -412,11 +411,11 @@ describe('WorkSessionMember Historical Data Protection Test Suite (Phase 10 Requ
     it('19. Existing WorkSession deletion protection remains intact', async () => {
       expect(() => {
         workSessionApi.remove('ws-hist-001', adminActor);
-      }).toThrow(/KHÔNG ĐƯỢC PHÉP XÓA/i);
+      }).toThrow(/KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
 
       await expect(
         axiosClient.delete('/workSessions/ws-hist-001')
-      ).rejects.toThrow(/KHÔNG ĐƯỢC PHÉP XÓA/i);
+      ).rejects.toThrow(/KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A/i);
 
       const session = (await workSessionApi.getById('ws-hist-001')).data;
       expect(session).toBeDefined();

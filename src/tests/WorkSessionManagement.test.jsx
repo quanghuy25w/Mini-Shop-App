@@ -182,7 +182,7 @@ describe('Admin WorkSession Management UI Tests', () => {
       id: 'ord-live-1',
       workSessionId: 'ws-live-calc-1',
       status: 'completed',
-      totalAmount: 350000,
+      totalAmount: 350000, items: [{ productId: 'p4', quantity: 350000, price: 1 }],
       createdAt: new Date().toISOString(),
       businessDate: todayStr
     }, mockDefaultAdmin);
@@ -191,7 +191,7 @@ describe('Admin WorkSession Management UI Tests', () => {
       id: 'ord-live-2',
       workSessionId: 'ws-live-calc-1',
       status: 'completed',
-      totalAmount: 450000,
+      totalAmount: 450000, items: [{ productId: 'p4', quantity: 450000, price: 1 }],
       createdAt: new Date().toISOString(),
       businessDate: todayStr
     }, mockDefaultAdmin);

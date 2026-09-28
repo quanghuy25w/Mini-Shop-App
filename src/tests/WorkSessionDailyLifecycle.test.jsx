@@ -243,7 +243,7 @@ describe('WorkSession Daily Lifecycle & Date Transition Test Suite', () => {
         code: 'HD-DAY1-01',
         accountId: acc.data.id,
         workSessionId: 'ws_2026-09-10',
-        totalAmount: 500000,
+        totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }],
         status: 'completed',
         createdAt: day1.toISOString()
       }, acc.data);
@@ -264,7 +264,7 @@ describe('WorkSession Daily Lifecycle & Date Transition Test Suite', () => {
         code: 'HD-DAY2-01',
         accountId: acc.data.id,
         workSessionId: 'ws_2026-09-11',
-        totalAmount: 750000,
+        totalAmount: 750000, items: [{ productId: 'p4', quantity: 750000, price: 1 }],
         status: 'completed',
         createdAt: day2.toISOString()
       }, acc.data);
@@ -347,7 +347,7 @@ describe('WorkSession Daily Lifecycle & Date Transition Test Suite', () => {
         code: 'HD-HIST-01',
         accountId: acc.data.id,
         workSessionId: 'ws_2026-09-10',
-        totalAmount: 1200000,
+        totalAmount: 1200000, items: [{ productId: 'p4', quantity: 1200000, price: 1 }],
         status: 'completed',
         createdAt: day1.toISOString()
       }, acc.data);
@@ -408,7 +408,7 @@ describe('WorkSession Daily Lifecycle & Date Transition Test Suite', () => {
           code: 'HD-REP-1',
           workSessionId: 'ws_2026-09-10',
           accountId: 'acc-rep-1',
-          totalAmount: 1500000,
+          totalAmount: 1500000, items: [{ productId: 'p4', quantity: 1500000, price: 1 }],
           status: 'completed',
           businessDate: '2026-09-10',
           createdAt: '2026-09-10T02:00:00.000Z' // 09:00 VN
@@ -464,8 +464,8 @@ describe('WorkSession Daily Lifecycle & Date Transition Test Suite', () => {
       ];
 
       const orders = [
-        { id: 'o1', workSessionId: 'ws_2026-09-01', accountId: 'acc-m-1', totalAmount: 1000000, status: 'completed', businessDate: '2026-09-01', createdAt: '2026-09-01T02:00:00.000Z' },
-        { id: 'o2', workSessionId: 'ws_2026-09-02', accountId: 'acc-m-1', totalAmount: 2000000, status: 'completed', businessDate: '2026-09-02', createdAt: '2026-09-02T08:00:00.000Z' }
+        { id: 'o1', workSessionId: 'ws_2026-09-01', accountId: 'acc-m-1', totalAmount: 1000000, items: [{ productId: 'p4', quantity: 1000000, price: 1 }], status: 'completed', businessDate: '2026-09-01', createdAt: '2026-09-01T02:00:00.000Z' },
+        { id: 'o2', workSessionId: 'ws_2026-09-02', accountId: 'acc-m-1', totalAmount: 2000000, items: [{ productId: 'p4', quantity: 2000000, price: 1 }], status: 'completed', businessDate: '2026-09-02', createdAt: '2026-09-02T08:00:00.000Z' }
       ];
 
       const report = calculateMonthlyWorkSummary({
@@ -508,7 +508,7 @@ describe('WorkSession Daily Lifecycle & Date Transition Test Suite', () => {
         accountId: accRes.data.id,
         workSessionId: sessionRes.data.id,
         items: [{ productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Ensure Gold', quantity: 1, price: 436000 }],
-        totalAmount: 436000,
+        totalAmount: 436000, items: [{ productId: 'p4', quantity: 436000, price: 1 }],
         status: 'completed',
         createdAt: restTime
       };

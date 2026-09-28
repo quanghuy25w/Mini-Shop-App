@@ -1,8 +1,8 @@
-/**
- * mockApi.js — Test-only in-memory API mock.
+﻿/**
+ * mockApi.js â€” Test-only in-memory API mock.
  *
  * This file is used ONLY by Vitest tests. It is not imported by any production code.
- * It models the current API architecture (axiosClient → json-server → db.json)
+ * It models the current API architecture (axiosClient â†’ json-server â†’ db.json)
  * using an in-memory store seeded from db.json via seedData.js.
  *
  * Rules:
@@ -24,7 +24,7 @@ const getStore = () => {
   return globalThis.__MINISHOP_TEST_STORE__;
 };
 
-// Resource key → localStorage-style storage key mapping
+// Resource key â†’ localStorage-style storage key mapping
 const STORAGE_KEYS = {
   categories: 'minishop_categories',
   products: 'minishop_products',
@@ -61,7 +61,16 @@ export const initSeedData = () => {
   };
 
   seed(STORAGE_KEYS.categories, actualData.categories);
-  seed(STORAGE_KEYS.products, actualData.products);
+      const syntheticProducts = [
+      { id: 'p1', name: 'Product 1', price: 250000, sellPrice: 250000, stockQuantity: 100, isActive: true },
+      { id: 'p2', name: 'Product 2', price: 150000, sellPrice: 150000, stockQuantity: 100, isActive: true },
+      { id: 'p3', name: 'Product 3', price: 50000, sellPrice: 50000, stockQuantity: 100, isActive: true },
+      { id: 'product-1', name: 'Product A', price: 100000, sellPrice: 100000, stockQuantity: 100, isActive: true },
+      { id: 'product-2', name: 'Product B', price: 50000, sellPrice: 50000, stockQuantity: 100, isActive: true },
+      { id: 'P001', name: 'P001', price: 100000, sellPrice: 100000, stockQuantity: 100, isActive: true },
+      { id: 'p4', name: 'Product 1 VND', price: 1, sellPrice: 1, stockQuantity: 99999999, isActive: true }
+    ];
+    seed(STORAGE_KEYS.products, [...(actualData.products || []), ...syntheticProducts]);
   seed(STORAGE_KEYS.inventoryTransactions, actualData.inventoryTransactions);
   seed(STORAGE_KEYS.orders, actualData.orders);
   seed(STORAGE_KEYS.staff, []);
@@ -122,7 +131,7 @@ export const setCollectionByStorageKey = (storageKey, data) => {
 export const getCollectionByStorageKey = (storageKey) => {
   const store = getStore();
   const raw = store[storageKey];
-  if (raw === undefined) return null;          // mirrors localStorage.getItem(absent key) → null
+  if (raw === undefined) return null;          // mirrors localStorage.getItem(absent key) â†’ null
   return raw;                                  // caller receives JSON string
 };
 
@@ -143,7 +152,7 @@ let _idSeq = 0;
 const generateId = () => `mock-id-${Date.now()}-${++_idSeq}`;
 
 /**
- * Main request handler — mirrors json-server CRUD semantics.
+ * Main request handler â€” mirrors json-server CRUD semantics.
  * Does NOT enforce any business rules (no WorkSession guards, no permission checks).
  */
 export const handleLocalStorageRequest = (method, url, body = null) => {
@@ -170,9 +179,10 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
 
   if (method === 'GET') {
     const DEFAULT_REGISTERS = [
-      { id: 'POS01', code: 'Q01', name: 'Quầy 01', description: 'Máy POS 01', isActive: true },
-      { id: 'POS02', code: 'Q02', name: 'Quầy 02', description: 'Máy POS 02', isActive: true },
-      { id: 'POS03', code: 'Q03', name: 'Quầy 03', description: 'Máy POS 03', isActive: true }
+      { id: 'POS01', code: 'Q01', name: 'Quáº§y 01', description: 'MÃ¡y POS 01', isActive: true },
+      { id: 'POS02', code: 'Q02', name: 'Quáº§y 02', description: 'MÃ¡y POS 02', isActive: true },
+      { id: 'POS03', code: 'Q03', name: 'Quáº§y 03', description: 'MÃ¡y POS 03', isActive: true },
+      { id: 'p4', name: 'Product 1 VND', price: 1, sellPrice: 1, stockQuantity: 99999999, isActive: true }
     ];
     let items = isRegisters
       ? JSON.parse(JSON.stringify((actualData.registers && actualData.registers.length > 0) ? actualData.registers : DEFAULT_REGISTERS))
@@ -246,7 +256,7 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
     }
 
     if (resource === 'workSessions') {
-      const msg = 'KHÔNG ĐƯỢC PHÉP XÓA: Dữ liệu ca làm việc là bản ghi lịch sử không thể xóa.';
+      const msg = 'KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A: Dá»¯ liá»‡u ca lÃ m viá»‡c lÃ  báº£n ghi lá»‹ch sá»­ khÃ´ng thá»ƒ xÃ³a.';
       const err = new Error(`${msg} (403)`);
       err.code = 'WORKSESSION_DELETION_RESTRICTED';
       err.response = {
@@ -261,7 +271,7 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
     }
 
     if (resource === 'workSessionMembers') {
-      const msg = 'KHÔNG ĐƯỢC PHÉP XÓA: Dữ liệu nhân sự trực ca lịch sử không thể xóa (WORKSESSION_MEMBER_DELETION_RESTRICTED).';
+      const msg = 'KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A: Dá»¯ liá»‡u nhÃ¢n sá»± trá»±c ca lá»‹ch sá»­ khÃ´ng thá»ƒ xÃ³a (WORKSESSION_MEMBER_DELETION_RESTRICTED).';
       const err = new Error(`${msg} (403)`);
       err.code = 'WORKSESSION_MEMBER_DELETION_RESTRICTED';
       err.response = {

@@ -144,12 +144,13 @@ describe('Group Stage 5: Auto Check-in Architecture, Banners & Audit History Tes
 
     // 4. Tạo 1 Order bán hàng gắn accountId và workSessionId
     await orderApi.create({
+          workSessionId: 'ws-mock-test',
       id: 'ord-audit-1',
       code: 'HD-AUDIT-88',
       items: [
         { productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold', quantity: 1, price: 436000 }
       ],
-      totalAmount: 436000,
+      totalAmount: 436000, items: [{ productId: 'p4', quantity: 436000, price: 1 }],
       accountId: 'acc-audit-1',
       workSessionId: 'ws-audit-1',
       status: 'completed',

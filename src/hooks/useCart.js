@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+﻿import { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import { AppDataContext } from '../context/AppDataContext';
 import { AuthContext } from '../context/AuthContext';
@@ -12,7 +12,7 @@ import { getCurrentRegisterId } from '../utils/registerConfig';
 import { getBusinessDate } from '../utils/businessDate';
 import { isOutOfShift } from '../api/workSessionApi';
 
-// Khóa đồng bộ cấp module chống chạy song song nhiều lệnh checkout cùng lúc
+// KhÃ³a Ä‘á»“ng bá»™ cáº¥p module chá»‘ng cháº¡y song song nhiá»u lá»‡nh checkout cÃ¹ng lÃºc
 let isCheckoutRunning = false;
 
 export const useCart = () => {
@@ -28,20 +28,20 @@ export const useCart = () => {
 
   const checkout = async (arg1, arg2, arg3) => {
     if (isCheckoutRunning) {
-      throw new Error("Đang xử lý thanh toán, vui lòng không thao tác lặp lại!");
+      throw new Error("Äang xá»­ lÃ½ thanh toÃ¡n, vui lÃ²ng khÃ´ng thao tÃ¡c láº·p láº¡i!");
     }
 
     if (!currentUser?.id) {
-      throw new Error('Vui lòng đăng nhập để thực hiện thanh toán.');
+      throw new Error('Vui lÃ²ng Ä‘Äƒng nháº­p Ä‘á»ƒ thá»±c hiá»‡n thanh toÃ¡n.');
     }
 
     const isNotCheckedIn = !isCheckedIn || !currentSession?.id || currentSession?.status !== 'active' || (currentMember && currentMember.attendanceStatus === 'checked_out');
     if (isNotCheckedIn) {
-      throw new Error('Bạn chưa check-in vào ca làm việc nào. Vui lòng check-in trước khi thanh toán.');
+      throw new Error('Báº¡n chÆ°a check-in vÃ o ca lÃ m viá»‡c nÃ o. Vui lÃ²ng check-in trÆ°á»›c khi thanh toÃ¡n.');
     }
 
     if (!cartContext.cartItems || cartContext.cartItems.length === 0) {
-      throw new Error("Giỏ hàng trống!");
+      throw new Error("Giá» hÃ ng trá»‘ng!");
     }
 
     let customTotalAmount = undefined;
@@ -81,12 +81,12 @@ export const useCart = () => {
       if (Array.isArray(canonicalRegisters) && canonicalRegisters.length > 0) {
         const foundReg = canonicalRegisters.find(r => r.id === registerId);
         if (!foundReg) {
-          const err = new Error(`REGISTER_NOT_FOUND: Quầy bán hàng "${registerId}" không tồn tại trong hệ thống.`);
+          const err = new Error(`REGISTER_NOT_FOUND: Quáº§y bÃ¡n hÃ ng "${registerId}" khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng.`);
           err.code = 'REGISTER_NOT_FOUND';
           throw err;
         }
         if (foundReg.isActive === false) {
-          const err = new Error(`REGISTER_INACTIVE: Quầy bán hàng "${foundReg.name || foundReg.id}" đang bị vô hiệu hóa.`);
+          const err = new Error(`REGISTER_INACTIVE: Quáº§y bÃ¡n hÃ ng "${foundReg.name || foundReg.id}" Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a.`);
           err.code = 'REGISTER_INACTIVE';
           throw err;
         }
@@ -99,11 +99,11 @@ export const useCart = () => {
 
     isCheckoutRunning = true;
 
-    // Biến lưu trữ lịch sử các bước để rollback khi cần
+    // Biáº¿n lÆ°u trá»¯ lá»‹ch sá»­ cÃ¡c bÆ°á»›c Ä‘á»ƒ rollback khi cáº§n
     const rollbackSteps = [];
 
     try {
-      // Sao chép snapshot danh sách sản phẩm để tránh race condition khi cartItems thay đổi giữa chừng
+      // Sao chÃ©p snapshot danh sÃ¡ch sáº£n pháº©m Ä‘á»ƒ trÃ¡nh race condition khi cartItems thay Ä‘á»•i giá»¯a chá»«ng
       const itemsToProcess = [...cartContext.cartItems];
 
       // Upfront validation: verify all products exist, are active, and have sufficient stock before mutating anything
@@ -113,13 +113,13 @@ export const useCart = () => {
         const currentProd = pRes.data;
 
         if (!currentProd) {
-          throw new Error(`Sản phẩm "${item.productName || item.productId}" không tồn tại trên hệ thống.`);
+          throw new Error(`Sáº£n pháº©m "${item.productName || item.productId}" khÃ´ng tá»“n táº¡i trÃªn há»‡ thá»‘ng.`);
         }
         if (currentProd.isActive === false) {
-          throw new Error(`Sản phẩm "${currentProd.name || item.productName}" đã ngừng kinh doanh!`);
+          throw new Error(`Sáº£n pháº©m "${currentProd.name || item.productName}" Ä‘Ã£ ngá»«ng kinh doanh!`);
         }
         if (currentProd.stockQuantity < item.quantity) {
-          throw new Error(`Sản phẩm "${item.productName}" không đủ tồn kho để thanh toán!`);
+          throw new Error(`Sáº£n pháº©m "${item.productName}" khÃ´ng Ä‘á»§ tá»“n kho Ä‘á»ƒ thanh toÃ¡n!`);
         }
         freshProductsMap.set(item.productId, currentProd);
       }
@@ -133,7 +133,7 @@ export const useCart = () => {
       try {
         orderCode = await orderApi.generateOrderCode(businessDate);
       } catch (e) {
-        throw new Error("Lỗi khi tạo mã hóa đơn tự động.", { cause: e });
+        throw new Error("Lá»—i khi táº¡o mÃ£ hÃ³a Ä‘Æ¡n tá»± Ä‘á»™ng.", { cause: e });
       }
 
       const orderId = generateId();
@@ -169,7 +169,7 @@ export const useCart = () => {
       if (paymentMethod === 'cash' && cashReceived !== undefined && cashReceived !== null) {
         const numReceived = Number(cashReceived);
         if (isNaN(numReceived) || numReceived < finalAmount) {
-          throw new Error(`Số tiền khách đưa (${numReceived.toLocaleString('vi-VN')}đ) không đủ để thanh toán đơn hàng (${finalAmount.toLocaleString('vi-VN')}đ).`);
+          throw new Error(`Sá»‘ tiá»n khÃ¡ch Ä‘Æ°a (${numReceived.toLocaleString('vi-VN')}Ä‘) khÃ´ng Ä‘á»§ Ä‘á»ƒ thanh toÃ¡n Ä‘Æ¡n hÃ ng (${finalAmount.toLocaleString('vi-VN')}Ä‘).`);
         }
       }
 
@@ -177,17 +177,13 @@ export const useCart = () => {
         ? Math.max(0, Number(cashReceived) - finalAmount)
         : 0;
 
-      // STAGE 1: Trừ tồn kho sản phẩm (dùng updateStock để kích hoạt versioning & atomic validation)
+      // STAGE 1: Trá»« tá»“n kho sáº£n pháº©m (dÃ¹ng updateStock Ä‘á»ƒ kÃ­ch hoáº¡t versioning & atomic validation)
       for (const item of itemsWithTx) {
         const currentProd = freshProductsMap.get(item.productId);
         const updatedStock = currentProd.stockQuantity - item.quantity;
-        await productApi.updateStock(item.productId, updatedStock, currentUser, {
-          source: 'pos_checkout',
-          expectedVersion: currentProd.stockVersion || 0,
-          orderCode
-        });
+        await productApi.deductStockForCheckout(item.productId, item.quantity, currentUser);
 
-        // Ghi lại delta phục hồi
+        // Ghi láº¡i delta phá»¥c há»“i
         rollbackSteps.push({
           type: 'STOCK_DELTA',
           productId: item.productId,
@@ -195,7 +191,7 @@ export const useCart = () => {
         });
       }
 
-      // STAGE 2: Tạo order với status "completed" đã có sẵn inventoryTransactionIds (bất biến ngay từ đầu)
+      // STAGE 2: Táº¡o order vá»›i status "completed" Ä‘Ã£ cÃ³ sáºµn inventoryTransactionIds (báº¥t biáº¿n ngay tá»« Ä‘áº§u)
       const orderData = {
         ...extraPayload,
         id: orderId,
@@ -238,11 +234,11 @@ export const useCart = () => {
           orderId: createdOrder.id
         });
       } catch (orderErr) {
-        console.error('[useCart] orderApi.create thất bại:', orderErr);
-        throw new Error("Lỗi khi khởi tạo đơn hàng mới trên hệ thống.", { cause: orderErr });
+        console.error('[useCart] orderApi.create tháº¥t báº¡i:', orderErr);
+        throw new Error("Lá»—i khi khá»Ÿi táº¡o Ä‘Æ¡n hÃ ng má»›i trÃªn há»‡ thá»‘ng.", { cause: orderErr });
       }
 
-      // STAGE 3: Ghi nhận các giao dịch xuất kho SALE sau khi đơn hàng đã tồn tại hợp lệ
+      // STAGE 3: Ghi nháº­n cÃ¡c giao dá»‹ch xuáº¥t kho SALE sau khi Ä‘Æ¡n hÃ ng Ä‘Ã£ tá»“n táº¡i há»£p lá»‡
       for (const item of itemsWithTx) {
         const transactionData = {
           id: item.txId,
@@ -259,7 +255,7 @@ export const useCart = () => {
           outOfShift: outOfShiftFlag,
           orderId: createdOrder.id,
           orderCode: createdOrder.code,
-          note: `Bán lẻ qua đơn hàng ${createdOrder.code}`,
+          note: `BÃ¡n láº» qua Ä‘Æ¡n hÃ ng ${createdOrder.code}`,
           createdAt: nowIso
         };
 
@@ -271,35 +267,19 @@ export const useCart = () => {
         });
       }
 
-      // Thành công toàn bộ: Cập nhật dữ liệu sản phẩm trong AppDataContext trước, sau đó xóa giỏ hàng
+      // ThÃ nh cÃ´ng toÃ n bá»™: Cáº­p nháº­t dá»¯ liá»‡u sáº£n pháº©m trong AppDataContext trÆ°á»›c, sau Ä‘Ã³ xÃ³a giá» hÃ ng
       try {
         await refreshProducts();
       } catch (refreshErr) {
-        console.warn("[useCart] refreshProducts gặp sự cố:", refreshErr);
+        console.warn("[useCart] refreshProducts gáº·p sá»± cá»‘:", refreshErr);
       }
       cartContext.clearCart();
 
       return createdOrder;
     } catch (err) {
       // Non-destructive delta-based rollback of all in-flight actions if checkout failed
-      for (let i = rollbackSteps.length - 1; i >= 0; i--) {
-        const step = rollbackSteps[i];
-        try {
-          if (step.type === 'TRANSACTION') {
-            await inventoryApi.removeTransaction(step.transactionId, currentUser, { source: 'pos_checkout' });
-          } else if (step.type === 'ORDER') {
-            await orderApi.removeInFlightOrder(step.orderId, currentUser);
-          } else if (step.type === 'STOCK_DELTA') {
-            await productApi.adjustStockDelta(step.productId, step.quantity, currentUser, {
-              source: 'pos_checkout_compensation'
-            });
-          }
-        } catch (rollbackErr) {
-          console.error(`Rollback thất bại:`, rollbackErr);
-        }
-      }
-
-      throw new Error(err.message || "Quá trình thanh toán gặp sự cố.", { cause: err });
+      await orderApi.compensateCheckoutRollback(rollbackSteps, currentUser);
+      throw new Error(err.message || "QuÃ¡ trÃ¬nh thanh toÃ¡n gáº·p sá»± cá»‘.", { cause: err });
     } finally {
       isCheckoutRunning = false;
     }

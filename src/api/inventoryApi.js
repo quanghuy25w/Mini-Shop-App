@@ -1,4 +1,4 @@
-import axiosClient from './axiosClient';
+﻿import axiosClient from './axiosClient';
 import { assertPermission, hasPermission, PERMISSIONS } from '../utils/permissions';
 import { logActivity, ACTIVITY_ACTIONS } from '../utils/activityLogger';
 import { getBusinessDate } from '../utils/businessDate';
@@ -10,13 +10,13 @@ export const INVENTORY_TYPES = {
 };
 
 export const INVENTORY_REASONS = {
-  OPENING: 'OPENING',               // Tồn đầu kỳ khi tạo sản phẩm
-  PURCHASE: 'PURCHASE',             // Nhập mua từ nhà cung cấp
-  SALE: 'SALE',                     // Bán lẻ tại quầy POS
-  CANCEL_RESTOCK: 'CANCEL_RESTOCK', // Hoàn kho do hủy đơn hàng
-  INTERNAL: 'INTERNAL',             // Xuất nội bộ / chuyển kho / trả NCC
-  DAMAGE: 'DAMAGE',                 // Hàng hư hỏng / hết hạn
-  ADJUST: 'ADJUST',                 // Kiểm kê / điều chỉnh kho
+  OPENING: 'OPENING',               // Tá»“n Ä‘áº§u ká»³ khi táº¡o sáº£n pháº©m
+  PURCHASE: 'PURCHASE',             // Nháº­p mua tá»« nhÃ  cung cáº¥p
+  SALE: 'SALE',                     // BÃ¡n láº» táº¡i quáº§y POS
+  CANCEL_RESTOCK: 'CANCEL_RESTOCK', // HoÃ n kho do há»§y Ä‘Æ¡n hÃ ng
+  INTERNAL: 'INTERNAL',             // Xuáº¥t ná»™i bá»™ / chuyá»ƒn kho / tráº£ NCC
+  DAMAGE: 'DAMAGE',                 // HÃ ng hÆ° há»ng / háº¿t háº¡n
+  ADJUST: 'ADJUST',                 // Kiá»ƒm kÃª / Ä‘iá»u chá»‰nh kho
 };
 
 export const inventoryApi = {
@@ -31,7 +31,7 @@ export const inventoryApi = {
     return axiosClient.get(`/inventoryTransactions${query}`);
   },
 
-  // Dùng cho nhập/xuất kho CHỦ ĐỘNG của người dùng (trang Nhập hàng/Xuất hàng, tạo SP có tồn đầu).
+  // DÃ¹ng cho nháº­p/xuáº¥t kho CHá»¦ Äá»˜NG cá»§a ngÆ°á»i dÃ¹ng (trang Nháº­p hÃ ng/Xuáº¥t hÃ ng, táº¡o SP cÃ³ tá»“n Ä‘áº§u).
   createTransaction: (data, actor) => {
     if (!actor || !actor.id) {
       const err = new Error('NOT_AUTHENTICATED: Authentication required for inventory transaction.');
@@ -43,20 +43,20 @@ export const inventoryApi = {
     let key = PERMISSIONS.INVENTORY_EXPORT;
     if (data.reason === INVENTORY_REASONS.OPENING) {
       if (hasPermission(actor, PERMISSIONS.PRODUCT_MANAGE) || hasPermission(actor, PERMISSIONS.PRODUCT_CREATE)) {
-        key = null; // Quyền quản lý sản phẩm hợp lệ cho tồn đầu kỳ
+        key = null; // Quyá»n quáº£n lÃ½ sáº£n pháº©m há»£p lá»‡ cho tá»“n Ä‘áº§u ká»³
       } else {
         key = PERMISSIONS.INVENTORY_IMPORT;
       }
     } else if (data.reason === INVENTORY_REASONS.SALE) {
       if (!extractedOrderCode) {
-        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dịch xuất bán hàng (SALE) bắt buộc phải gắn với mã đơn hàng (orderId/orderCode).');
+        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dá»‹ch xuáº¥t bÃ¡n hÃ ng (SALE) báº¯t buá»™c pháº£i gáº¯n vá»›i mÃ£ Ä‘Æ¡n hÃ ng (orderId/orderCode).');
         err.code = 'INVALID_TRANSACTION_CONTEXT';
         throw err;
       }
       key = PERMISSIONS.ORDER_CREATE;
     } else if (data.reason === INVENTORY_REASONS.CANCEL_RESTOCK) {
       if (!extractedOrderCode) {
-        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dịch hoàn kho (CANCEL_RESTOCK) bắt buộc phải gắn với đơn hàng được hủy (orderId/orderCode).');
+        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dá»‹ch hoÃ n kho (CANCEL_RESTOCK) báº¯t buá»™c pháº£i gáº¯n vá»›i Ä‘Æ¡n hÃ ng Ä‘Æ°á»£c há»§y (orderId/orderCode).');
         err.code = 'INVALID_TRANSACTION_CONTEXT';
         throw err;
       }
@@ -78,23 +78,23 @@ export const inventoryApi = {
         const orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
         const order = orders.find(o => o.code === extractedOrderCode || o.id === extractedOrderCode);
         if (!order) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Không tìm thấy đơn hàng "${extractedOrderCode}" trong hệ thống.`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng "${extractedOrderCode}" trong há»‡ thá»‘ng.`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (order.status !== 'completed') {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Đơn hàng "${extractedOrderCode}" chưa hoàn tất (trạng thái: ${order.status}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: ÄÆ¡n hÃ ng "${extractedOrderCode}" chÆ°a hoÃ n táº¥t (tráº¡ng thÃ¡i: ${order.status}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         const orderItem = (order.items || []).find(i => String(i.productId) === String(data.productId));
         if (!orderItem) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sản phẩm "${data.productId}" không có trong đơn hàng "${extractedOrderCode}".`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sáº£n pháº©m "${data.productId}" khÃ´ng cÃ³ trong Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (Number(data.quantity) !== Number(orderItem.quantity)) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Số lượng giao dịch (${data.quantity}) không khớp với số lượng trên đơn hàng (${orderItem.quantity}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sá»‘ lÆ°á»£ng giao dá»‹ch (${data.quantity}) khÃ´ng khá»›p vá»›i sá»‘ lÆ°á»£ng trÃªn Ä‘Æ¡n hÃ ng (${orderItem.quantity}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
@@ -107,7 +107,7 @@ export const inventoryApi = {
           !t.isVoided
         );
         if (duplicate) {
-          const err = new Error(`DUPLICATE_TRANSACTION: Đã tồn tại giao dịch xuất kho SALE cho đơn hàng "${extractedOrderCode}".`);
+          const err = new Error(`DUPLICATE_TRANSACTION: ÄÃ£ tá»“n táº¡i giao dá»‹ch xuáº¥t kho SALE cho Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'DUPLICATE_TRANSACTION';
           throw err;
         }
@@ -119,23 +119,23 @@ export const inventoryApi = {
         const orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
         const order = orders.find(o => o.code === extractedOrderCode || o.id === extractedOrderCode);
         if (!order) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Không tìm thấy đơn hàng "${extractedOrderCode}" trong hệ thống.`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng "${extractedOrderCode}" trong há»‡ thá»‘ng.`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (order.status !== 'cancelled' && order.status !== 'historical_cancelled') {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Không thể tạo giao dịch hoàn kho cho đơn hàng chưa bị hủy (trạng thái: ${order.status}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng thá»ƒ táº¡o giao dá»‹ch hoÃ n kho cho Ä‘Æ¡n hÃ ng chÆ°a bá»‹ há»§y (tráº¡ng thÃ¡i: ${order.status}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         const orderItem = (order.items || []).find(i => String(i.productId) === String(data.productId));
         if (!orderItem) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sản phẩm "${data.productId}" không có trong đơn hàng "${extractedOrderCode}".`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sáº£n pháº©m "${data.productId}" khÃ´ng cÃ³ trong Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (Number(data.quantity) !== Number(orderItem.quantity)) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Số lượng hoàn kho (${data.quantity}) không khớp với số lượng trên đơn hàng (${orderItem.quantity}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sá»‘ lÆ°á»£ng hoÃ n kho (${data.quantity}) khÃ´ng khá»›p vá»›i sá»‘ lÆ°á»£ng trÃªn Ä‘Æ¡n hÃ ng (${orderItem.quantity}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
@@ -148,7 +148,7 @@ export const inventoryApi = {
           !t.isVoided
         );
         if (duplicate) {
-          const err = new Error(`DUPLICATE_TRANSACTION: Đã tồn tại giao dịch hoàn kho CANCEL_RESTOCK cho đơn hàng "${extractedOrderCode}".`);
+          const err = new Error(`DUPLICATE_TRANSACTION: ÄÃ£ tá»“n táº¡i giao dá»‹ch hoÃ n kho CANCEL_RESTOCK cho Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'DUPLICATE_TRANSACTION';
           throw err;
         }
@@ -175,7 +175,7 @@ export const inventoryApi = {
     })();
   },
 
-  // Hủy giao dịch tạm/rollback in-flight (yêu cầu actor xác thực và quyền sở hữu/quyền theo source)
+  // Há»§y giao dá»‹ch táº¡m/rollback in-flight (yÃªu cáº§u actor xÃ¡c thá»±c vÃ  quyá»n sá»Ÿ há»¯u/quyá»n theo source)
   removeTransaction: async (id, actor, context = {}) => {
     if (!actor || !actor.id) {
       const err = new Error('NOT_AUTHENTICATED: Authentication required to remove transaction.');
@@ -183,33 +183,21 @@ export const inventoryApi = {
       throw err;
     }
 
-    let requiredPermission = PERMISSIONS.INVENTORY_ADJUST;
-    if (context.source === 'pos_checkout' || context.source === 'checkout') {
-      requiredPermission = PERMISSIONS.ORDER_CREATE;
-    } else if (context.source === 'order_cancellation') {
-      requiredPermission = PERMISSIONS.ORDER_CANCEL;
-    } else if (context.source === 'inventory_import') {
-      requiredPermission = PERMISSIONS.INVENTORY_IMPORT;
-    } else if (context.source === 'inventory_export') {
-      requiredPermission = PERMISSIONS.INVENTORY_EXPORT;
-    } else if (context.source === 'inventory_opening') {
-      requiredPermission = PERMISSIONS.PRODUCT_CREATE;
-    }
-
-    if (requiredPermission && !hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
-      const err = new Error(`PERMISSION_DENIED: Cần quyền "${requiredPermission}" để hoàn tác giao dịch.`);
+    const requiredPermission = PERMISSIONS.INVENTORY_ADJUST;
+    if (!hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
+      const err = new Error(`PERMISSION_DENIED: Cáº§n quyá»n "${requiredPermission}" Ä‘á»ƒ hoÃ n tÃ¡c giao dá»‹ch.`);
       err.code = 'PERMISSION_DENIED';
       err.requiredPermission = requiredPermission;
       throw err;
     }
 
-    // Nếu không phải admin hoặc quản lý điều chỉnh kho, chỉ được hoàn tác giao dịch do chính mình tạo
+    // Náº¿u khÃ´ng pháº£i admin hoáº·c quáº£n lÃ½ Ä‘iá»u chá»‰nh kho, chá»‰ Ä‘Æ°á»£c hoÃ n tÃ¡c giao dá»‹ch do chÃ­nh mÃ¬nh táº¡o
     if (actor.role !== 'admin' && !hasPermission(actor, PERMISSIONS.INVENTORY_ADJUST)) {
       try {
         const txRes = await axiosClient.get(`/inventoryTransactions/${id}`);
         const tx = txRes.data;
         if (tx && tx.accountId && String(tx.accountId) !== String(actor.id)) {
-          const err = new Error('PERMISSION_DENIED: Bạn chỉ có thể hoàn tác giao dịch do chính mình tạo.');
+          const err = new Error('PERMISSION_DENIED: Báº¡n chá»‰ cÃ³ thá»ƒ hoÃ n tÃ¡c giao dá»‹ch do chÃ­nh mÃ¬nh táº¡o.');
           err.code = 'PERMISSION_DENIED';
           throw err;
         }
@@ -221,7 +209,7 @@ export const inventoryApi = {
     return axiosClient.delete(`/inventoryTransactions/${id}`);
   },
 
-  // Đánh dấu giao dịch bị void (không xóa cứng lịch sử)
+  // ÄÃ¡nh dáº¥u giao dá»‹ch bá»‹ void (khÃ´ng xÃ³a cá»©ng lá»‹ch sá»­)
   voidTransaction: (id, actor) => {
     assertPermission(actor, PERMISSIONS.INVENTORY_ADJUST);
     return axiosClient.patch(`/inventoryTransactions/${id}`, {
@@ -229,20 +217,5 @@ export const inventoryApi = {
       voidedAt: new Date().toISOString(),
       voidedBy: actor?.id || null,
     });
-  },
-
-  // Hỗ trợ khởi tạo test fixture/dữ liệu mẫu nội bộ (nghiêm cấm dùng để tạo giao dịch SALE/CANCEL_RESTOCK né kiểm tra)
-  createSystemTransaction: async (data) => {
-    if (data?.reason === INVENTORY_REASONS.SALE || data?.reason === INVENTORY_REASONS.CANCEL_RESTOCK) {
-      const err = new Error('INVALID_TRANSACTION_CONTEXT: Không thể tạo giao dịch SALE/CANCEL_RESTOCK qua system primitive.');
-      err.code = 'INVALID_TRANSACTION_CONTEXT';
-      throw err;
-    }
-    const payload = {
-      ...data,
-      businessDate: data?.businessDate || getBusinessDate(),
-      createdAt: data?.createdAt || new Date().toISOString(),
-    };
-    return axiosClient.post('/inventoryTransactions', payload);
   }
 };
