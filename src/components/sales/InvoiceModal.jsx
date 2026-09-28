@@ -23,6 +23,12 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
     }
   })();
 
+  const paymentMethodLabel = order.paymentMethod === 'transfer'
+    ? 'Chuyển khoản'
+    : order.paymentMethod === 'card'
+    ? 'Thẻ'
+    : 'Tiền mặt';
+
   const modalContent = (
     <div className="modal-overlay invoice-modal-overlay">
       <div className="modal-content invoice-modal">
@@ -39,6 +45,7 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
           <div className="receipt-meta">
             <div>Mã HĐ: <strong>{order.code || ''}</strong></div>
             <div>Ngày: {formattedDate}</div>
+            <div>Hình thức: <strong>{paymentMethodLabel}</strong></div>
             <div>Thu ngân: Nhân viên bán hàng</div>
           </div>
         </div>
@@ -57,7 +64,7 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
             <tbody>
               {order.items?.map((item, index) => (
                 <tr key={index}>
-                  <td className="text-left item-name-cell">{item.productName}</td>
+                  <td className="text-left item-name-cell">${item.productName}</td>
                   <td className="text-center font-mono">{item.quantity}</td>
                   <td className="text-right font-mono">{formatCurrency(item.price)}</td>
                   <td className="text-right font-mono font-bold">{formatCurrency(item.price * item.quantity)}</td>
@@ -88,6 +95,25 @@ const InvoiceModal = ({ isOpen, order, onClose }) => {
               <span className="total-amount font-mono">{formatCurrency(order.totalAmount)}</span>
             </div>
           </div>
+
+          {order.paymentMethod === 'cash' && order.cashReceived !== null && order.cashReceived !== undefined && (
+            <div className="invoice-payment-info" style={{ marginTop: '6px', fontSize: '12px' }}>
+              <div className="invoice-total-row">
+                <span>Tiền khách đưa:</span>
+                <span className="font-mono">{formatCurrency(order.cashReceived)}</span>
+              </div>
+              <div className="invoice-total-row">
+                <span>Tiền thối lại:</span>
+                <span className="font-mono font-bold">{formatCurrency(order.change || 0)}</span>
+              </div>
+            </div>
+          )}
+
+          {order.note && (
+            <div className="invoice-note-info" style={{ marginTop: '8px', padding: '6px', background: '#f8fafc', borderRadius: '4px', fontSize: '11.5px', fontStyle: 'italic' }}>
+              <strong>Ghi chú:</strong> {order.note}
+            </div>
+          )}
 
           <div className="receipt-divider"></div>
 

@@ -1,25 +1,21 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { initSeedData } from './mockApi';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import TransactionHistoryPage from '../pages/TransactionHistoryPage';
-import { AppDataProvider } from '../context/AppDataContext';
-import { initSeedData } from '../api/localStorageAdapter';
+
 import axiosClient from '../api/axiosClient';
 
+import { renderWithProviders } from './testUtils';
+
 const renderTransactionHistoryPage = () => {
-  return render(
-    <AppDataProvider>
-      <BrowserRouter>
-        <TransactionHistoryPage />
-      </BrowserRouter>
-    </AppDataProvider>
-  );
+  return renderWithProviders(<TransactionHistoryPage />);
 };
 
 describe('Group 6: Giao dịch kho (InventoryTransactions) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
   });
 
   it('Hiển thị các giao dịch kho (Nhập, Xuất, Hoàn kho từ Hủy đơn) ở đầu bảng', async () => {

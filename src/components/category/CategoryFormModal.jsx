@@ -30,7 +30,7 @@ const CategoryFormModal = ({ isOpen, onClose, onSubmit, initialData, categories 
       return;
     }
     
-    // Kiểm tra trùng tên (không phân biệt hoa thường)
+    // Kiểm tra trùng tên 
     const isDuplicate = categories.some(cat => 
       cat.name.toLowerCase() === trimmedName.toLowerCase() && cat.id !== initialData?.id
     );

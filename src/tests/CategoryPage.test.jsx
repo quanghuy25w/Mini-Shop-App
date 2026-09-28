@@ -1,25 +1,20 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { initSeedData } from './mockApi';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import CategoryPage from '../pages/CategoryPage';
-import { AppDataProvider } from '../context/AppDataContext';
-import { initSeedData } from '../api/localStorageAdapter';
-import axiosClient from '../api/axiosClient';
 
-const renderCategoryPage = () => {
-  return render(
-    <AppDataProvider>
-      <BrowserRouter>
-        <CategoryPage />
-      </BrowserRouter>
-    </AppDataProvider>
-  );
+import axiosClient from '../api/axiosClient';
+import { renderWithProviders } from './testUtils';
+
+const renderCategoryPage = (options) => {
+  return renderWithProviders(<CategoryPage />, options);
 };
 
 describe('Group 1: Danh mục (CategoryPage) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
   });
 
   it('Validate tên danh mục trống khi tạo mới', async () => {

@@ -1,0 +1,190 @@
+/* Staff Management CSS */
+.staff-badge-working {
+  background-color: #ecfdf5;
+  color: var(--ledger-dark);
+}
+.staff-badge-working::before {
+  background-color: var(--ledger);
+}
+
+.staff-badge-on-leave {
+  background-color: #fffbeb;
+  color: #b45309;
+}
+.staff-badge-on-leave::before {
+  background-color: var(--amber);
+}
+
+.staff-badge-resigned {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+.staff-badge-resigned::before {
+  background-color: var(--brick);
+}
+
+.staff-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.staff-name-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.staff-name-title {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 14px;
+  display: block;
+}
+
+.staff-code-sub {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* Modal styles for Staff */
+.staff-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.staff-modal-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.staff-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.staff-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.staff-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--surface-sunk);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.staff-pin-callout {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-top: 4px;
+}
+
+.staff-pin-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.staff-pin-desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.staff-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.staff-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.staff-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.staff-detail-val {
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.staff-detail-header-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface-sunk);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.staff-detail-avatar-lg {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+}

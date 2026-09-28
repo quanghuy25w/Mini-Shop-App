@@ -1,28 +1,21 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { initSeedData } from './mockApi';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import SalesPage from '../pages/SalesPage';
-import { AppDataProvider } from '../context/AppDataContext';
-import { CartProvider } from '../context/CartContext';
-import { initSeedData } from '../api/localStorageAdapter';
+
 import axiosClient from '../api/axiosClient';
 
+import { renderWithProviders } from './testUtils';
+
 const renderSalesPage = () => {
-  return render(
-    <AppDataProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <SalesPage />
-        </BrowserRouter>
-      </CartProvider>
-    </AppDataProvider>
-  );
+  return renderWithProviders(<SalesPage />);
 };
 
 describe('Group 4: Bán hàng (SalesPage) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
   });
 
   it('Tìm kiếm lọc đúng sản phẩm theo tên hoặc mã', async () => {
@@ -43,10 +36,10 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
   });
 
   it('Sản phẩm có tồn kho = 0 hiển thị "Hết hàng" và không thể thêm vào giỏ', async () => {
-    // Set stock of 1 product to 0
-    const products = JSON.parse(localStorage.getItem('minishop_products'));
-    products[0].stockQuantity = 0;
-    localStorage.setItem('minishop_products', JSON.stringify(products));
+    // Set stock of 1 product to 0 via API
+    const prodsRes = await axiosClient.get('/products');
+    const firstProd = prodsRes.data[0];
+    await axiosClient.patch(`/products/${firstProd.id}`, { stockQuantity: 0 });
 
     renderSalesPage();
 
@@ -398,10 +391,10 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
   });
 
   it('Khi sản phẩm hết hàng trong kho, nhấn Enter không thêm vào giỏ và giữ nguyên input', async () => {
-    // Set 1 sản phẩm hết hàng trong kho trước khi render
-    const products = JSON.parse(localStorage.getItem('minishop_products'));
-    products[0].stockQuantity = 0;
-    localStorage.setItem('minishop_products', JSON.stringify(products));
+    // Set 1 sản phẩm hết hàng trong kho trước khi render via API
+    const prodsRes = await axiosClient.get('/products');
+    const targetProd = prodsRes.data.find(p => p.sku === 'SP001' || p.barcode === 'SP001') || prodsRes.data[0];
+    await axiosClient.patch(`/products/${targetProd.id}`, { stockQuantity: 0 });
 
     renderSalesPage();
 
@@ -463,10 +456,10 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
   });
 
   it('Không cho phép thêm vào giỏ vượt quá tồn kho khả dụng (stock = 2, cart = 2)', async () => {
-    // Set stock của SP001 = 2
-    const products = JSON.parse(localStorage.getItem('minishop_products'));
-    products[0].stockQuantity = 2;
-    localStorage.setItem('minishop_products', JSON.stringify(products));
+    // Set stock của SP001 = 2 via API
+    const prodsRes = await axiosClient.get('/products');
+    const targetProd = prodsRes.data.find(p => p.sku === 'SP001' || p.barcode === 'SP001') || prodsRes.data[0];
+    await axiosClient.patch(`/products/${targetProd.id}`, { stockQuantity: 2 });
 
     const { container } = renderSalesPage();
 
@@ -490,7 +483,148 @@ describe('Group 4: Bán hàng (SalesPage) Tests', () => {
     expect(searchInput.value).toBe('SP001');
     expect(container.querySelector('.summary-line-item .font-mono').textContent).toBe('2');
   });
+
+  it('Áp dụng trần chiết khấu theo role: Employee tối đa 10%, Staff tối đa 20%', async () => {
+    // 1. Test với Employee: trần 10%
+    const employeeAuth = {
+      currentUser: { id: 'acc-emp-test', role: 'employee', name: 'Nhân viên A' },
+      isAuthenticated: true,
+      can: () => true
+    };
+    const { unmount } = renderWithProviders(<SalesPage />, { auth: employeeAuth });
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Thêm SP vào giỏ
+    const prodCards = await screen.findAllByText(/Ensure/i, {}, { timeout: 5000 });
+    fireEvent.click(prodCards[0]);
+
+    // Chọn giảm giá %
+    const percentBtn = screen.getByRole('button', { name: '%' });
+    fireEvent.click(percentBtn);
+
+    const discountInputs = screen.getAllByRole('spinbutton');
+    const discountInput = discountInputs[discountInputs.length - 1];
+
+    // Nhập 15% -> bị giới hạn về 10%
+    fireEvent.change(discountInput, { target: { value: '15' } });
+    expect(discountInput.value).toBe('10');
+
+    unmount();
+
+    // 2. Test với Staff: trần 20%
+    const staffAuth = {
+      currentUser: { id: 'acc-staff-test', role: 'staff', name: 'Quản lý B' },
+      isAuthenticated: true,
+      can: () => true
+    };
+    renderWithProviders(<SalesPage />, { auth: staffAuth });
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    const staffProdCards = await screen.findAllByText(/Ensure/i, {}, { timeout: 5000 });
+    fireEvent.click(staffProdCards[0]);
+
+    const staffPercentBtn = screen.getByRole('button', { name: '%' });
+    fireEvent.click(staffPercentBtn);
+
+    const staffDiscountInputs = screen.getAllByRole('spinbutton');
+    const staffDiscountInput = staffDiscountInputs[staffDiscountInputs.length - 1];
+
+    // Nhập 30% -> bị giới hạn về 20%
+    fireEvent.change(staffDiscountInput, { target: { value: '30' } });
+    expect(staffDiscountInput.value).toBe('20');
+  });
+
+  it('Thanh toán tiền mặt: nhập tiền khách đưa 500k cho đơn 436k -> tính tiền thối 64k và lưu vào order', async () => {
+    const initialProds = await axiosClient.get('/products');
+    const testProd = initialProds.data[0]; // 436.000đ
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Thêm sản phẩm vào giỏ
+    const prodCard = await screen.findByText(testProd.name, {}, { timeout: 5000 });
+    fireEvent.click(prodCard);
+
+    // Mở popup thanh toán
+    const checkoutBtn = screen.getByRole('button', { name: /Thanh toán \(F9\)/i });
+    fireEvent.click(checkoutBtn);
+
+    expect(await screen.findByText('Xác nhận thanh toán')).toBeTruthy();
+
+    // Nhập tiền khách đưa: 500.000đ
+    const cashInput = screen.getByLabelText(/Tiền khách đưa:/i);
+    fireEvent.change(cashInput, { target: { value: '500000' } });
+
+    // Kiểm tra hiển thị tiền thối lại: 64.000₫
+    expect(screen.getByText(/64\.000/)).toBeTruthy();
+
+    // Nhập ghi chú đơn hàng trong modal
+    const noteInput = screen.getByLabelText(/Ghi chú đơn hàng:/i);
+    fireEvent.change(noteInput, { target: { value: 'Khách thanh toán tiền mặt tròn 500k' } });
+
+    // Bấm thanh toán & in
+    const payAndPrintBtn = screen.getByRole('button', { name: /Thanh toán & In hóa đơn/i });
+    fireEvent.click(payAndPrintBtn);
+
+    // Hóa đơn hiển thị đầy đủ PTTT, tiền khách đưa, tiền thối lại và ghi chú
+    await waitFor(() => {
+      expect(screen.getByText(/Hóa Đơn Bán Hàng/i)).toBeTruthy();
+      expect(screen.getByText(/Khách thanh toán tiền mặt tròn 500k/i)).toBeTruthy();
+    }, { timeout: 5000 });
+
+    // Kiểm tra order lưu trong DB
+    const ordersRes = await axiosClient.get('/orders');
+    const latestOrder = ordersRes.data[ordersRes.data.length - 1];
+    expect(latestOrder.paymentMethod).toBe('cash');
+    expect(latestOrder.cashReceived).toBe(500000);
+    expect(latestOrder.change).toBe(64000);
+    expect(latestOrder.note).toBe('Khách thanh toán tiền mặt tròn 500k');
+    expect(latestOrder.businessDate).toBeDefined();
+  });
+
+  it('Đơn tạm khác ngày bị thông báo hết hạn và không thể khôi phục', async () => {
+    // Lưu một đơn tạm có businessDate là ngày hôm qua
+    const oldDraft = {
+      id: 'draft_old_expired',
+      code: 'DT-01',
+      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', productName: 'Abbott Ensure Gold 380g (Beta Glucan)', quantity: 1, price: 436000 }],
+      discount: '0',
+      discountType: 'amount',
+      orderNote: 'Đơn hôm qua',
+      subtotal: 436000,
+      discountAmount: 0,
+      totalAmount: 436000,
+      businessDate: '2026-09-01',
+      createdAt: '2026-09-01T10:00:00.000Z'
+    };
+    localStorage.setItem('minishop_draft_orders', JSON.stringify([oldDraft]));
+
+    renderSalesPage();
+
+    expect(await screen.findByText('Bán hàng', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Mở modal đơn tạm
+    const draftBtn = screen.getByRole('button', { name: /Đơn tạm/i });
+    fireEvent.click(draftBtn);
+
+    expect(await screen.findByText('Danh sách đơn hàng tạm')).toBeTruthy();
+
+    // Bấm Nạp lại vào giỏ
+    const restoreBtn = screen.getByRole('button', { name: /Nạp lại vào giỏ/i });
+    fireEvent.click(restoreBtn);
+
+    // Giỏ hàng vẫn trống vì đơn tạm đã hết hạn
+    expect(screen.getByText(/Chưa có sản phẩm trong giỏ hàng/i)).toBeTruthy();
+
+    // Đơn tạm hết hạn đã bị xóa khỏi localStorage
+    const savedDrafts = JSON.parse(localStorage.getItem('minishop_draft_orders') || '[]');
+    expect(savedDrafts.some(d => d.id === 'draft_old_expired')).toBe(false);
+  });
 });
+
 
 
 

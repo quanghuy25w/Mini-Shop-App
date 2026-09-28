@@ -3,6 +3,7 @@ import { AppDataContext } from './AppDataContext';
 import { toast } from 'react-toastify';
 import { validateStock } from '../utils/validate';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {

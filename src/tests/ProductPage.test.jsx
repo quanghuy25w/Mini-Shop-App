@@ -1,24 +1,20 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { initSeedData } from './mockApi';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import ProductPage from '../pages/ProductPage';
-import { AppDataProvider } from '../context/AppDataContext';
-import { initSeedData } from '../api/localStorageAdapter';
+import axiosClient from '../api/axiosClient';
 
-const renderProductPage = () => {
-  return render(
-    <AppDataProvider>
-      <BrowserRouter>
-        <ProductPage />
-      </BrowserRouter>
-    </AppDataProvider>
-  );
+import { renderWithProviders } from './testUtils';
+
+const renderProductPage = (options) => {
+  return renderWithProviders(<ProductPage />, options);
 };
 
 describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
   });
 
   it('Hiện cảnh báo khi giá bán < giá vốn nhưng vẫn cho phép lưu sản phẩm', async () => {
@@ -58,6 +54,55 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
     }, { timeout: 5000 });
   });
 
+  it('Tạo sản phẩm có tồn đầu > 0 tự động sinh phiếu kho OPENING', async () => {
+    const { container } = renderProductPage();
+
+    expect(await screen.findByText(/Quản lý sản phẩm/i, {}, { timeout: 5000 })).toBeTruthy();
+
+    fireEvent.click(screen.getByText('Thêm sản phẩm'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Thêm sản phẩm mới/i)).toBeTruthy();
+    });
+
+    const nameInput = container.querySelector('input[name="name"]');
+    fireEvent.change(nameInput, { target: { value: 'Sản Phẩm Tồn Đầu Kỳ' } });
+
+    const categorySelect = container.querySelector('select[name="categoryId"]');
+    fireEvent.change(categorySelect, { target: { value: 'c1111111-1111-1111-1111-111111111111' } });
+
+    const costInput = container.querySelector('input[name="costPrice"]');
+    fireEvent.change(costInput, { target: { value: '25000' } });
+
+    const sellInput = container.querySelector('input[name="sellPrice"]');
+    fireEvent.change(sellInput, { target: { value: '45000' } });
+
+    const stockInput = container.querySelector('input[name="stockQuantity"]');
+    fireEvent.change(stockInput, { target: { value: '15' } });
+
+    fireEvent.click(screen.getByText('Lưu'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Sản Phẩm Tồn Đầu Kỳ')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    // Kiểm tra sản phẩm trong db có stockQuantity = 15 via API
+    const prodsRes = await axiosClient.get('/products');
+    const createdProd = prodsRes.data.find(p => p.name === 'Sản Phẩm Tồn Đầu Kỳ');
+    expect(createdProd).toBeDefined();
+    expect(createdProd.stockQuantity).toBe(15);
+    expect(createdProd.costPrice).toBe(25000);
+
+    // Kiểm tra phiếu kho OPENING được tạo via API
+    const txsRes = await axiosClient.get('/inventoryTransactions');
+    const openingTx = txsRes.data.find(t => t.productId === createdProd.id);
+    expect(openingTx).toBeDefined();
+    expect(openingTx.type).toBe('IN');
+    expect(openingTx.reason).toBe('OPENING');
+    expect(openingTx.quantity).toBe(15);
+    expect(openingTx.unitPrice).toBe(25000);
+  });
+
   it('Xóa sản phẩm thực hiện xóa mềm (isActive = false, không xóa khỏi DB)', async () => {
     renderProductPage();
 
@@ -78,9 +123,9 @@ describe('Group 2: Sản phẩm (ProductPage) Tests', () => {
       expect(screen.queryByText('Abbott Ensure Gold 380g (Beta Glucan)')).toBeNull();
     }, { timeout: 5000 });
 
-    // Check localStorage directly: item still exists in db but isActive === false
-    const productsInStorage = JSON.parse(localStorage.getItem('minishop_products'));
-    const testProd = productsInStorage.find(p => p.name === 'Abbott Ensure Gold 380g (Beta Glucan)');
+    // Check DB directly via API: item still exists in db but isActive === false
+    const prodsAfterDelete = await axiosClient.get('/products');
+    const testProd = prodsAfterDelete.data.find(p => p.name === 'Abbott Ensure Gold 380g (Beta Glucan)');
     expect(testProd).toBeTruthy();
     expect(testProd.isActive).toBe(false);
   });

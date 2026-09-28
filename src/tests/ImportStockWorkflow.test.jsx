@@ -1,25 +1,20 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { initSeedData } from './mockApi';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ImportPage from '../pages/ImportPage';
-import { AppDataProvider } from '../context/AppDataContext';
-import { initSeedData } from '../api/localStorageAdapter';
+
 import axiosClient from '../api/axiosClient';
+import { renderWithProviders } from './testUtils';
 
 const renderImportPage = () => {
-  return render(
-    <AppDataProvider>
-      <BrowserRouter>
-        <ImportPage />
-      </BrowserRouter>
-    </AppDataProvider>
-  );
+  return renderWithProviders(<ImportPage />);
 };
 
 describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
     vi.restoreAllMocks();
   });
 
@@ -188,11 +183,77 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
     // Check updated stock via API
     await waitFor(async () => {
       const updatedRes = await axiosClient.get(`/products/${testProd.id}`);
-      expect(updatedRes.data.stockQuantity).toBeGreaterThan(initialStock);
+      expect(updatedRes.data.stockQuantity).toBe(initialStock + 10);
     }, { timeout: 5000 });
   });
 
-  it('Dừng đúng chỗ khi 1 sản phẩm trong danh sách lỗi giữa chừng khi submit hàng loạt', async () => {
+  it('Cập nhật đúng giá vốn bình quân gia quyền khi nhập hàng (PURCHASE)', async () => {
+    // Chuẩn bị sản phẩm: tồn 10, giá vốn 1000
+    const testProdPayload = {
+      id: 'prod-costing-test-01',
+      name: 'SP Test Giá Vốn Bình Quân',
+      categoryId: 'c1111111-1111-1111-1111-111111111111',
+      unit: 'Hộp',
+      costPrice: 1000,
+      sellPrice: 3000,
+      stockQuantity: 10,
+      minStockAlert: 5,
+      isActive: true,
+      createdAt: new Date().toISOString()
+    };
+    await axiosClient.post('/products', testProdPayload);
+
+    const { container } = renderImportPage();
+
+    expect(await screen.findByText('Chi tiết sản phẩm nhập', {}, { timeout: 5000 })).toBeTruthy();
+
+    // Chọn sản phẩm test
+    fireEvent.click(screen.getByText('-- Chọn sản phẩm --'));
+    await waitFor(() => {
+      expect(container.querySelector('.dropdown-popover')).not.toBeNull();
+    }, { timeout: 5000 });
+
+    const prodOption = (await screen.findAllByText('SP Test Giá Vốn Bình Quân'))[0];
+    fireEvent.click(prodOption);
+
+    // Nhập 10 cái với đơn giá 2000
+    const inputs = screen.getAllByRole('spinbutton');
+    fireEvent.change(inputs[0], { target: { value: '10' } });
+    fireEvent.change(inputs[1], { target: { value: '2000' } });
+    fireEvent.click(screen.getByText('+ Thêm vào danh sách'));
+
+    await waitFor(() => {
+      expect(screen.queryAllByTitle(/Xoá sản phẩm khỏi danh sách/i).length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
+
+    const supplierSelect = screen.getByRole('combobox');
+    fireEvent.change(supplierSelect, { target: { value: 'Nhà phân phối Abbott' } });
+
+    fireEvent.click(screen.getByText('Xác nhận nhập hàng'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Xác nhận Nhập hàng')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    fireEvent.click(screen.getByText('Đồng ý'));
+
+    // Kiểm tra kết quả: tồn mới = 20, giá vốn mới = (10*1000 + 10*2000)/20 = 1500
+    await waitFor(async () => {
+      const updatedRes = await axiosClient.get('/products/prod-costing-test-01');
+      expect(updatedRes.data.stockQuantity).toBe(20);
+      expect(updatedRes.data.costPrice).toBe(1500);
+    }, { timeout: 5000 });
+
+    // Kiểm tra phiếu kho có reason là PURCHASE
+    const txRes = await axiosClient.get('/inventoryTransactions?productId=prod-costing-test-01');
+    const importTx = txRes.data.find(t => t.quantity === 10 && t.unitPrice === 2000);
+    expect(importTx).toBeDefined();
+    expect(importTx.type).toBe('IN');
+    expect(importTx.reason).toBe('PURCHASE');
+    expect(importTx.businessDate).toBeDefined();
+  });
+
+  it('Hoàn tác nguyên tử (atomic rollback) toàn bộ lô nhập nếu có lỗi giữa chừng', async () => {
     const { container } = renderImportPage();
 
     expect(await screen.findByText('Chi tiết sản phẩm nhập', {}, { timeout: 5000 })).toBeTruthy();
@@ -234,3 +295,4 @@ describe('Group 3: Nhập Kho (ImportStockWorkflow) Tests', () => {
     }, { timeout: 10000 });
   });
 });
+

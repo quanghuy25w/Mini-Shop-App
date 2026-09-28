@@ -1,6 +1,6 @@
 import './ConfirmDialog.css';
 
-const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, showCancel = true }) => {
+const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, showCancel = true, children }) => {
   if (!isOpen) return null;
 
   return (
@@ -8,6 +8,7 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, showCancel
       <div className="modal-content confirm-dialog">
         <h3>{title}</h3>
         <p>{message}</p>
+        {children}
         <div className="modal-actions">
           {showCancel && <button className="btn-cancel" onClick={onCancel}>Hủy</button>}
           <button className="btn-submit" onClick={onConfirm}>Đồng ý</button>

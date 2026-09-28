@@ -1,0 +1,27 @@
+/* Accounts Management CSS */
+.account-role-admin {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+.account-role-admin::before {
+  background-color: #3b82f6;
+}
+
+.account-role-staff {
+  background-color: #ecfdf5;
+  color: var(--ledger-dark);
+}
+.account-role-staff::before {
+  background-color: var(--ledger);
+}
+
+.account-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  background: var(--surface-sunk);
+  padding: 2px 8px;
+  border-radius: 4px;
+}

@@ -4,15 +4,21 @@ import 'react-toastify/dist/ReactToastify.css';
 import AppRoutes from './routes/AppRoutes';
 import { AppDataProvider } from './context/AppDataContext';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
+import { WorkSessionProvider } from './context/WorkSessionContext';
 
 function App() {
   return (
     <AppDataProvider>
       <CartProvider>
-        <BrowserRouter>
-          <AppRoutes />
-          <ToastContainer position="bottom-right" />
-        </BrowserRouter>
+        <AuthProvider>
+          <WorkSessionProvider>
+            <BrowserRouter>
+              <AppRoutes />
+              <ToastContainer position="bottom-right" />
+            </BrowserRouter>
+          </WorkSessionProvider>
+        </AuthProvider>
       </CartProvider>
     </AppDataProvider>
   );

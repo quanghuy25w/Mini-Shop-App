@@ -1,19 +1,24 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppDataContext } from '../context/AppDataContext';
+import { useAuth } from '../hooks/useAuth';
 import { orderApi } from '../api/orderApi';
 import { inventoryApi } from '../api/inventoryApi';
 import { formatCurrency } from '../utils/formatCurrency';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { subDays, isAfter, isBefore } from 'date-fns';
+import { subDays, isAfter, format } from 'date-fns';
+import { getBusinessDate } from '../utils/businessDate';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { products, loadingInitial } = useContext(AppDataContext);
+  const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const navigate = useNavigate();
+
+  const isEmployee = currentUser?.role === 'employee';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,8 +27,8 @@ const DashboardPage = () => {
           orderApi.getAll(),
           inventoryApi.getAllTransactions(),
         ]);
-        setOrders(ordersRes.data);
-        setTransactions(txRes.data);
+        setOrders(ordersRes.data || []);
+        setTransactions(txRes.data || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -48,16 +53,20 @@ const DashboardPage = () => {
   }, [activeProducts]);
 
   const revenue7Days = useMemo(() => {
-    const sevenDaysAgo = subDays(new Date(), 7);
+    const todayStr = getBusinessDate(new Date());
+    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
     return orders
-      .filter(o => o.status === 'completed' && isAfter(new Date(o.createdAt), sevenDaysAgo))
-      .reduce((sum, o) => sum + o.totalAmount, 0);
+      .filter(o => {
+        const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
+        return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= weekStartStr && bDate <= todayStr;
+      })
+      .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
   }, [orders]);
 
   const topSellingProducts = useMemo(() => {
     const salesCount = {};
-    orders.filter(o => o.status === 'completed').forEach(order => {
-      order.items.forEach(item => {
+    orders.filter(o => (o.status === 'completed' || o.status === 'historical_cancelled')).forEach(order => {
+      (order.items || []).forEach(item => {
         if (!salesCount[item.productId]) {
           salesCount[item.productId] = { name: item.productName, qty: 0, revenue: 0 };
         }
@@ -72,13 +81,63 @@ const DashboardPage = () => {
   }, [orders]);
 
   const completedOrders7DaysCount = useMemo(() => {
-    const sevenDaysAgo = subDays(new Date(), 7);
-    return orders.filter(o => o.status === 'completed' && isAfter(new Date(o.createdAt), sevenDaysAgo)).length;
+    const todayStr = getBusinessDate(new Date());
+    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
+    return orders.filter(o => {
+      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
+      return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= weekStartStr && bDate <= todayStr;
+    }).length;
   }, [orders]);
 
-  // ── Trend metrics ────────────────────────────────────────────────────────────
+  // ── Employee Own Performance Metrics ─────────────────────────────────────────
+  const isOwnOrder = useCallback((order) => {
+    if (!currentUser || !order) return false;
+    if (order.accountId && String(order.accountId) === String(currentUser.id)) return true;
+    if (currentUser.employeeId && order.employeeId && String(order.employeeId) === String(currentUser.employeeId)) return true;
+    if (currentUser.employeeId && order.staffId && String(order.staffId) === String(currentUser.employeeId)) return true;
+    if (order.createdBy && (String(order.createdBy) === String(currentUser.id) || (currentUser.employeeId && String(order.createdBy) === String(currentUser.employeeId)))) return true;
+    return false;
+  }, [currentUser]);
 
-  // Card 1: sản phẩm active được tạo trong 24h gần nhất
+  const employeeCompletedOrders = useMemo(() => {
+    if (!isEmployee) return [];
+    return orders
+      .filter(o => (o.status === 'completed' || o.status === 'historical_cancelled') && isOwnOrder(o))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [orders, isEmployee, isOwnOrder]);
+
+  const employeeTodayOrders = useMemo(() => {
+    const todayStr = getBusinessDate(new Date());
+    return employeeCompletedOrders.filter(o => {
+      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
+      return bDate === todayStr;
+    });
+  }, [employeeCompletedOrders]);
+
+  const employeeTodaySales = useMemo(() => {
+    return employeeTodayOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  }, [employeeTodayOrders]);
+
+  const employeeTodayOrdersCount = employeeTodayOrders.length;
+
+  const employeeWeekOrders = useMemo(() => {
+    const todayStr = getBusinessDate(new Date());
+    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
+    return employeeCompletedOrders.filter(o => {
+      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
+      return bDate && bDate >= weekStartStr && bDate <= todayStr;
+    });
+  }, [employeeCompletedOrders]);
+
+  const employeeWeekSales = useMemo(() => {
+    return employeeWeekOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  }, [employeeWeekOrders]);
+
+  const employeeWeekOrdersCount = employeeWeekOrders.length;
+
+  // ── Trend metrics (Store-wide for Admin/Staff) ───────────────────────────────
+
+  // Card 1: sản phẩm active được tạo trong 24h gần nhất (vẫn dùng createdAt vì không liên quan businessDate)
   const newProductsLast24h = useMemo(() => {
     const oneDayAgo = subDays(new Date(), 1);
     return activeProducts.filter(p => isAfter(new Date(p.createdAt), oneDayAgo)).length;
@@ -86,9 +145,13 @@ const DashboardPage = () => {
 
   // Card 2: thay đổi giá trị tồn kho trong 7 ngày qua (IN - OUT) × unitPrice
   const inventoryValueChange7Days = useMemo(() => {
-    const sevenDaysAgo = subDays(new Date(), 7);
+    const todayStr = getBusinessDate(new Date());
+    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
     return transactions
-      .filter(tx => isAfter(new Date(tx.createdAt), sevenDaysAgo))
+      .filter(tx => {
+        const bDate = tx.businessDate || (tx.createdAt ? getBusinessDate(tx.createdAt) : null);
+        return bDate && bDate >= weekStartStr && bDate <= todayStr;
+      })
       .reduce((sum, tx) => {
         const val = tx.quantity * (tx.unitPrice || 0);
         return tx.type === 'IN' ? sum + val : sum - val;
@@ -97,23 +160,21 @@ const DashboardPage = () => {
 
   // Card 2: % thay đổi so với giá trị tồn kho tại điểm 7 ngày trước
   const inventoryValueChangePercent = useMemo(() => {
-    // Ước tính giá trị tồn kho 7 ngày trước = hiện tại - delta
     const baseValue = totalInventoryValue - inventoryValueChange7Days;
     if (baseValue === 0) return null;
     return (inventoryValueChange7Days / Math.abs(baseValue)) * 100;
   }, [totalInventoryValue, inventoryValueChange7Days]);
 
-  // Card 3: doanh thu completed orders trong 7 ngày TRƯỚC khoảng hiện tại (ngày -14 đến -7)
+  // Card 3: doanh thu completed orders trong 7 ngày TRƯỚC khoảng hiện tại (ngày -13 đến -7)
   const revenuePrev7Days = useMemo(() => {
-    const sevenDaysAgo = subDays(new Date(), 7);
-    const fourteenDaysAgo = subDays(new Date(), 14);
+    const prevWeekEndStr = getBusinessDate(subDays(new Date(), 7));
+    const prevWeekStartStr = getBusinessDate(subDays(new Date(), 13));
     return orders
-      .filter(o =>
-        o.status === 'completed' &&
-        isAfter(new Date(o.createdAt), fourteenDaysAgo) &&
-        isBefore(new Date(o.createdAt), sevenDaysAgo)
-      )
-      .reduce((sum, o) => sum + o.totalAmount, 0);
+      .filter(o => {
+        const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
+        return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= prevWeekStartStr && bDate <= prevWeekEndStr;
+      })
+      .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
   }, [orders]);
 
   // Card 3: % thay đổi doanh thu tuần này so với tuần trước
@@ -122,15 +183,14 @@ const DashboardPage = () => {
     return ((revenue7Days - revenuePrev7Days) / revenuePrev7Days) * 100;
   }, [revenue7Days, revenuePrev7Days]);
 
-  // Card 4: số đơn completed trong khoảng ngày -14 đến -7
+  // Card 4: số đơn completed trong khoảng ngày -13 đến -7
   const completedOrdersPrev7DaysCount = useMemo(() => {
-    const sevenDaysAgo = subDays(new Date(), 7);
-    const fourteenDaysAgo = subDays(new Date(), 14);
-    return orders.filter(o =>
-      o.status === 'completed' &&
-      isAfter(new Date(o.createdAt), fourteenDaysAgo) &&
-      isBefore(new Date(o.createdAt), sevenDaysAgo)
-    ).length;
+    const prevWeekEndStr = getBusinessDate(subDays(new Date(), 7));
+    const prevWeekStartStr = getBusinessDate(subDays(new Date(), 13));
+    return orders.filter(o => {
+      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
+      return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= prevWeekStartStr && bDate <= prevWeekEndStr;
+    }).length;
   }, [orders]);
 
   // Card 4: chênh lệch số đơn tuần này - tuần trước
@@ -152,7 +212,194 @@ const DashboardPage = () => {
 
   if (loadingInitial || loadingOrders) return <LoadingSpinner />;
 
+  // ── RENDER FOR EMPLOYEE (Own Sales Performance) ──────────────────────────────
+  if (isEmployee) {
+    return (
+      <div className="page-container dashboard-container">
+        <div className="page-header">
+          <div>
+            <h2>Tổng Quan (Dashboard)</h2>
+            <p className="page-subtitle">
+              Hiệu suất bán hàng cá nhân của {currentUser?.name || 'Nhân viên'} {currentUser?.employeeCode ? `(${currentUser.employeeCode})` : ''}
+            </p>
+          </div>
+        </div>
 
+        <div className="dashboard-cards-4">
+          {/* Card 1: Doanh số hôm nay */}
+          <div className="stat-card stat-card-featured">
+            <div className="stat-header">
+              <span className="stat-title">Doanh số hôm nay</span>
+              <div className="stat-icon-wrapper icon-emerald-filled">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+            </div>
+            <div className="stat-value font-mono text-ledger">{formatCurrency(employeeTodaySales)}</div>
+            <div className="stat-trend trend-neutral">
+              <span className="trend-text">{employeeTodayOrdersCount} đơn hàng hôm nay</span>
+            </div>
+          </div>
+
+          {/* Card 2: Đơn hàng hôm nay */}
+          <div className="stat-card">
+            <div className="stat-header">
+              <span className="stat-title">Đơn hàng hôm nay</span>
+              <div className="stat-icon-wrapper icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+            </div>
+            <div className="stat-value font-mono">{employeeTodayOrdersCount}</div>
+            <div className="stat-trend trend-neutral">
+              <span className="trend-text">Đơn hoàn tất trong ngày</span>
+            </div>
+          </div>
+
+          {/* Card 3: Doanh số tuần này */}
+          <div className="stat-card">
+            <div className="stat-header">
+              <span className="stat-title">Doanh số tuần này</span>
+              <div className="stat-icon-wrapper icon-emerald">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              </div>
+            </div>
+            <div className="stat-value font-mono text-ledger">{formatCurrency(employeeWeekSales)}</div>
+            <div className="stat-trend trend-neutral">
+              <span className="trend-text">{employeeWeekOrdersCount} đơn hàng tuần này</span>
+            </div>
+          </div>
+
+          {/* Card 4: Đơn hàng tuần này */}
+          <div className="stat-card">
+            <div className="stat-header">
+              <span className="stat-title">Đơn hàng tuần này</span>
+              <div className="stat-icon-wrapper icon-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+              </div>
+            </div>
+            <div className="stat-value font-mono">{employeeWeekOrdersCount}</div>
+            <div className="stat-trend trend-neutral">
+              <span className="trend-text">Đơn hoàn tất trong tuần</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-tables">
+          {/* Table 1: Đơn hàng gần đây của bạn */}
+          <div className="dashboard-table-card">
+            <div className="table-card-header">
+              <h3>Đơn hàng gần đây của bạn</h3>
+              <span className="table-card-subtitle">(Chỉ hiển thị đơn hàng do bạn tạo)</span>
+            </div>
+
+            {employeeCompletedOrders.length === 0 ? (
+              <p className="empty-text">Bạn chưa có đơn hàng nào hoàn tất.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Mã đơn</th>
+                      <th className="text-center">Số lượng</th>
+                      <th className="text-right">Tổng tiền</th>
+                      <th className="text-right">Thời gian</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employeeCompletedOrders.slice(0, 5).map((ord) => {
+                      const totalQty = (ord.items || []).reduce((s, i) => s + (i.quantity || 1), 0);
+                      return (
+                        <tr key={ord.id}>
+                          <td className="font-mono font-medium">{ord.code || ord.id}</td>
+                          <td className="text-center font-mono">{totalQty} sp</td>
+                          <td className="text-right font-mono font-bold text-ledger">{formatCurrency(ord.totalAmount)}</td>
+                          <td className="text-right text-muted font-mono" style={{ fontSize: '12px' }}>
+                            {format(new Date(ord.createdAt), 'dd/MM/yyyy HH:mm')}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="table-card-footer">
+              <button className="btn-link" onClick={() => navigate('/transactions')}>
+                <span>Xem lịch sử bán hàng của bạn</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Table 2: Sản phẩm sắp hết hàng */}
+          <div className="dashboard-table-card">
+            <div className="table-card-header">
+              <h3>Sản phẩm sắp hết hàng</h3>
+              <span className="table-card-subtitle">(Tồn kho ≤ mức cảnh báo)</span>
+            </div>
+
+            {lowStockProducts.length === 0 ? (
+              <p className="empty-text">Không có sản phẩm nào sắp hết hàng.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Sản phẩm</th>
+                      <th className="text-center">Tồn kho</th>
+                      <th className="text-center">Cảnh báo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lowStockProducts.slice(0, 5).map(p => (
+                      <tr key={p.id}>
+                        <td className="font-medium">{p.name}</td>
+                        <td className="text-center font-mono">{p.stockQuantity}</td>
+                        <td className="text-center">
+                          <span className="badge-warning-custom">Sắp hết</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="table-card-footer">
+              <button className="btn-link" onClick={() => navigate('/sales')}>
+                <span>Đến màn hình bán hàng</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── RENDER FOR ADMIN & STAFF (Store-wide Overview) ───────────────────────────
   return (
     <div className="page-container dashboard-container">
       <div className="page-header">
@@ -216,7 +463,6 @@ const DashboardPage = () => {
             <div className="stat-icon-wrapper icon-emerald-filled">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
-
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
             </div>

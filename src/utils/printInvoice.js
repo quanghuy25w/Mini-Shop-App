@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 
 /**
  * In hóa đơn bán hàng độc lập qua iframe ẩn
- * Đảm bảo 100% không bị trắng trang, không bị xung đột CSS layout hoặc overflow:hidden của SPA
  */
 export const printInvoice = (order) => {
   if (!order) return;
@@ -19,6 +18,12 @@ export const printInvoice = (order) => {
       return format(new Date(), 'dd/MM/yyyy HH:mm');
     }
   })();
+
+  const paymentMethodLabel = order.paymentMethod === 'transfer'
+    ? 'Chuyển khoản'
+    : order.paymentMethod === 'card'
+    ? 'Thẻ'
+    : 'Tiền mặt';
 
   // Tạo iframe chuyên dụng
   const iframe = document.createElement('iframe');
@@ -148,12 +153,28 @@ export const printInvoice = (order) => {
             font-size: 14px;
             font-weight: 800;
             padding-top: 4px;
+            border-top: 1px solid #000000;
+            margin-top: 3px;
           }
           .grand-total-amount {
             font-size: 15px;
             font-weight: 800;
           }
           
+          .payment-detail-section {
+            margin-top: 4px;
+            padding-top: 4px;
+            font-size: 11px;
+          }
+          
+          .order-note-box {
+            margin-top: 5px;
+            padding: 4px 6px;
+            border: 1px dashed #666666;
+            font-size: 11px;
+            font-style: italic;
+          }
+
           .footer-section {
             text-align: center;
             margin-top: 10px;
@@ -186,6 +207,7 @@ export const printInvoice = (order) => {
         <div class="invoice-meta">
           <div>Mã HĐ: <strong>${order.code || ''}</strong></div>
           <div>Ngày: ${formattedDate}</div>
+          <div>Hình thức: <strong>${paymentMethodLabel}</strong></div>
           <div>Thu ngân: Nhân viên bán hàng</div>
         </div>
 
@@ -234,6 +256,25 @@ export const printInvoice = (order) => {
             <span class="grand-total-amount font-mono">${formatCurrency(order.totalAmount || 0)}</span>
           </div>
         </div>
+
+        ${order.paymentMethod === 'cash' && order.cashReceived !== null && order.cashReceived !== undefined ? `
+          <div class="payment-detail-section">
+            <div class="summary-row">
+              <span>Tiền khách đưa:</span>
+              <span class="font-mono">${formatCurrency(order.cashReceived)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Tiền thối lại:</span>
+              <span class="font-mono font-bold">${formatCurrency(order.change || 0)}</span>
+            </div>
+          </div>
+        ` : ''}
+
+        ${order.note ? `
+          <div class="order-note-box">
+            <strong>Ghi chú:</strong> ${order.note}
+          </div>
+        ` : ''}
 
         <div class="divider"></div>
 

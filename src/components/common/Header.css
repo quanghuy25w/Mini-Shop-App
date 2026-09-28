@@ -63,6 +63,45 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
+.header-shift-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  background: var(--surface);
+}
+
+.header-shift-badge.active {
+  background-color: var(--ledger-tint);
+  border-color: #a7f3d0;
+  color: var(--ledger-dark);
+}
+
+.header-shift-badge.active:hover {
+  background-color: #d1fae5;
+}
+
+.header-shift-badge.inactive {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.header-shift-badge.inactive:hover {
+  background-color: #fef3c7;
+}
+
+.header-shift-badge .shift-sub {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
 .header-icon-btn {
   position: relative;
   width: 36px;
@@ -354,3 +393,25 @@
     right: -20px;
   }
 }
+
+.header-logout-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.header-logout-btn:hover {
+  background-color: var(--brick-tint);
+  color: var(--brick);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+

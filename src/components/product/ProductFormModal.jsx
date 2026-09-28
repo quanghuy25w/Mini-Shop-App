@@ -5,6 +5,8 @@ import './ProductFormModal.css';
 const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, categories }) => {
   const [formData, setFormData] = useState({
     name: '',
+    sku: '',
+    barcode: '',
     categoryId: '',
     unit: '',
     costPrice: 0,
@@ -26,7 +28,9 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     if (isOpen) {
       if (initialData) {
         setFormData({
-          name: initialData.name,
+          name: initialData.name || '',
+          sku: initialData.sku || initialData.code || '',
+          barcode: initialData.barcode || '',
           categoryId: initialData.categoryId,
           unit: initialData.unit || '',
           costPrice: initialData.costPrice,
@@ -36,8 +40,13 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           imageUrl: initialData.imageUrl || ''
         });
       } else {
+        // Auto generate suggested SKU
+        const count = (products || []).length + 1;
+        const suggestedSku = `SP${String(count).padStart(3, '0')}`;
         setFormData({
           name: '',
+          sku: suggestedSku,
+          barcode: '',
           categoryId: '',
           unit: 'Cái',
           costPrice: 0,
@@ -80,13 +89,21 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const { name, categoryId, costPrice, sellPrice, stockQuantity, minStockAlert, unit, imageUrl } = formData;
+    const { name, sku, barcode, categoryId, costPrice, sellPrice, stockQuantity, minStockAlert, unit, imageUrl } = formData;
 
     const trimmedName = name.trim();
     if (!trimmedName) {
       setError('Tên sản phẩm không được để trống');
       return;
     }
+
+    const trimmedSku = (sku || '').trim();
+    if (!trimmedSku) {
+      setError('Mã SKU không được để trống');
+      return;
+    }
+
+    const trimmedBarcode = (barcode || '').trim();
 
     if (!categoryId) {
       setError('Vui lòng chọn danh mục');
@@ -99,15 +116,41 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     }
 
     // Check unique active product name
-    const isDuplicate = products.some(p =>
+    const isDuplicateName = products.some(p =>
       p.name.toLowerCase() === trimmedName.toLowerCase() &&
       p.id !== initialData?.id &&
       p.isActive === true
     );
 
-    if (isDuplicate) {
+    if (isDuplicateName) {
       setError('Tên sản phẩm đã tồn tại');
       return;
+    }
+
+    // Check unique SKU among active products
+    const isDuplicateSku = products.some(p =>
+      (p.sku && p.sku.toLowerCase() === trimmedSku.toLowerCase() || p.code && p.code.toLowerCase() === trimmedSku.toLowerCase()) &&
+      p.id !== initialData?.id &&
+      p.isActive === true
+    );
+
+    if (isDuplicateSku) {
+      setError('Mã SKU đã tồn tại, vui lòng chọn mã khác');
+      return;
+    }
+
+    // Check unique Barcode among active products if entered
+    if (trimmedBarcode) {
+      const isDuplicateBarcode = products.some(p =>
+        p.barcode && p.barcode.toLowerCase() === trimmedBarcode.toLowerCase() &&
+        p.id !== initialData?.id &&
+        p.isActive === true
+      );
+
+      if (isDuplicateBarcode) {
+        setError('Mã vạch (Barcode) đã tồn tại cho sản phẩm khác');
+        return;
+      }
     }
 
     const now = new Date().toISOString();
@@ -115,6 +158,9 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
     const data = {
       id: initialData ? initialData.id : generateId(),
       name: trimmedName,
+      sku: trimmedSku,
+      code: trimmedSku,
+      barcode: trimmedBarcode || null,
       categoryId,
       unit: unit.trim(),
       costPrice: Number(costPrice),
@@ -157,10 +203,30 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           </div>
           <div className="form-row">
             <div className="form-group flex-1">
+              <label>Mã SKU (*)</label>
+              <input
+                type="text"
+                name="sku"
+                value={formData.sku}
+                onChange={handleChange}
+                placeholder="VD: SP001"
+                disabled={Boolean(initialData)}
+              />
+            </div>
+            <div className="form-group flex-1">
+              <label>Mã vạch (Barcode)</label>
+              <input
+                type="text"
+                name="barcode"
+                value={formData.barcode}
+                onChange={handleChange}
+                placeholder="VD: 893500123456"
+              />
+            </div>
+            <div className="form-group flex-1">
               <label>Đơn vị tính</label>
               <input type="text" name="unit" value={formData.unit} onChange={handleChange} />
             </div>
-            <div className="form-group flex-2"></div>
           </div>
 
           <div className="form-row">
@@ -207,7 +273,7 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, initialData, products, ca
           <div className="form-section-title">Tồn kho</div>
           <div className="form-row">
             <div className="form-group flex-1">
-              <label>Tồn hiện tại</label>
+              <label>{initialData ? 'Tồn hiện tại' : 'Tồn đầu kỳ'}</label>
               <input
                 type="number"
                 name="stockQuantity"

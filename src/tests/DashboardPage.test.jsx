@@ -1,9 +1,11 @@
+import { initSeedData } from './mockApi';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, beforeEach } from 'vitest';
 import DashboardPage from '../pages/DashboardPage';
 import { AppDataProvider } from '../context/AppDataContext';
-import { initSeedData } from '../api/localStorageAdapter';
+import axiosClient from '../api/axiosClient';
+
 
 const renderDashboardPage = () => {
   return render(
@@ -19,6 +21,7 @@ describe('Group 7: Dashboard (DashboardPage) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
   });
 
   it('Hiển thị đủ các thẻ KPI: Tổng SP Active, Doanh thu 7 ngày, Tổng giá trị tồn kho', async () => {
@@ -33,17 +36,18 @@ describe('Group 7: Dashboard (DashboardPage) Tests', () => {
   });
 
   it('Bảng "Sản phẩm sắp hết hàng" chỉ hiện các sản phẩm có 0 < Tồn kho <= minStockAlert', async () => {
-    const productsInStorage = JSON.parse(localStorage.getItem('minishop_products'));
+    const prodRes = await axiosClient.get('/products');
+    const productsInStorage = prodRes.data;
     if (productsInStorage && productsInStorage.length > 0) {
-      productsInStorage[0].stockQuantity = 5;
-      localStorage.setItem('minishop_products', JSON.stringify(productsInStorage));
+      await axiosClient.patch(`/products/${productsInStorage[0].id}`, { stockQuantity: 5 });
     }
 
     renderDashboardPage();
 
     expect(await screen.findByText('Sản phẩm sắp hết hàng', {}, { timeout: 5000 })).toBeTruthy();
 
-    const activeProducts = JSON.parse(localStorage.getItem('minishop_products')).filter(p => p.isActive);
+    const activeProdsRes = await axiosClient.get('/products');
+    const activeProducts = activeProdsRes.data.filter(p => p.isActive);
     const lowStockProds = activeProducts.filter(p => p.stockQuantity <= p.minStockAlert && p.stockQuantity > 0);
 
     for (const prod of lowStockProds) {

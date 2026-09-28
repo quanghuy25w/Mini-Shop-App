@@ -1,25 +1,20 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { initSeedData } from './mockApi';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ExportPage from '../pages/ExportPage';
-import { AppDataProvider } from '../context/AppDataContext';
-import { initSeedData } from '../api/localStorageAdapter';
+
 import axiosClient from '../api/axiosClient';
+import { renderWithProviders } from './testUtils';
 
 const renderExportPage = () => {
-  return render(
-    <AppDataProvider>
-      <BrowserRouter>
-        <ExportPage />
-      </BrowserRouter>
-    </AppDataProvider>
-  );
+  return renderWithProviders(<ExportPage />);
 };
 
 describe('Group 3: Xuất Kho (ExportStockWorkflow) Tests', () => {
   beforeEach(() => {
     localStorage.clear();
     initSeedData();
+    
     vi.restoreAllMocks();
   });
 

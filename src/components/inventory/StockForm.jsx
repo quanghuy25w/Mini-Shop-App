@@ -5,7 +5,7 @@ import { validateStock } from '../../utils/validate';
 import { toast } from 'react-toastify';
 import './StockForm.css';
 
-// Component render Thumbnail san pham (anh or icon visual)
+// Component render Thumbnail san pham 
 const ProductThumbnail = ({ product, size = 38 }) => {
   if (!product) return null;
   if (product.imageUrl || product.image) {

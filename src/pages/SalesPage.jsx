@@ -1,16 +1,21 @@
 import { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
 import { useCart } from '../hooks/useCart';
 import { useProducts } from '../hooks/useProducts';
+import { useAuth } from '../hooks/useAuth';
 import { AppDataContext } from '../context/AppDataContext';
+import { WorkSessionContext } from '../context/WorkSessionContext';
 import { formatCurrency } from '../utils/formatCurrency';
+import { getBusinessDate } from '../utils/businessDate';
 import InvoiceModal from '../components/sales/InvoiceModal';
 import CheckoutConfirmModal from '../components/sales/CheckoutConfirmModal';
 import DraftOrdersModal from '../components/sales/DraftOrdersModal';
 import EmptyState from '../components/common/EmptyState';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import Pagination from '../components/common/Pagination';
+import WorkSessionBanner from '../components/workSession/WorkSessionBanner';
 import { printInvoice } from '../utils/printInvoice';
 import { toast } from 'react-toastify';
+import { ROLE_DISCOUNT_CAPS } from '../utils/orderRules';
 import './SalesPage.css';
 
 const PAGE_SIZE = 20;
@@ -86,6 +91,8 @@ const getProductCode = (product, idx = 0) => {
 const SalesPage = () => {
   const { products } = useProducts();
   const { categories } = useContext(AppDataContext);
+  const { currentUser } = useAuth();
+  const { currentSession } = useContext(WorkSessionContext);
   const { cartItems, addToCart, updateQuantity, removeFromCart, clearCart, restoreCart, checkout } = useCart();
   
   // UI filter states
@@ -138,7 +145,9 @@ const SalesPage = () => {
       const q = searchTerm.trim().toLowerCase();
       const pName = (p.name || '').toLowerCase();
       const pCode = (getProductCode(p) || '').toLowerCase();
-      const matchSearch = pName.includes(q) || pCode.includes(q);
+      const pSku = (p.sku || '').toLowerCase();
+      const pBarcode = (p.barcode || '').toLowerCase();
+      const matchSearch = pName.includes(q) || pCode.includes(q) || pSku.includes(q) || pBarcode.includes(q);
       const matchCat = selectedCategory ? String(p.categoryId) === String(selectedCategory) : true;
       return matchSearch && matchCat;
     });
@@ -178,7 +187,7 @@ const SalesPage = () => {
     return Math.max(0, subtotal - discountAmount);
   }, [subtotal, discountAmount]);
 
-  // Xu ly thay doi gia tri giam gia
+  // Xu ly thay doi gia tri giam gia voi tran chiet khau theo role
   const handleDiscountChange = (e) => {
     const val = e.target.value;
     if (val === '') {
@@ -186,16 +195,29 @@ const SalesPage = () => {
       return;
     }
     const num = Number(val);
-    if (!isNaN(num) && num >= 0) {
-      if (discountType === 'percent') {
-        if (num > 100) {
-          setDiscount('100');
-        } else {
-          setDiscount(val);
-        }
+    if (isNaN(num) || num < 0) return;
+
+    const userRole = (currentUser?.role || 'employee').toLowerCase();
+    const maxPercent = ROLE_DISCOUNT_CAPS[userRole] ?? 10;
+
+    if (discountType === 'percent') {
+      if (num > maxPercent) {
+        setDiscount(String(maxPercent));
+        toast.warn(`Chiết khấu tối đa cho vai trò ${userRole.toUpperCase()} là ${maxPercent}%. Cần cấp quản lý xác nhận.`);
       } else {
         setDiscount(val);
       }
+    } else {
+      // Giảm theo số tiền cố định: so khớp tỷ lệ % với subtotal
+      if (subtotal > 0 && maxPercent < 100) {
+        const maxAmount = Math.round(subtotal * (maxPercent / 100));
+        if (num > maxAmount) {
+          setDiscount(String(maxAmount));
+          toast.warn(`Chiết khấu tối đa cho vai trò ${userRole.toUpperCase()} là ${maxPercent}% (${formatCurrency(maxAmount)}). Cần cấp quản lý xác nhận.`);
+          return;
+        }
+      }
+      setDiscount(val);
     }
   };
 
@@ -217,7 +239,7 @@ const SalesPage = () => {
     setIsCheckoutConfirmOpen(true);
   }, [cartItems.length, isProcessing]);
 
-  // Luu đơn hang tạm (F5)
+  // Luu đơn hang tạm (F5) - gắn accountId, workSessionId, businessDate
   const handleSaveDraft = useCallback(() => {
     if (isSubmittingRef.current || isProcessing) return;
     if (cartItems.length === 0) {
@@ -225,6 +247,7 @@ const SalesPage = () => {
       return;
     }
 
+    const today = getBusinessDate();
     const newDraft = {
       id: `draft_${Date.now()}`,
       code: `DT-${String(draftOrders.length + 1).padStart(2, '0')}`,
@@ -235,6 +258,9 @@ const SalesPage = () => {
       subtotal,
       discountAmount,
       totalAmount: finalTotal,
+      accountId: currentUser?.id || null,
+      workSessionId: currentSession?.id || null,
+      businessDate: today,
       createdAt: new Date().toISOString()
     };
 
@@ -253,7 +279,7 @@ const SalesPage = () => {
     setOrderNote('');
     setShowNoteInput(false);
     toast.success(`Đã lưu tạm đơn ${newDraft.code} thành công!`);
-  }, [cartItems, clearCart, discount, discountAmount, discountType, draftOrders, finalTotal, isProcessing, orderNote, subtotal]);
+  }, [cartItems, clearCart, currentUser, currentSession, discount, discountAmount, discountType, draftOrders, finalTotal, isProcessing, orderNote, subtotal]);
 
   // In hóa đơn (F11)
   const handlePrintInvoiceAction = useCallback(() => {
@@ -317,6 +343,7 @@ const SalesPage = () => {
       if (!matched) {
         matched = products.find(p => 
           p.isActive && (
+            (p.sku && p.sku.toLowerCase() === qLower) ||
             getProductCode(p).toLowerCase() === qLower || 
             (p.code && p.code.toLowerCase() === qLower)
           )
@@ -378,12 +405,20 @@ const SalesPage = () => {
   };
 
   // Thanh toán & In hóa đơn
-  const handlePayAndPrint = async () => {
+  const handlePayAndPrint = async (paymentData = {}) => {
     if (isSubmittingRef.current || isProcessing) return;
     isSubmittingRef.current = true;
     setIsProcessing(true);
     try {
-      const order = await checkout(finalTotal);
+      const checkoutPayload = {
+        note: paymentData.note !== undefined ? paymentData.note : orderNote,
+        paymentMethod: paymentData.paymentMethod || 'cash',
+        cashReceived: paymentData.cashReceived,
+        discountType,
+        discountValue: Number(discount) || 0,
+        discountAmount
+      };
+      const order = await checkout(finalTotal, checkoutPayload);
       if (!isMountedRef.current) return;
       const enrichedOrder = {
         ...order,
@@ -415,12 +450,20 @@ const SalesPage = () => {
   };
 
   // Chỉ thanh toán (không in)
-  const handlePayOnly = async () => {
+  const handlePayOnly = async (paymentData = {}) => {
     if (isSubmittingRef.current || isProcessing) return;
     isSubmittingRef.current = true;
     setIsProcessing(true);
     try {
-      const order = await checkout(finalTotal);
+      const checkoutPayload = {
+        note: paymentData.note !== undefined ? paymentData.note : orderNote,
+        paymentMethod: paymentData.paymentMethod || 'cash',
+        cashReceived: paymentData.cashReceived,
+        discountType,
+        discountValue: Number(discount) || 0,
+        discountAmount
+      };
+      const order = await checkout(finalTotal, checkoutPayload);
       if (!isMountedRef.current) return;
       setIsCheckoutConfirmOpen(false);
       setDiscount('0');
@@ -444,6 +487,19 @@ const SalesPage = () => {
 
   // Khôi phục đơn tạm vào giỏ
   const doRestoreDraft = (draft) => {
+    const today = getBusinessDate();
+    if (draft.businessDate && draft.businessDate !== today) {
+      toast.error('Đơn tạm đã hết hạn (chỉ áp dụng trong ngày làm việc hiện tại)!');
+      const filtered = draftOrders.filter(d => d.id !== draft.id);
+      setDraftOrders(filtered);
+      try {
+        localStorage.setItem('minishop_draft_orders', JSON.stringify(filtered));
+      } catch {
+        // Fallback
+      }
+      return;
+    }
+
     restoreCart(draft.items || []);
     setDiscount(draft.discount || '0');
     setDiscountType(draft.discountType || 'amount');
@@ -544,6 +600,9 @@ const SalesPage = () => {
         <h2>Bán hàng</h2>
         <p className="page-subtitle">Tạo đơn hàng và thanh toán cho khách</p>
       </div>
+
+      {/* BANNER CA LÀM VIỆC */}
+      <WorkSessionBanner />
 
       <div className="sales-pos-layout">
         {/* CỘT TRÁI - KHU VỰC SẢN PHẨM */}
@@ -950,6 +1009,7 @@ const SalesPage = () => {
         discountType={discountType}
         discountValue={discount}
         totalAmount={finalTotal}
+        initialNote={orderNote}
         isProcessing={isProcessing}
         onPayAndPrint={handlePayAndPrint}
         onPayOnly={handlePayOnly}

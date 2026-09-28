@@ -3,16 +3,23 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { orderApi } from '../../api/orderApi';
 import { inventoryApi } from '../../api/inventoryApi';
 import { AppDataContext } from '../../context/AppDataContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useWorkSession } from '../../hooks/useWorkSession';
+import CheckInModal from '../workSession/CheckInModal';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { toast } from 'react-toastify';
 import './Header.css';
 
 const Header = ({ onToggleNav }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { products } = useContext(AppDataContext);
+  const { currentUser, isAdmin, isStaff, isEmployee, logout } = useAuth();
+  const { currentSession, isCheckedIn, workingStatus } = useWorkSession();
 
   const [activities, setActivities] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [lastSeenAt, setLastSeenAt] = useState(null);
   const dropdownRef = useRef(null);
 
@@ -76,53 +83,8 @@ const Header = ({ onToggleNav }) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
-    const loadActivities = async () => {
-      try {
-        const [ordersRes, transRes] = await Promise.all([
-          orderApi.getAll(),
-          inventoryApi.getAllTransactions()
-        ]);
-        if (!isMounted) return;
-
-        const rawOrders = Array.isArray(ordersRes?.data) ? ordersRes.data : [];
-        const rawTrans = Array.isArray(transRes?.data) ? transRes.data : [];
-
-        const isToday = (dateStr) => {
-          if (!dateStr) return false;
-          const date = new Date(dateStr);
-          if (isNaN(date.getTime())) return false;
-          const now = new Date();
-          return (
-            date.getFullYear() === now.getFullYear() &&
-            date.getMonth() === now.getMonth() &&
-            date.getDate() === now.getDate()
-          );
-        };
-
-        const todayOrders = rawOrders
-          .filter((o) => o && isToday(o.createdAt))
-          .map((o) => ({ ...o, _kind: 'order' }));
-
-        const todayTrans = rawTrans
-          .filter((t) => t && isToday(t.createdAt))
-          .map((t) => ({ ...t, _kind: 'transaction' }));
-
-        const combined = [...todayOrders, ...todayTrans]
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 10);
-
-        setActivities(combined);
-      } catch (error) {
-        if (isMounted) {
-          console.error('Lỗi khi tải hoạt động hôm nay:', error);
-        }
-      }
-    };
-    loadActivities();
-    return () => {
-      isMounted = false;
-    };
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch dữ liệu khi mount, đúng pattern "Synchronizing with an external system" (react.dev)
+    fetchActivities();
   }, [location.pathname]);
 
   useEffect(() => {
@@ -205,6 +167,22 @@ const Header = ({ onToggleNav }) => {
     return `${typeText} ${item.quantity || 0} ${prodName}`;
   };
 
+  const handleLogout = () => {
+    logout();
+    toast.info('Đã đăng xuất khỏi hệ thống');
+    navigate('/login', { replace: true });
+  };
+
+  const displayName = currentUser?.name || currentUser?.email || 'Người dùng';
+  const displayRole = isAdmin
+    ? 'Quản trị viên'
+    : isStaff
+      ? `Staff (${currentUser?.employeeCode || 'Staff'})`
+      : isEmployee
+        ? `Nhân viên (${currentUser?.employeeCode || 'NV'})`
+        : 'Thành viên';
+  const avatarChar = displayName.trim().charAt(0).toUpperCase() || 'U';
+
   return (
     <header className="header">
       <div className="header-left">
@@ -229,6 +207,27 @@ const Header = ({ onToggleNav }) => {
       </div>
 
       <div className="header-right">
+        {/* SHIFT STATUS BADGE */}
+        <button
+          type="button"
+          className={`header-shift-badge ${isCheckedIn ? 'active' : 'inactive'}`}
+          onClick={() => setIsCheckInModalOpen(true)}
+          title={isCheckedIn ? `Đang trực ca: ${currentSession?.name || ''} - Nhấp để xem chi tiết hoặc đổi trạng thái` : 'Xem thông tin ca làm việc'}
+        >
+          {isCheckedIn ? (
+            <>
+              <span className="status-dot" style={{ backgroundColor: workingStatus === 'busy' ? '#3b82f6' : 'var(--ledger)' }}></span>
+              <span className="shift-text font-mono" style={{ fontWeight: 600 }}>{currentSession?.code}</span>
+              <span className="shift-sub">({workingStatus === 'busy' ? 'Đang bán' : 'Hoạt động'})</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontSize: '13px' }}>⚠️</span>
+              <span style={{ color: '#b45309', fontWeight: 600 }}>Chưa vào ca</span>
+            </>
+          )}
+        </button>
+
         <div className="status-badge">
           <span className="status-dot"></span>
           <span className="status-text">Online</span>
@@ -285,14 +284,36 @@ const Header = ({ onToggleNav }) => {
           )}
         </div>
 
-        <div className="header-user">
-          <div className="user-avatar">A</div>
+        <div className="header-user" title={displayName}>
+          <div className="user-avatar">{avatarChar}</div>
           <div className="user-info">
-            <span className="user-name">Admin</span>
-            <span className="user-role">Quản trị viên</span>
+            <span className="user-name">{displayName}</span>
+            <span className="user-role">{displayRole}</span>
           </div>
         </div>
+
+        <button
+          type="button"
+          className="header-logout-btn"
+          onClick={handleLogout}
+          title="Đăng xuất"
+          aria-label="Đăng xuất"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Đăng xuất</span>
+        </button>
       </div>
+
+      {isCheckInModalOpen && (
+        <CheckInModal
+          isOpen={isCheckInModalOpen}
+          onClose={() => setIsCheckInModalOpen(false)}
+        />
+      )}
     </header>
   );
 };

@@ -1,16 +1,20 @@
 import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { orderApi } from '../api/orderApi';
 import { inventoryApi } from '../api/inventoryApi';
-import { productApi } from '../api/productApi';
+import { accountApi } from '../api/accountApi';
+import { staffApi } from '../api/staffApi';
+import { workSessionApi } from '../api/workSessionApi';
 import { AppDataContext } from '../context/AppDataContext';
+import { useAuth } from '../hooks/useAuth';
+import { useWorkSession } from '../hooks/useWorkSession';
 import { formatCurrency } from '../utils/formatCurrency';
 import { format } from 'date-fns';
-import { generateId } from '../utils/generateId';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EmptyState from '../components/common/EmptyState';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { exportToCSV } from '../utils/exportCSV';
+import { getBusinessDate } from '../utils/businessDate';
 import './TransactionHistoryPage.css';
 
 const TransactionHistoryPage = () => {
@@ -18,9 +22,16 @@ const TransactionHistoryPage = () => {
 
   const [orders, setOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [workSessions, setWorkSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const { products, refreshProducts } = useContext(AppDataContext);
+  const { currentUser, isAdmin, can } = useAuth();
+  const { currentSession, currentMember, isCheckedIn } = useWorkSession();
+
+  const canViewAll = isAdmin || can('transaction.view_all');
 
   // Filters for inventory
   const [filterProductId, setFilterProductId] = useState('');
@@ -31,9 +42,19 @@ const TransactionHistoryPage = () => {
   // Cancel order state
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [cancellingOrder, setCancellingOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
+      const [accRes, staffRes, wsRes] = await Promise.all([
+        accountApi.getAll(),
+        staffApi.getAll(),
+        workSessionApi.getAll()
+      ]);
+      setAccounts(Array.isArray(accRes.data) ? accRes.data : []);
+      setStaffList(Array.isArray(staffRes.data) ? staffRes.data : []);
+      setWorkSessions(Array.isArray(wsRes.data) ? wsRes.data : []);
+
       if (activeTab === 'orders') {
         const res = await orderApi.getAll();
         const sorted = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -69,6 +90,7 @@ const TransactionHistoryPage = () => {
       let matchType = true;
       let matchDateFrom = true;
       let matchDateTo = true;
+      let matchOwner = canViewAll || tx.accountId === currentUser?.id;
 
       if (filterProductId) matchProduct = tx.productId === filterProductId;
       if (filterType) matchType = tx.type === filterType;
@@ -77,84 +99,133 @@ const TransactionHistoryPage = () => {
       if (dateFrom) matchDateFrom = txDate >= new Date(dateFrom);
       if (dateTo) matchDateTo = txDate <= new Date(dateTo + 'T23:59:59');
 
-      return matchProduct && matchType && matchDateFrom && matchDateTo;
+      return matchProduct && matchType && matchDateFrom && matchDateTo && matchOwner;
     });
-  }, [transactions, filterProductId, filterType, dateFrom, dateTo]);
+  }, [transactions, filterProductId, filterType, dateFrom, dateTo, canViewAll, currentUser]);
+
+  const visibleOrders = useMemo(() => {
+    return canViewAll ? orders : orders.filter(o => o.accountId === currentUser?.id);
+  }, [orders, canViewAll, currentUser]);
 
   const getProductName = (id) => {
     const p = products.find(prod => prod.id === id);
     return p ? p.name : 'Sản phẩm đã bị xóa/Không rõ';
   };
 
-  const handleCancelClick = (order) => {
+  const getAccountDisplayName = (accountId) => {
+    if (!accountId) return '-';
+    const acc = accounts.find(a => String(a.id) === String(accountId));
+    if (!acc) return accountId;
+    if (acc.role === 'admin') {
+      return acc.email ? `Admin (${acc.email})` : 'Quản trị viên';
+    }
+    const staff = staffList.find(s => String(s.id) === String(acc.employeeId));
+    return staff ? `${staff.name} (${staff.employeeCode})` : 'Nhân viên';
+  };
+
+  const getSessionCode = (workSessionId) => {
+    if (!workSessionId) return '-';
+    const sess = workSessions.find(s => String(s.id) === String(workSessionId));
+    return sess ? sess.code : workSessionId;
+  };
+
+  const canActorCancelOrder = useCallback((order) => {
+    if (!order || order.status !== 'completed') return false;
+    if (isAdmin) return true;
+
+    if (currentUser?.role === 'staff' || can('order.cancel_management')) {
+      const orderBizDate = order.businessDate || (order.createdAt ? getBusinessDate(order.createdAt) : null);
+      return orderBizDate === getBusinessDate();
+    }
+
+    // Employee rules: only own orders in current active session within 15 minutes
+    if (order.accountId !== currentUser?.id && order.createdBy !== currentUser?.id) return false;
+    if (!currentSession?.id || order.workSessionId !== currentSession.id) return false;
+
+    const createdMs = order.createdAt ? new Date(order.createdAt).getTime() : 0;
+    if (!createdMs || (Date.now() - createdMs) > 15 * 60 * 1000) return false;
+
+    return true;
+  }, [isAdmin, currentUser, can, currentSession]);
+
+  const handleCancelClick = useCallback((order) => {
+    if (!canActorCancelOrder(order)) {
+      if (currentUser?.role === 'employee') {
+        if (order.accountId !== currentUser?.id && order.createdBy !== currentUser?.id) {
+          toast.error('Bạn chỉ được hủy đơn hàng do chính mình tạo.');
+          return;
+        }
+        if (!currentSession?.id || order.workSessionId !== currentSession.id) {
+          toast.error('Bạn chỉ được hủy đơn hàng thuộc ca làm việc hiện tại.');
+          return;
+        }
+      }
+      toast.error('Bạn không có quyền hủy đơn hàng này.');
+      return;
+    }
+
+    if (currentUser?.role === 'employee' && !isAdmin) {
+      const nowMs = Date.now();
+      const createdMs = order.createdAt ? new Date(order.createdAt).getTime() : 0;
+      if (createdMs && (nowMs - createdMs) > 15 * 60 * 1000) {
+        toast.error('Đã quá 15 phút kể từ lúc tạo đơn, không thể tự hủy. Vui lòng liên hệ Quản trị viên.');
+        return;
+      }
+    }
+
+    setCancelReason('');
     setCancellingOrder(order);
     setIsCancelConfirmOpen(true);
-  };
+  }, [canActorCancelOrder, currentUser, currentSession, isAdmin]);
 
   const executeCancelOrder = async () => {
     if (!cancellingOrder) return;
-    const rollbackSteps = [];
+
+    // 1. Pre-flight Guard: Bắt buộc người hủy đơn phải đăng nhập và đang check-in vào ca active
+    if (!currentUser?.id) {
+      toast.error('Vui lòng đăng nhập để thực hiện hủy đơn hàng.');
+      setIsCancelConfirmOpen(false);
+      setCancellingOrder(null);
+      return;
+    }
+
+    const isManager = currentUser?.role === 'admin' || currentUser?.role === 'staff';
+    const isNotCheckedIn = isManager
+      ? (!isCheckedIn || !currentSession?.id || currentSession?.status !== 'active')
+      : (!isCheckedIn || !currentSession?.id || currentMember?.attendanceStatus !== 'present');
+
+    if (isNotCheckedIn) {
+      toast.error('Bạn chưa check-in vào ca làm việc nào. Vui lòng check-in trước khi hủy đơn hàng.');
+      setIsCancelConfirmOpen(false);
+      setCancellingOrder(null);
+      return;
+    }
+
     const orderCode = cancellingOrder.code;
-    let isSuccess = false;
 
     try {
-      for (const item of cancellingOrder.items) {
-        const dbProduct = products.find(p => p.id === item.productId);
-        const previousStock = dbProduct ? dbProduct.stockQuantity : 0;
+      await orderApi.cancelAndRestock(cancellingOrder.id, {
+        actor: currentUser,
+        reason: cancelReason,
+        currentSessionId: currentSession?.id,
+      });
 
-        const txData = {
-          id: generateId(),
-          productId: item.productId,
-          type: "IN",
-          quantity: item.quantity,
-          unitPrice: item.price,
-          note: `Hoàn kho - hủy ${cancellingOrder.code}`,
-          createdAt: new Date().toISOString()
-        };
-        const txRes = await inventoryApi.createTransaction(txData);
-        const createdTx = txRes.data;
-
-        if (dbProduct) {
-          const newStock = previousStock + item.quantity;
-          await productApi.patch(item.productId, { stockQuantity: newStock });
-        }
-
-        rollbackSteps.push({
-          productId: item.productId,
-          transactionId: createdTx.id,
-          previousStock,
-          hasProduct: Boolean(dbProduct)
-        });
-      }
-
-      await orderApi.updateStatus(cancellingOrder.id, "cancelled");
-      isSuccess = true;
+      toast.success(`Đã hủy đơn hàng ${orderCode} và hoàn trả kho.`);
+      await refreshProducts();
+      fetchData();
     } catch (error) {
-      console.error("Lỗi khi hủy đơn hàng, bắt đầu rollback...", error);
-      for (const step of rollbackSteps) {
-        try {
-          if (step.hasProduct) {
-            await productApi.patch(step.productId, { stockQuantity: step.previousStock });
-          }
-          await inventoryApi.removeTransaction(step.transactionId);
-        } catch (rollbackErr) {
-          console.error(`Rollback thất bại cho sản phẩm ${step.productId}:`, rollbackErr);
-        }
-      }
-      toast.error("Lỗi khi hủy đơn hàng. Vui lòng thử lại!");
+      const messages = {
+        NOT_OWN_ORDER: 'Bạn chỉ được hủy đơn hàng do chính mình tạo.',
+        NOT_CURRENT_SESSION: 'Bạn chỉ được hủy đơn hàng thuộc ca làm việc hiện tại.',
+        CANCEL_WINDOW_EXPIRED: 'Đã quá 15 phút kể từ lúc tạo đơn, không thể tự hủy.',
+        REASON_REQUIRED: 'Vui lòng nhập lý do hủy đơn.',
+        STAFF_SAME_DAY_ONLY: 'Quản lý chỉ được hủy đơn hàng trong ngày làm việc hiện tại.',
+        ORDER_ALREADY_CANCELLED: 'Đơn hàng này đã được hủy trước đó.',
+      };
+      toast.error(messages[error?.code] || error.message || "Lỗi khi hủy đơn hàng. Vui lòng thử lại!");
     } finally {
       setIsCancelConfirmOpen(false);
       setCancellingOrder(null);
-    }
-
-    if (isSuccess) {
-      toast.success(`Đã hủy đơn hàng ${orderCode} và hoàn trả kho.`);
-      try {
-        await refreshProducts();
-        fetchData();
-      } catch (postErr) {
-        console.error("Lỗi khi làm mới dữ liệu sau hủy đơn:", postErr);
-      }
     }
   };
 
@@ -166,14 +237,18 @@ const TransactionHistoryPage = () => {
         'Loại giao dịch': tx.type === 'IN' ? 'Nhập kho' : 'Xuất kho',
         'Số lượng': tx.quantity,
         'Đơn giá': tx.unitPrice,
+        'Người thực hiện': getAccountDisplayName(tx.accountId),
+        'Ca làm việc': getSessionCode(tx.workSessionId),
         'Ghi chú': tx.note
       }));
       exportToCSV(data, 'Lich_Su_Giao_Dich_Kho.csv');
     } else {
-      const data = orders.map(o => ({
+      const data = visibleOrders.map(o => ({
         'Mã HĐ': o.code,
         'Thời gian': format(new Date(o.createdAt), 'dd/MM/yyyy HH:mm'),
         'Sản phẩm': o.items.map(i => `${i.productName} (x${i.quantity})`).join('; '),
+        'Người bán': getAccountDisplayName(o.accountId),
+        'Ca làm việc': getSessionCode(o.workSessionId),
         'Tổng tiền': o.totalAmount,
         'Trạng thái': o.status === 'completed' ? 'Thành công' : 'Đã hủy'
       }));
@@ -187,6 +262,11 @@ const TransactionHistoryPage = () => {
     setDateFrom('');
     setDateTo('');
   };
+
+  const cancellingOrderSession = cancellingOrder
+    ? workSessions.find(ws => ws.id === cancellingOrder.workSessionId)
+    : null;
+  const isCancellingClosedSession = isAdmin && cancellingOrderSession?.status === 'closed';
 
   return (
     <div className="page-container">
@@ -277,12 +357,14 @@ const TransactionHistoryPage = () => {
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th width="15%">Thời gian</th>
-                        <th width="25%">Sản phẩm</th>
-                        <th width="10%" className="text-center">Loại</th>
-                        <th width="10%" className="text-center">Số lượng</th>
-                        <th width="15%" className="text-right">Đơn giá</th>
-                        <th width="25%">Ghi chú</th>
+                        <th width="13%">Thời gian</th>
+                        <th width="20%">Sản phẩm</th>
+                        <th width="8%" className="text-center">Loại</th>
+                        <th width="8%" className="text-center">Số lượng</th>
+                        <th width="12%" className="text-right">Đơn giá</th>
+                        <th width="15%">Người thực hiện</th>
+                        <th width="10%">Ca làm việc</th>
+                        <th width="14%">Ghi chú</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -299,6 +381,15 @@ const TransactionHistoryPage = () => {
                           </td>
                           <td className="text-center font-mono font-bold">{tx.quantity}</td>
                           <td className="text-right font-mono">{formatCurrency(tx.unitPrice)}</td>
+                          <td style={{ fontSize: '13px', fontWeight: 500 }}>{getAccountDisplayName(tx.accountId)}</td>
+                          <td>
+                            <span className="font-mono text-muted" style={{ fontSize: '12px' }}>{getSessionCode(tx.workSessionId)}</span>
+                            {tx.outOfShift && (
+                              <span className="badge" style={{ display: 'inline-block', marginLeft: '4px', fontSize: '10px', backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', fontWeight: 600, padding: '1px 4px' }} title="Giao dịch thực hiện sau giờ kết ca chính thức">
+                                Ngoài giờ
+                              </span>
+                            )}
+                          </td>
                           <td className="font-mono text-muted">{tx.note || '-'}</td>
                         </tr>
                       ))}
@@ -306,7 +397,7 @@ const TransactionHistoryPage = () => {
                   </table>
 
                   <div className="table-footer-info">
-                    <span>Hiển thị 1 - {filteredTransactions.length} của {transactions.length} bản ghi</span>
+                    Tổng cộng: <strong>{filteredTransactions.length}</strong> giao dịch
                   </div>
                 </div>
               )
@@ -317,7 +408,7 @@ const TransactionHistoryPage = () => {
         {activeTab === 'orders' && (
           <div className="orders-tab">
             {loading ? <LoadingSpinner /> : (
-              orders.length === 0 ? (
+              visibleOrders.length === 0 ? (
                 <EmptyState message="Chưa có giao dịch bán hàng nào." />
               ) : (
                 <div className="table-responsive">
@@ -327,22 +418,33 @@ const TransactionHistoryPage = () => {
                         <th>Mã HĐ</th>
                         <th>Thời gian</th>
                         <th>Sản phẩm</th>
+                        <th>Người bán</th>
+                        <th>Ca làm việc</th>
                         <th className="text-right">Tổng tiền</th>
                         <th className="text-center">Trạng thái</th>
                         <th className="text-center">Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map(order => (
+                      {visibleOrders.map(order => (
                         <tr key={order.id}>
                           <td><strong className="font-mono">{order.code}</strong></td>
-                          <td className="font-mono text-muted">{format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm')}</td>
+                          <td className="font-mono text-muted">{order.createdAt ? format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm') : '---'}</td>
                           <td>
                             <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '13px', color: 'var(--ink-soft)' }}>
-                              {order.items.map((item, idx) => (
+                              {(order.items || []).map((item, idx) => (
                                 <li key={idx}><strong>{item.productName}</strong> (x{item.quantity})</li>
                               ))}
                             </ul>
+                          </td>
+                          <td style={{ fontSize: '13px', fontWeight: 500 }}>{getAccountDisplayName(order.accountId)}</td>
+                          <td>
+                            <span className="font-mono text-muted" style={{ fontSize: '12px' }}>{getSessionCode(order.workSessionId)}</span>
+                            {order.outOfShift && (
+                              <span className="badge" style={{ display: 'inline-block', marginLeft: '4px', fontSize: '10px', backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', fontWeight: 600, padding: '1px 4px' }} title="Đơn hàng bán sau giờ kết ca chính thức">
+                                Ngoài giờ
+                              </span>
+                            )}
                           </td>
                           <td className="text-right font-mono font-bold text-ledger">
                             {formatCurrency(order.totalAmount)}
@@ -355,7 +457,7 @@ const TransactionHistoryPage = () => {
                             )}
                           </td>
                           <td className="text-center">
-                            {order.status === 'completed' && (
+                            {order.status === 'completed' && canActorCancelOrder(order) && (
                               <button
                                 className="btn-cancel-order"
                                 onClick={() => handleCancelClick(order)}
@@ -370,7 +472,7 @@ const TransactionHistoryPage = () => {
                   </table>
 
                   <div className="table-footer-info">
-                    <span>Hiển thị {orders.length} hóa đơn bán hàng</span>
+                    <span>Hiển thị {visibleOrders.length} hóa đơn bán hàng</span>
                   </div>
                 </div>
               )
@@ -385,7 +487,20 @@ const TransactionHistoryPage = () => {
         message={`Bạn có chắc chắn muốn hủy đơn ${cancellingOrder?.code}? Quá trình này sẽ hoàn trả số lượng vào kho và ghi lại lịch sử giao dịch.`}
         onConfirm={executeCancelOrder}
         onCancel={() => setIsCancelConfirmOpen(false)}
-      />
+      >
+        {(isCancellingClosedSession || (isAdmin && cancellingOrder?.businessDate && cancellingOrder.businessDate !== getBusinessDate())) && (
+          <p style={{ color: '#b91c1c', fontWeight: 600, fontSize: '13px' }}>
+            ⚠️ Đơn này thuộc ca/ngày trước đã đóng ({cancellingOrder?.businessDate || cancellingOrderSession?.date}). Việc hủy đơn sẽ được ghi nhận hoàn kho điều chỉnh vào ngày hôm nay ({getBusinessDate()}).
+          </p>
+        )}
+        <textarea
+          placeholder="Nhập lý do hủy đơn (bắt buộc)..."
+          value={cancelReason}
+          onChange={(e) => setCancelReason(e.target.value)}
+          rows={2}
+          style={{ width: '100%', marginTop: '8px', padding: '8px', borderRadius: '6px', border: '1px solid var(--line, #ddd)' }}
+        />
+      </ConfirmDialog>
     </div>
   );
 };

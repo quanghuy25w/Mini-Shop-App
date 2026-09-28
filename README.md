@@ -1,60 +1,75 @@
 # 🛒 Mini-Shop - Hệ Thống Quản Lý Bán Hàng & Tồn Kho
 
-Ứng dụng web quản lý bán hàng (POS), tồn kho và danh mục sản phẩm dành cho cửa hàng bán lẻ, được xây dựng với hiệu năng cao, trải nghiệm mượt mà bằng **React 19**, **Vite**, **React Router v7**, **JSON Server** và kiểm thử toàn diện với **Vitest**.
+Ứng dụng web quản lý bán hàng (POS), tồn kho, ca làm việc và báo cáo kinh doanh dành cho cửa hàng bán lẻ, được xây dựng với hiệu năng cao, bảo đảm toàn vẹn dữ liệu bằng **React 19**, **Vite**, **React Router v7**, **JSON Server** và kiểm thử toàn diện với **Vitest**.
 
 ---
 
-## ✨ Tính năng chính (Key Features)
+## 🎯 Chuẩn Nghiệp Vụ Cốt Lõi (Core Business Rules)
+
+Hệ thống được thiết kế và chuẩn hóa theo bộ quy tắc nghiệp vụ thực tế cho mô hình bán lẻ 1 điểm bán, 1 quầy thu ngân:
+
+1. **Mô hình 1 Ca làm việc / Ngày (Daily WorkSession)**:
+   - Mỗi ngày làm việc có đúng 1 WorkSession (`shiftType: 'daily'`) kéo dài từ 07:30 đến 22:00.
+   - Nhân sự chấm công theo 3 khung làm việc: **Sáng (07:30–12:00)**, **Chiều (13:00–18:30)**, **Tối (19:00–22:00)** với thời gian gia hạn (grace period) 5 phút.
+   - Khung giờ nghỉ cố định (**12:00–13:00** và **18:30–19:00**): Vẫn cho phép bán hàng tại quầy và tự động gắn cờ `isRestPeriodSale: true`.
+   - Kết toán đóng ca: So khớp tiền mặt trong két với số dư kỳ vọng ($\text{Expected Cash} = \text{Initial Cash} + \text{Cash Sales} - \text{Cash Cancels}$). Bắt buộc ghi chú giải trình nếu phát sinh chênh lệch thừa/thiếu.
+
+2. **Ngày nghiệp vụ chuẩn Giờ Việt Nam (`businessDate`)**:
+   - Sử dụng múi giờ `Asia/Ho_Chi_Minh` (UTC+7) cho toàn bộ chứng từ (đơn hàng, phiếu kho, ca trực, báo cáo).
+   - Loại bỏ hoàn toàn việc cắt chuỗi ISO UTC (`createdAt.slice(0, 10)`), bảo đảm các đơn bán lúc tối muộn (20:00–22:00) không bị nhảy sang ngày hôm sau.
+
+3. **Tồn kho & Giá vốn Bình quân Gia quyền (WAC - Weighted Average Cost)**:
+   - Tồn kho chỉ thay đổi thông qua chứng từ kho có lý do rõ ràng: `OPENING` (tồn đầu kỳ), `PURCHASE` (nhập mua), `SALE` (bán hàng), `CANCEL_RESTOCK` (hoàn hủy đơn), `INTERNAL` (xuất nội bộ), `DAMAGE` (hư hỏng), `ADJUST` (kiểm kê).
+   - Khi nhập mua (`PURCHASE`) hoặc tạo tồn đầu (`OPENING`), giá vốn sản phẩm được tự động tính lại theo công thức bình quân gia quyền:
+     $$\text{costPrice}' = \frac{\text{stockQuantity} \times \text{costPrice} + \text{inQty} \times \text{inPrice}}{\text{stockQuantity} + \text{inQty}}$$
+   - Hoàn hàng do hủy đơn (`CANCEL_RESTOCK`) ghi nhận phiếu kho theo giá vốn hiện tại và tuyệt đối không kéo sai giá vốn sản phẩm.
+
+4. **Phân quyền trần 3 Cấp bậc (Strict Role Hierarchy)**:
+   - **Admin (Quản trị viên)**: Toàn quyền hệ thống, quản lý tài khoản, phân quyền, xóa mềm sản phẩm/danh mục, hủy đơn mọi lúc.
+   - **Staff (Quản lý cửa hàng)**: Quản lý sản phẩm/danh mục, nhập/xuất kho, bán hàng POS, hủy đơn trong ngày/ca còn mở, quản lý ca trực và xem báo cáo/audit log.
+   - **Employee (Nhân viên thu ngân)**: Bán lẻ POS, xem danh sách sản phẩm/tồn kho, xem lịch sử đơn hàng cá nhân, chỉ được hủy đơn của chính mình trong vòng 15 phút thuộc ca đang mở.
+
+---
+
+## ✨ Tính năng chi tiết (Key Features)
 
 ### 1. 📦 Quản lý Sản phẩm (Product Management)
-- **CRUD Sản phẩm**: Thêm mới, chỉnh sửa, xem danh sách và xóa sản phẩm.
-- **Xóa mềm (Soft Delete)**: Đánh dấu `isActive = false`, giữ nguyên lịch sử giao dịch và đơn hàng cũ trong cơ sở dữ liệu.
-- **Cảnh báo giá thông minh**: Tự động hiển thị cảnh báo trực quan khi giá bán $\le$ giá vốn, hiển thị tỷ suất biên lợi nhuận (%) theo thời gian thực.
-- **Hình ảnh & Thumbnail**: Hỗ trợ hiển thị ảnh sản phẩm qua URL hoặc biểu tượng visual tương ứng theo từng danh mục.
-- **Bộ lọc & Phân trang**: Tìm kiếm theo tên/mã sản phẩm, lọc theo danh mục, trạng thái tồn kho (*Còn hàng*, *Sắp hết*, *Hết hàng*), xuất báo cáo **CSV**, tự động quay về trang 1 khi lọc.
+- **Mã SKU & Barcode**: SKU là trường định danh bắt buộc, duy nhất và bất biến sau khi đã phát sinh bán; hỗ trợ Barcode quét mã vạch.
+- **CRUD & Khôi phục**: Thêm mới, chỉnh sửa, xóa mềm (`isActive = false`) và khôi phục sản phẩm (`reactivate`).
+- **Tồn kho ban đầu an toàn**: Nhập tồn đầu kỳ khi tạo mới sản phẩm sẽ tự động sinh phiếu kho `OPENING` tương ứng.
+- **Cảnh báo giá thông minh**: Cảnh báo khi giá bán $\le$ giá vốn, hiển thị biên lợi nhuận (%) theo thời gian thực.
 
 ### 2. 🗂️ Quản lý Danh mục (Category Management)
 - **CRUD Danh mục**: Tạo và chỉnh sửa tên, mô tả danh mục.
-- **Chống trùng lặp**: Tự động kiểm tra và ngăn chặn tạo danh mục trùng tên (không phân biệt hoa/thường).
-- **Ràng buộc toàn vẹn dữ liệu**: Chặn xóa danh mục nếu đang có sản phẩm thuộc danh mục đó còn hoạt động (`isActive = true`).
-- **Thống kê số lượng**: Tự động đếm và hiển thị số lượng sản phẩm đang có trong từng danh mục.
+- **Ràng buộc an toàn**: Chặn xóa danh mục nếu đang có sản phẩm thuộc danh mục còn hoạt động (`isActive = true`).
+- **Thống kê số lượng**: Tự động hiển thị số lượng sản phẩm thuộc từng danh mục.
 
 ### 3. 💳 Bán hàng POS & Hóa đơn (Point of Sale)
-- **Giao diện POS trực quan**: Hỗ trợ 2 chế độ hiển thị linh hoạt (**Lưới sản phẩm - Grid** hoặc **Danh sách - List**).
-- **Tìm kiếm & Quét mã vạch**: Tìm kiếm đa tiêu chuẩn ưu tiên theo Barcode $\rightarrow$ Mã SKU $\rightarrow$ Tên chính xác, bấm Enter hoặc dùng máy quét mã vạch để thêm nhanh vào giỏ.
-- **Chiết khấu linh hoạt**: Hỗ trợ giảm giá theo **Phần trăm (%)** (tối đa 100%) hoặc theo **Số tiền mặt (₫)**.
-- **Phím tắt bán hàng nhanh (Hotkeys)**:
-  - `F1`: Focus nhanh vào ô tìm kiếm sản phẩm.
+- **Giao diện POS linh hoạt**: 2 chế độ hiển thị (**Lưới ảnh - Grid** hoặc **Danh sách - List**).
+- **Tìm kiếm đa tiêu chuẩn**: Ưu tiên theo thứ tự **Barcode chính xác $\rightarrow$ SKU chính xác $\rightarrow$ Tên chính xác $\rightarrow$ Danh sách gợi ý**.
+- **Trần chiết khấu theo Role**: Nhân viên tối đa 10%, Quản lý tối đa 20%, Admin không giới hạn.
+- **Phương thức thanh toán & Tiền thối**: Hỗ trợ Tiền mặt (`cash`), Chuyển khoản (`transfer`), Thẻ (`card`). Tự động tính tiền thối khi khách thanh toán tiền mặt.
+- **Hotkeys bán hàng nhanh**:
+  - `F1`: Focus vào ô tìm kiếm sản phẩm.
   - `F2`: Chế độ sẵn sàng quét mã vạch.
-  - `F5`: Lưu đơn hàng tạm (Draft Order).
-  - `F9`: Mở xác nhận thanh toán đơn hàng.
+  - `F5`: Lưu đơn tạm (Draft Order theo ngày làm việc).
+  - `F9`: Mở popup xác nhận thanh toán đơn hàng.
   - `F11`: In hóa đơn bán hàng trực tiếp.
-- **Quản lý Đơn tạm (Draft Orders)**: Lưu nhiều đơn hàng đang xử lý dở dang, khôi phục vào giỏ hàng hoặc xóa đơn tạm bất kỳ lúc nào.
-- **In hóa đơn**: Xuất hóa đơn bán hàng chuẩn cho máy in nhiệt/khổ giấy với đầy đủ thông tin cửa hàng, chiết khấu và danh sách món.
 
-### 4. 🔄 Quản lý Tồn kho (Nhập / Xuất kho)
-- **Nhập kho thủ công**: Tạo phiếu nhập nhiều sản phẩm cùng lúc, tự động tính tổng tiền nhập, cập nhật số lượng tồn kho và giá vốn.
-- **Xuất kho thủ công**: Tạo phiếu xuất chuyển kho/tiêu hao, kiểm tra số lượng tồn kho tức thì (chặn xuất quá số lượng tồn hiện có).
-- **Cơ chế Rollback an toàn**: Đảm bảo tính toàn vẹn dữ liệu — nếu có sự cố gián đoạn trong quá trình ghi nhận giao dịch nhiều sản phẩm, hệ thống tự động hoàn tác (rollback) lại trạng thái tồn kho ban đầu.
+### 4. 🔄 Quản lý Tồn kho & Batch Rollback
+- **Nhập / Xuất kho nhiều dòng**: Nhập/xuất nhiều sản phẩm cùng lúc trên một phiếu.
+- **Cơ chế Rollback nguyên tử (Atomic Rollback)**: Nếu bất kỳ dòng sản phẩm nào gặp lỗi trong quá trình xử lý, hệ thống tự động hoàn tác toàn bộ giao dịch và hoàn lại tồn kho nguyên trạng.
 
-### 5. 📊 Dashboard & Thống kê (Dashboard & Analytics)
-- **Chỉ số tổng quan (KPIs)**: Tổng số sản phẩm đang kinh doanh, tổng giá trị vốn tồn kho, doanh thu bán hàng 7 ngày gần nhất, tổng số đơn hoàn tất.
-- **Xu hướng & Biến động**: Theo dõi sản phẩm mới thêm trong 24h, tỷ lệ tăng/giảm giá trị tồn kho trong 7 ngày.
-- **Cảnh báo tồn kho thấp**: Danh sách các mặt hàng có tồn kho $\le$ ngưỡng cảnh báo (`minStockAlert`) hoặc hết hàng để kịp thời nhập thêm.
-- **Top sản phẩm bán chạy**: Thống kê 5 sản phẩm có sản lượng và doanh thu cao nhất.
+### 5. 📜 Lịch sử Đơn hàng & Hủy đơn Atomic
+- **Quy trình hủy đơn an toàn**: Hoàn kho + đổi trạng thái đơn `cancelled` + sinh phiếu `CANCEL_RESTOCK` trong một thao tác atomic.
+- **Lọc & Phân quyền**: Nhân viên chỉ xem đơn của mình; Quản lý và Admin xem toàn bộ đơn trong hệ thống.
 
-### 6. 📜 Lịch sử Giao dịch & Hủy đơn (Transaction History)
-- **Lịch sử Giao dịch kho**: Theo dõi chi tiết mọi biến động nhập (`IN`) / xuất (`OUT`), lọc theo khoảng ngày, loại giao dịch, sản phẩm và xuất file CSV.
-- **Lịch sử Đơn hàng bán**: Quản lý toàn bộ đơn hàng, xem chi tiết món, trạng thái đơn.
-- **Hủy đơn & Hoàn kho tự động**: Hỗ trợ hủy đơn hàng đã hoàn tất; hệ thống tự động hoàn trả đúng số lượng sản phẩm vào kho và ghi nhận giao dịch nhập bù tương ứng.
+### 6. ⏱️ Quản lý Ca làm việc & Kết toán Quỹ
+- **Theo dõi chấm công**: Ghi nhận trạng thái trực ca, vào muộn (vượt quá 5 phút grace period).
+- **Kết toán quỹ tiền mặt**: Bảng tính đối soát thu/chi tiền mặt, nhập số tiền thực tế trong két và bắt buộc giải trình khi có chênh lệch.
 
-### 7. 📱 Giao diện Responsive & Mobile Drawer
-- Tương thích hoàn hảo trên mọi kích thước màn hình: Desktop, Laptop, Tablet và Mobile.
-- Trên màn hình nhỏ ($\le 768\text{px}$): Sidebar tự động chuyển thành **Drawer trượt** tiện lợi với lớp nền làm mờ (Backdrop Blur Overlay), mở qua nút Hamburger trên Header và tự động đóng khi chọn trang hoặc bấm ra ngoài.
-
-### 8. ⚡ Cơ chế Dữ liệu Kép (Dual-Mode Data Architecture)
-- **Chế độ Thật (Real Mode - Localhost)**: Kết nối JSON Server qua REST API `http://localhost:3001` đọc/ghi vào file `db.json`.
-- **Chế độ Demo Tự động (Demo Mode - Cloud/Storage)**: Khi chạy trên môi trường test (Vitest) hoặc triển khai lên các dịch vụ đám mây (Vercel, Netlify...) không có backend, ứng dụng tự động kích hoạt `localStorageAdapter.js` và nạp dữ liệu mẫu ban đầu từ `src/api/seedData.js`. Mọi thao tác đều được lưu vào `localStorage` của trình duyệt mà không cần cài đặt backend.
+### 7. 📊 Báo cáo Doanh thu & Bán lẻ
+- Thống kê doanh thu theo ngày nghiệp vụ (`businessDate`), báo cáo 7 ngày gần nhất, top sản phẩm bán chạy theo sản lượng thực tế và đối soát tính nhất quán cuối ngày.
 
 ---
 
@@ -62,196 +77,108 @@
 
 ```text
 Mini-Shop/
-├── public/                         # Tài nguyên tĩnh của ứng dụng
 ├── src/                            # Mã nguồn chính (React frontend)
-│   ├── api/                        # Cấu hình & gọi API (Axios & LocalStorage Adapter)
+│   ├── api/                        # Cấu hình & gọi API RESTful
 │   │   ├── axiosClient.js          # Base Axios Client & logic nhận diện Demo Mode
-│   │   ├── categoryApi.js          # API CRUD danh mục sản phẩm
-│   │   ├── inventoryApi.js         # API giao dịch nhập/xuất kho
-│   │   ├── localStorageAdapter.js  # Adapter giả lập REST API lưu trữ trên localStorage
-│   │   ├── orderApi.js             # API quản lý đơn hàng
-│   │   ├── productApi.js           # API CRUD & xóa mềm sản phẩm
-│   │   └── seedData.js             # Bộ dữ liệu mẫu chuẩn cho Demo Mode
-│   ├── assets/                     # Hình ảnh, SVG, icon
+│   │   ├── categoryApi.js          # API Danh mục sản phẩm (soft delete, validate)
+│   │   ├── inventoryApi.js         # API Giao dịch kho (IN/OUT/ADJUST/VOID)
+│   │   ├── localStorageAdapter.js  # Giả lập REST API lưu trữ localStorage
+│   │   ├── orderApi.js             # API Đơn hàng, sinh mã HD-YYYYMMDD-XXXX, hủy đơn
+│   │   ├── productApi.js           # API Sản phẩm, cập nhật tồn kho có kiểm soát
+│   │   └── workSessionApi.js       # API Ca làm việc, chấm công, đóng ca quỹ
 │   ├── components/                 # React Components theo module
-│   │   ├── category/               # Modal thêm/sửa danh mục (CategoryFormModal)
-│   │   ├── common/                 # Layout, Header, Sidebar, ConfirmDialog, Pagination, Spinner, EmptyState
-│   │   ├── inventory/              # Form nhập/xuất kho (StockForm)
-│   │   ├── product/                # Modal thêm/sửa sản phẩm (ProductFormModal)
-│   │   └── sales/                  # Modal xác nhận thanh toán, Đơn tạm, Hóa đơn (InvoiceModal)
+│   │   ├── category/               # Modal thêm/sửa danh mục
+│   │   ├── common/                 # Layout, Header, Sidebar, ConfirmDialog, Pagination, Spinner
+│   │   ├── inventory/              # Form nhập/xuất kho
+│   │   ├── product/                # Modal thêm/sửa sản phẩm (SKU, Barcode, Tồn đầu)
+│   │   ├── sales/                  # Modal thanh toán, đơn tạm, in hóa đơn
+│   │   └── workSession/            # Modal đóng ca, đối soát quỹ tiền mặt
 │   ├── context/                    # React Contexts
-│   │   ├── AppDataContext.jsx      # Global Cache cho Products & Categories
-│   │   └── CartContext.jsx         # State giỏ hàng & tính toán POS
+│   │   ├── AppDataContext.jsx      # Global Cache Products & Categories
+│   │   ├── AuthContext.jsx         # Quản lý phiên đăng nhập & phân quyền
+│   │   ├── CartContext.jsx         # State giỏ hàng & thanh toán POS
+│   │   └── WorkSessionContext.jsx  # Quản lý ca trực & chấm công
 │   ├── hooks/                      # Custom Business Hooks
-│   │   ├── useCart.js              # Nghiệp vụ giỏ hàng & thanh toán checkout kèm rollback
-│   │   ├── useCategories.js        # Nghiệp vụ danh mục
-│   │   ├── useInventory.js         # Nghiệp vụ nhập/xuất kho kèm rollback
-│   │   └── useProducts.js          # Nghiệp vụ sản phẩm
-│   ├── pages/                      # Các trang màn hình chính
+│   │   ├── useAuth.js              # Hook phân quyền & kiểm tra `can(permission)`
+│   │   ├── useCart.js              # Hook giỏ hàng & thanh toán checkout
+│   │   ├── useCategories.js        # Hook danh mục
+│   │   ├── useInventory.js         # Hook nhập/xuất kho kèm batch rollback
+│   │   └── useProducts.js          # Hook sản phẩm & khôi phục
+│   ├── pages/                      # Các trang giao diện chính
 │   │   ├── CategoryPage.jsx        # Quản lý danh mục
-│   │   ├── DashboardPage.jsx       # Tổng quan thống kê & cảnh báo tồn kho
-│   │   ├── ExportPage.jsx          # Xuất kho thủ công
-│   │   ├── ImportPage.jsx          # Nhập kho thủ công
-│   │   ├── ProductPage.jsx         # Quản lý sản phẩm & tồn kho
+│   │   ├── DashboardPage.jsx       # Tổng quan kinh doanh & cảnh báo tồn kho
+│   │   ├── ExportPage.jsx          # Xuất kho
+│   │   ├── ImportPage.jsx          # Nhập kho
+│   │   ├── ProductPage.jsx         # Quản lý sản phẩm
 │   │   ├── SalesPage.jsx           # Bán hàng POS
-│   │   └── TransactionHistoryPage.jsx # Lịch sử giao dịch kho & đơn hàng (Hủy đơn)
-│   ├── routes/                     # Định tuyến ứng dụng
-│   │   └── AppRoutes.jsx           # React Router v7 routes
-│   ├── styles/                     # Định nghĩa Design Tokens & CSS toàn cục
-│   │   └── theme.css               # Hallmark token system, màu sắc, font, media queries
-│   ├── tests/                      # Bộ kiểm thử tự động Vitest
-│   │   ├── CartContext.test.jsx
-│   │   ├── CategoryPage.test.jsx
-│   │   ├── DashboardPage.test.jsx
-│   │   ├── ExportStockWorkflow.test.jsx
-│   │   ├── FreshBrowser.test.jsx
-│   │   ├── ImportStockWorkflow.test.jsx
-│   │   ├── InventoryTransactions.test.jsx
-│   │   ├── OrderCancelWorkflow.test.jsx
-│   │   ├── Pagination.test.jsx
-│   │   ├── ProductPage.test.jsx
-│   │   ├── SalesPage.test.jsx
-│   │   ├── StockCalculation.test.js
-│   │   └── validateStock.test.js
-│   ├── utils/                      # Hàm tiện ích dùng chung
-│   │   ├── calculateTotal.js       # Tính toán tiền & tổng giá trị
-│   │   ├── exportCSV.js            # Xuất dữ liệu ra file .csv
-│   │   ├── formatCurrency.js       # Định dạng tiền tệ VND (₫)
-│   │   ├── generateId.js           # Sinh mã định danh UUID v4
-│   │   ├── printInvoice.js         # Tiện ích in hóa đơn ra cửa sổ in trình duyệt
-│   │   └── validate.js             # Validation dữ liệu & kiểm tra số lượng tồn kho
-│   ├── App.jsx                     # Component gốc ứng dụng
-│   └── main.jsx                    # Entry point Vite
-├── db.json                         # Cơ sở dữ liệu JSON Server mẫu
-├── eslint.config.js                # Cấu hình ESLint 9 Flat Config
-├── index.html                      # HTML Template
-├── package.json                    # Khai báo Dependencies & Scripts
+│   │   ├── TransactionHistoryPage.jsx # Lịch sử giao dịch & hủy đơn
+│   │   └── WorkSession/            # Quản lý ca làm việc
+│   ├── routes/                     # Định tuyến và bảo vệ quyền route
+│   │   └── AppRoutes.jsx           # PermissionRoute & ProtectedRoute
+│   ├── tests/                      # Bộ kiểm thử tự động Vitest (40 test suites)
+│   └── utils/                      # Tiện ích dùng chung
+│       ├── businessDate.js         # Xử lý múi giờ VN (Asia/Ho_Chi_Minh)
+│       ├── costing.js              # Tính giá vốn bình quân gia quyền
+│       ├── permissions.js          # Bảng quyền và kiểm tra trần role
+│       ├── shiftConfig.js          # Cấu hình ca làm việc, khung giờ & giờ nghỉ
+│       ├── formatCurrency.js       # Định dạng tiền tệ VNĐ
+│       └── printInvoice.js         # In hóa đơn bán lẻ
+├── db.json                         # Database JSON Server mẫu
 ├── vite.config.js                  # Cấu hình Vite & Vitest
-└── README.md                       # Tài liệu hướng dẫn dự án
+└── README.md                       # Tài liệu dự án
 ```
 
 ---
 
 ## 🚀 Hướng dẫn Cài đặt & Chạy ứng dụng
 
-### 1. Yêu cầu hệ thống (Prerequisites)
-- **Node.js**: Phiên bản `>= 18.x` (Khuyên dùng Node LTS 20.x hoặc 22.x)
+### 1. Yêu cầu hệ thống
+- **Node.js**: Phiên bản `>= 18.x` (Khuyên dùng LTS 20.x hoặc 22.x)
 - **npm**: Phiên bản `>= 9.x`
 
 ### 2. Cài đặt Dependencies
-Mở terminal tại thư mục gốc của dự án (`Mini-Shop`) và chạy:
 ```bash
 npm install
 ```
 
 ### 3. Khởi chạy ứng dụng
 
-#### 🔹 Cách 1: Chạy đầy đủ cả Backend & Frontend *(Khuyên dùng trên môi trường phát triển)*
-Lệnh này sẽ tự động khởi động đồng thời cả JSON Server (port 3001) và Vite Dev Server (port 5173):
+#### 🔹 Cách 1: Chạy đầy đủ cả Backend & Frontend *(Khuyên dùng trên môi trường dev)*
 ```bash
 npm start
 ```
-- **Giao diện người dùng (Frontend)**: `http://localhost:5173`
-- **REST API Server (JSON Server)**: `http://localhost:3001`
+- **Frontend (Vite UI)**: `http://localhost:5173`
+- **Backend (JSON Server)**: `http://localhost:3001`
 
-#### 🔹 Cách 2: Chạy riêng biệt từng dịch vụ (2 cửa sổ Terminal)
+#### 🔹 Cách 2: Chạy độc lập ở Chế độ Demo (Không cần cài Backend)
+```bash
+# Windows PowerShell
+$env:VITE_DEMO_MODE="true"; npm run dev
 
-1. **Terminal 1 - Khởi chạy Mock API Backend**:
-   ```bash
-   npm run server
-   ```
-   > ⚠️ **Lưu ý**: JSON Server bắt buộc phải lắng nghe tại cổng `3001` để frontend kết nối đồng bộ dữ liệu với file `db.json`.
-
-2. **Terminal 2 - Khởi chạy Vite Dev Server**:
-   ```bash
-   npm run dev
-   ```
-
-#### 🔹 Cách 3: Chạy độc lập ở Chế độ Demo (Không cần Backend)
-Nếu bạn muốn chạy ứng dụng độc lập trên môi trường local mà không cần khởi chạy JSON Server:
-- **Tùy chọn A**: Tạo file `.env.local` tại thư mục gốc với nội dung:
-  ```env
-  VITE_DEMO_MODE=true
-  ```
-- **Tùy chọn B**: Chạy trực tiếp qua terminal:
-  ```bash
-  # Windows PowerShell
-  $env:VITE_DEMO_MODE="true"; npm run dev
-
-  # Linux / macOS / Git Bash
-  VITE_DEMO_MODE=true npm run dev
-  ```
-> 💡 *Khi biến môi trường `VITE_DEMO_MODE=true` được bật (hoặc khi deploy lên domain cloud ngoài localhost), ứng dụng sẽ tự động kích hoạt `localStorageAdapter.js` để lưu trữ dữ liệu hoàn toàn trên trình duyệt.*
+# Linux / macOS / Git Bash
+VITE_DEMO_MODE=true npm run dev
+```
 
 ---
 
-## 🛠️ Danh sách Lệnh Scripts trong `package.json`
+## 🧪 Kiểm thử Tự động (Automated Testing)
 
-| Lệnh | Công dụng |
-| :--- | :--- |
-| `npm start` | Chạy đồng thời JSON Server (cổng 3001) và Vite Dev Server (cổng 5173) bằng `concurrently` |
-| `npm run dev` | Khởi chạy Vite Dev Server cho frontend (mặc định tại `http://localhost:5173`) |
-| `npm run server` | Khởi chạy JSON Server lắng nghe tại cổng `3001` với cơ sở dữ liệu `db.json` |
-| `npm run build` | Đóng gói toàn bộ ứng dụng phục vụ Production (`dist/`) |
-| `npm run preview` | Chạy xem trước bản build production cục bộ |
-| `npm run test` | Chạy toàn bộ bộ kiểm thử tự động với Vitest |
-| `npm run lint` | Quét và kiểm tra lỗi cú pháp mã nguồn bằng ESLint |
-
----
-
-## 🧪 Kiểm thử Tự động (Testing)
-
-Dự án được xây dựng với hệ thống kiểm thử toàn diện bằng **Vitest** và **React Testing Library**:
+Chạy toàn bộ 40 test suites với 317 bài test tự động:
 
 ```bash
 npm run test
 ```
 
-### 📊 Thống kê Kiểm thử Hiện tại:
-- **Tổng số Test Files**: `13` files
-- **Tổng số Test Cases**: `65` tests (100% Passed)
-
-### 📋 Danh sách các nhóm nghiệp vụ được kiểm thử:
-1. **POS & Bán hàng (`SalesPage.test.jsx`, `CartContext.test.jsx`)**: Giỏ hàng, kiểm tra giới hạn tồn kho, chiết khấu %, lưu đơn tạm, phím tắt và in hóa đơn.
-2. **Quản lý Tồn kho (`ImportStockWorkflow.test.jsx`, `ExportStockWorkflow.test.jsx`)**: Nhập hàng, xuất hàng, kiểm tra tồn kho, cơ chế rollback khi lỗi.
-3. **Hoàn trả & Hủy đơn (`OrderCancelWorkflow.test.jsx`, `InventoryTransactions.test.jsx`)**: Hủy đơn hàng và tự động bù lại tồn kho.
-4. **Danh mục & Sản phẩm (`ProductPage.test.jsx`, `CategoryPage.test.jsx`)**: CRUD, xóa mềm `isActive`, cảnh báo giá bán $\le$ giá vốn, chặn xóa danh mục có sản phẩm, đồng bộ dữ liệu modal không bị dính dữ liệu cũ.
-5. **Phân trang & Bộ lọc (`Pagination.test.jsx`)**: Tính toán số trang, logic thu gọn dấu 3 chấm (`...`), tự động về trang 1 khi lọc.
-6. **Kiểm tra Demo Mode (`FreshBrowser.test.jsx`)**: Tự động khởi tạo dữ liệu mẫu khi truy cập lần đầu trên trình duyệt mới.
-7. **Hàm tính toán & Validation (`StockCalculation.test.js`, `validateStock.test.js`)**: Kiểm tra logic tính tổng tiền, giá trị kho và xác thực số lượng.
+### 📊 Thống kê Kiểm thử:
+- **Tổng số Test Files**: `40` files
+- **Tổng số Test Cases**: `317` tests (100% Passed)
+- **Tốc độ thực thi**: ~16s trên Vitest v4.x
 
 ---
 
-## 📡 Danh sách API Endpoints (`http://localhost:3001`)
+## 📦 Đóng gói Production (Build)
 
-| Resource | Phương thức | Endpoint | Mô tả |
-| :--- | :--- | :--- | :--- |
-| **Products** | `GET` | `/products` | Lấy toàn bộ danh sách sản phẩm |
-| | `POST` | `/products` | Thêm sản phẩm mới |
-| | `PUT` | `/products/:id` | Cập nhật toàn bộ thông tin sản phẩm |
-| | `PATCH` | `/products/:id` | Cập nhật một phần (VD: xóa mềm `isActive: false`, cập nhật tồn kho) |
-| **Categories** | `GET` | `/categories` | Lấy danh sách danh mục |
-| | `POST` | `/categories` | Tạo danh mục mới |
-| | `PUT` | `/categories/:id` | Cập nhật danh mục |
-| | `DELETE` | `/categories/:id` | Xóa danh mục |
-| **Inventory** | `GET` | `/inventoryTransactions` | Lấy toàn bộ lịch sử giao dịch kho |
-| | `POST` | `/inventoryTransactions` | Ghi nhận giao dịch nhập (`IN`) hoặc xuất (`OUT`) |
-| | `DELETE` | `/inventoryTransactions/:id`| Xóa giao dịch kho (khi thực hiện rollback) |
-| **Orders** | `GET` | `/orders` | Lấy danh sách đơn hàng đã thanh toán |
-| | `POST` | `/orders` | Tạo đơn hàng mới |
-| | `PATCH` | `/orders/:id` | Cập nhật trạng thái đơn hàng (VD: `status: "cancelled"`) |
-
----
-
-## 🔧 Yêu cầu Hệ thống & Khắc phục Sự cố (Troubleshooting)
-
-- **Cổng 3001 đã bị sử dụng**: Nếu gặp lỗi `Port 3001 is already in use`, hãy kiểm tra và tắt tiến trình đang chiếm cổng `3001` (hoặc đóng terminal JSON Server cũ) trước khi chạy `npm start`.
-- **Dữ liệu trên Production Cloud**: Khi triển khai lên Vercel/Netlify, ứng dụng sẽ chạy độc lập trên `localStorage`. Để đặt lại dữ liệu mẫu ban đầu, người dùng chỉ cần xóa cache trình duyệt hoặc gọi hàm xóa `localStorage.clear()`.
-- **Đồng bộ Schema Dữ liệu**: Khi thêm trường mới vào `Product`, `Order` hay `InventoryTransaction`, hãy cập nhật đồng bộ ở cả 2 nơi: file `db.json` và file `src/api/seedData.js`.
-
----
-
-## 🌐 Demo
-
-<!-- [Link Demo Trực Tuyến](https://your-demo-link.com) -->
-*(Cập nhật link demo sau khi triển khai lên Vercel / Netlify / Cloud)*
+```bash
+npm run build
+```
+Kết quả build được xuất ra thư mục `dist/` sẵn sàng triển khai trên bất kỳ dịch vụ hosting tĩnh nào (Vercel, Netlify, Cloudflare Pages, Nginx...).

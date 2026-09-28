@@ -2276,5 +2276,225 @@
       "createdAt": "2026-08-21T07:35:35.178Z"
     }
   ],
+  "registers": [
+    {
+      "id": "POS01",
+      "code": "Q01",
+      "name": "Quầy 01",
+      "description": "Máy POS 01",
+      "isActive": true
+    },
+    {
+      "id": "POS02",
+      "code": "Q02",
+      "name": "Quầy 02",
+      "description": "Máy POS 02",
+      "isActive": true
+    },
+    {
+      "id": "POS03",
+      "code": "Q03",
+      "name": "Quầy 03",
+      "description": "Máy POS 03",
+      "isActive": true
+    }
+  ],
+  "accounts": [
+    {
+      "employeeId": null,
+      "role": "admin",
+      "email": "admin123@gmail.com",
+      "password": "$2b$10$ndZo7fwhEN9XdEDOrOcH7uxuIqPhHmNCrThmOaHXMnKvPVCbxyqMm",
+      "pin": null,
+      "permissions": [],
+      "isActive": true,
+      "createdAt": "2026-09-25T04:08:09.999Z",
+      "updatedAt": "2026-09-25T04:08:10.001Z",
+      "id": "AiYZ04jChns"
+    },
+    {
+      "id": "0Dksh0LNfL8",
+      "employeeId": "JM8VriGgIU0",
+      "role": "staff",
+      "email": null,
+      "password": null,
+      "pin": "$2b$10$8C8y1DpeIyt6QsqDoLO87.qd/4TnmkzjZOGhEKVQjM7L2sU2QNqfy",
+      "permissions": [
+        "product.manage",
+        "category.manage",
+        "inventory.import",
+        "inventory.export",
+        "transaction.view_all"
+      ],
+      "isActive": true,
+      "createdAt": "2026-09-25T04:45:50.643Z",
+      "updatedAt": "2026-09-25T04:45:50.643Z"
+    }
+  ],
+  "staff": [
+    {
+      "id": "JM8VriGgIU0",
+      "employeeCode": "NV001",
+      "name": "Thiên Dũng",
+      "phone": "0989876866",
+      "hireDate": "2026-09-25",
+      "isActive": true,
+      "employmentStatus": "working",
+      "createdAt": "2026-09-25T04:45:50.643Z",
+      "updatedAt": "2026-09-25T04:45:50.643Z"
+    }
+  ],
+  "workSessions": [
+    {
+      "id": "ErMK_5JKWD0",
+      "code": "CA-20260925-01",
+      "date": "2026-09-25",
+      "shiftType": "daily",
+      "name": "Ca làm việc ngày 25/09/2026",
+      "startTime": "2026-09-25T04:08:10.007Z",
+      "endTime": "2026-09-26T00:52:11.531Z",
+      "status": "closed",
+      "initialCash": 0,
+      "actualCash": null,
+      "totalRevenue": 0,
+      "totalOrders": 0,
+      "note": "",
+      "createdBy": null,
+      "closedBy": null,
+      "createdAt": "2026-09-25T04:08:10.007Z",
+      "updatedAt": "2026-09-26T00:52:11.531Z",
+      "closedAt": "2026-09-26T00:52:11.531Z",
+      "expectedCash": 0,
+      "reconciliationStatus": "UNRECONCILED",
+      "isAutoClosed": true,
+      "grossSales": 0,
+      "refundTotal": 0,
+      "netRevenue": 0,
+      "cashSales": 0,
+      "cashRefunds": 0,
+      "posBreakdown": {
+        "POS01": {
+          "registerId": "POS01",
+          "registerName": "Quầy 01",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        },
+        "POS02": {
+          "registerId": "POS02",
+          "registerName": "Quầy 02",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        },
+        "POS03": {
+          "registerId": "POS03",
+          "registerName": "Quầy 03",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        }
+      },
+      "reconciliationSnapshot": {
+        "isStoredSnapshot": false,
+        "sessionId": "ErMK_5JKWD0",
+        "sessionCode": "CA-20260925-01",
+        "sessionDate": "2026-09-25",
+        "grossSales": 0,
+        "totalRevenue": 0,
+        "completedOrderCount": 0,
+        "cancelledOrderCount": 0,
+        "refundTotal": 0,
+        "netRevenue": 0,
+        "initialCash": 0,
+        "cashSales": 0,
+        "cashRefunds": 0,
+        "expectedCash": 0,
+        "actualCash": null,
+        "cashDifference": null,
+        "reconciliationStatus": "UNRECONCILED",
+        "posBreakdown": {
+          "POS01": {
+            "registerId": "POS01",
+            "registerName": "Quầy 01",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          },
+          "POS02": {
+            "registerId": "POS02",
+            "registerName": "Quầy 02",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          },
+          "POS03": {
+            "registerId": "POS03",
+            "registerName": "Quầy 03",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          }
+        }
+      }
+    },
+    {
+      "id": "wj7RfKlTZ78",
+      "code": "CA-20260926-01",
+      "date": "2026-09-26",
+      "shiftType": "daily",
+      "name": "Ca làm việc ngày 26/09/2026",
+      "startTime": "2026-09-26T00:52:11.578Z",
+      "endTime": null,
+      "status": "active",
+      "initialCash": 0,
+      "actualCash": null,
+      "totalRevenue": 0,
+      "totalOrders": 0,
+      "note": "",
+      "createdBy": null,
+      "closedBy": null,
+      "createdAt": "2026-09-26T00:52:11.578Z",
+      "updatedAt": "2026-09-26T00:52:11.578Z"
+    }
+  ],
+  "workSessionMembers": [],
+  "activityLogs": [
+    {
+      "id": "QoCmgmsv9sY",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "EMPLOYEE_CREATED",
+      "entityType": "staff",
+      "entityId": "JM8VriGgIU0",
+      "workSessionId": null,
+      "timestamp": "2026-09-25T04:45:50.738Z",
+      "metadata": null
+    }
+  ],
   "$schema": "./node_modules/json-server/schema.json"
 }
