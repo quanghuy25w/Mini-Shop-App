@@ -243,7 +243,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       const now = new Date();
       const todayIso = now.toISOString();
 
-      // Employee 1 has 1 order of 50.000Ä‘
+      // Employee 1 has 1 order of 50.000đ
       await orderApi.create({
           workSessionId: 'ws-mock-test',
         id: 'ord-emp1',
@@ -255,7 +255,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
         createdAt: todayIso,
       }, employee1Actor);
 
-      // Employee 2 (different employee) has 1 order of 5.000.000Ä‘
+      // Employee 2 (different employee) has 1 order of 5.000.000đ
       await orderApi.create({
           workSessionId: 'ws-mock-test',
         id: 'ord-emp2',
@@ -282,7 +282,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
         expect(screen.getAllByText(/50\.000/).length).toBeGreaterThan(0);
       });
 
-      // Must NOT see Employee 2's 5.000.000Ä‘
+      // Must NOT see Employee 2's 5.000.000đ
       expect(screen.queryByText(/5\.000\.000/)).toBeNull();
       expect(screen.queryByText(/5\.050\.000/)).toBeNull();
 

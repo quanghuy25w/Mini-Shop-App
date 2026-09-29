@@ -10,13 +10,13 @@ export const INVENTORY_TYPES = {
 };
 
 export const INVENTORY_REASONS = {
-  OPENING: 'OPENING',               // Tá»“n Ä‘áº§u ká»³ khi táº¡o sáº£n pháº©m
-  PURCHASE: 'PURCHASE',             // Nháº­p mua tá»« nhÃ  cung cáº¥p
-  SALE: 'SALE',                     // BÃ¡n láº» táº¡i quáº§y POS
-  CANCEL_RESTOCK: 'CANCEL_RESTOCK', // HoÃ n kho do há»§y Ä‘Æ¡n hÃ ng
-  INTERNAL: 'INTERNAL',             // Xuáº¥t ná»™i bá»™ / chuyá»ƒn kho / tráº£ NCC
-  DAMAGE: 'DAMAGE',                 // HÃ ng hÆ° há»ng / háº¿t háº¡n
-  ADJUST: 'ADJUST',                 // Kiá»ƒm kÃª / Ä‘iá»u chá»‰nh kho
+  OPENING: 'OPENING',               // Tồn đầu kỳ khi tạo sản phẩm
+  PURCHASE: 'PURCHASE',             // Nhập mua từ nhà cung cấp
+  SALE: 'SALE',                     // Bán lẻ tại quầy POS
+  CANCEL_RESTOCK: 'CANCEL_RESTOCK', // Hoàn kho do hủy đơn hàng
+  INTERNAL: 'INTERNAL',             // Xuất nội bộ / chuyển kho / trả NCC
+  DAMAGE: 'DAMAGE',                 // Hàng hư hỏng / hết hạn
+  ADJUST: 'ADJUST',                 // Kiểm kê / điều chỉnh kho
 };
 
 export const inventoryApi = {
@@ -31,7 +31,7 @@ export const inventoryApi = {
     return axiosClient.get(`/inventoryTransactions${query}`);
   },
 
-  // DÃ¹ng cho nháº­p/xuáº¥t kho CHá»¦ Äá»˜NG cá»§a ngÆ°á»i dÃ¹ng (trang Nháº­p hÃ ng/Xuáº¥t hÃ ng, táº¡o SP cÃ³ tá»“n Ä‘áº§u).
+  // Dùng cho nhập/xuất kho CHỦ ĐỘNG của người dùng (trang Nhập hàng/Xuất hàng, tạo SP có tồn đầu).
   createTransaction: (data, actor) => {
     if (!actor || !actor.id) {
       const err = new Error('NOT_AUTHENTICATED: Authentication required for inventory transaction.');
@@ -43,7 +43,7 @@ export const inventoryApi = {
     let key = PERMISSIONS.INVENTORY_EXPORT;
     if (data.reason === INVENTORY_REASONS.OPENING) {
       if (hasPermission(actor, PERMISSIONS.PRODUCT_MANAGE) || hasPermission(actor, PERMISSIONS.PRODUCT_CREATE)) {
-        key = null; // Quyá»n quáº£n lÃ½ sáº£n pháº©m há»£p lá»‡ cho tá»“n Ä‘áº§u ká»³
+        key = null; // Quyền quản lý sản phẩm hợp lệ cho tồn đầu kỳ
       } else {
         key = PERMISSIONS.INVENTORY_IMPORT;
       }
@@ -175,7 +175,7 @@ export const inventoryApi = {
     })();
   },
 
-  // Há»§y giao dá»‹ch táº¡m/rollback in-flight (yÃªu cáº§u actor xÃ¡c thá»±c vÃ  quyá»n sá»Ÿ há»¯u/quyá»n theo source)
+  // Hủy giao dịch tạm/rollback in-flight (yêu cầu actor xác thực và quyền sở hữu/quyền theo source)
   removeTransaction: async (id, actor, context = {}) => {
     if (!actor || !actor.id) {
       const err = new Error('NOT_AUTHENTICATED: Authentication required to remove transaction.');
@@ -191,7 +191,7 @@ export const inventoryApi = {
       throw err;
     }
 
-    // Náº¿u khÃ´ng pháº£i admin hoáº·c quáº£n lÃ½ Ä‘iá»u chá»‰nh kho, chá»‰ Ä‘Æ°á»£c hoÃ n tÃ¡c giao dá»‹ch do chÃ­nh mÃ¬nh táº¡o
+    // Nếu không phải admin hoặc quản lý điều chỉnh kho, chỉ được hoàn tác giao dịch do chính mình tạo
     if (actor.role !== 'admin' && !hasPermission(actor, PERMISSIONS.INVENTORY_ADJUST)) {
       try {
         const txRes = await axiosClient.get(`/inventoryTransactions/${id}`);
@@ -209,7 +209,7 @@ export const inventoryApi = {
     return axiosClient.delete(`/inventoryTransactions/${id}`);
   },
 
-  // ÄÃ¡nh dáº¥u giao dá»‹ch bá»‹ void (khÃ´ng xÃ³a cá»©ng lá»‹ch sá»­)
+  // Đánh dấu giao dịch bị void (không xóa cứng lịch sử)
   voidTransaction: (id, actor) => {
     assertPermission(actor, PERMISSIONS.INVENTORY_ADJUST);
     return axiosClient.patch(`/inventoryTransactions/${id}`, {

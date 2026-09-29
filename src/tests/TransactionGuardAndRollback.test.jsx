@@ -13,7 +13,7 @@ import { orderApi } from '../api/orderApi';
 import { inventoryApi } from '../api/inventoryApi';
 import { productApi } from '../api/productApi';
 
-// Component Ä‘á»ƒ test useCart vÃ  useInventory
+// Component để test useCart và useInventory
 const TransactionTester = ({ onActionRef }) => {
   const { cartItems, addToCart, checkout } = useCart();
   const { importStock, exportStock } = useInventory();
@@ -67,7 +67,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
 
     await waitFor(() => expect(actionRef.current).not.toBeNull());
 
-    // Thá»­ checkout khi chÆ°a Ä‘Äƒng nháº­p
+    // Thử checkout khi chưa đăng nhập
     await expect(actionRef.current.checkout()).rejects.toThrow();
   });
 
@@ -104,12 +104,12 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     const testProd = actionRef.current.products[0];
     const initialStock = testProd.stockQuantity;
 
-    // ThÃªm vÃ o giá» hÃ ng
+    // Thêm vào giỏ hàng
     await act(async () => {
       actionRef.current.addToCart(testProd, 2);
     });
 
-    // Thá»±c hiá»‡n checkout
+    // Thực hiện checkout
     let createdOrder = null;
     await act(async () => {
       createdOrder = await actionRef.current.checkout();
@@ -119,12 +119,12 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     expect(createdOrder.accountId).toBe('acc-seller-1');
     expect(createdOrder.workSessionId).toBe('ws-active-100');
 
-    // Kiá»ƒm tra Order lÆ°u trÃªn DB/localStorage cÃ³ Ä‘Ãºng accountId vÃ  workSessionId
+    // Kiểm tra Order lưu trên DB/localStorage có đúng accountId và workSessionId
     const orderRes = await orderApi.getById(createdOrder.id);
     expect(orderRes.data.accountId).toBe('acc-seller-1');
     expect(orderRes.data.workSessionId).toBe('ws-active-100');
 
-    // Kiá»ƒm tra transaction OUT táº¡o ra cÃ³ Ä‘á»§ accountId vÃ  workSessionId
+    // Kiểm tra transaction OUT tạo ra có đủ accountId và workSessionId
     const txRes = await inventoryApi.getAllTransactions({ type: 'OUT' });
     const matchingTx = txRes.data.find(t => t.note && t.note.includes(createdOrder.code));
     expect(matchingTx).toBeDefined();
@@ -132,7 +132,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     expect(matchingTx.workSessionId).toBe('ws-active-100');
     expect(matchingTx.quantity).toBe(2);
 
-    // Kiá»ƒm tra stock Ä‘Ã£ trá»«
+    // Kiểm tra stock đã trừ
     const prodAfter = await productApi.getById(testProd.id);
     expect(prodAfter.data.stockQuantity).toBe(initialStock - 2);
   });
@@ -158,7 +158,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     const prod2 = actionRef.current.products[1];
     const initialStock1 = prod1.stockQuantity;
 
-    // ThÃªm 2 sáº£n pháº©m vÃ o giá»
+    // Thêm 2 sản phẩm vào giỏ
     await act(async () => {
       actionRef.current.addToCart(prod1, 1);
       actionRef.current.addToCart(prod2, 1);
@@ -167,7 +167,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     const initialOrders = await orderApi.getAll();
     const initialOrderCount = initialOrders.data.length;
 
-    // Track ID cá»§a order vá»«a táº¡o Ä‘á»ƒ xÃ¡c nháº­n viá»‡c hoÃ n tÃ¡c
+    // Track ID của order vừa tạo để xác nhận việc hoàn tác
     let createdOrderId = null;
     const originalCreateOrder = orderApi.create;
     vi.spyOn(orderApi, 'create').mockImplementation(async (orderData, actor) => {
@@ -176,7 +176,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
       return res;
     });
 
-    // Giáº£ láº­p lá»—i á»Ÿ productApi.updateStock khi trá»« sáº£n pháº©m thá»© 2
+    // Giả lập lỗi ở productApi.updateStock khi trừ sản phẩm thứ 2
     let callCount = 0;
     const originalUpdateStock = productApi.updateStock;
     vi.spyOn(productApi, 'deductStockForCheckout').mockImplementation(async (id, newStock, actor, ctx) => {
@@ -187,14 +187,14 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
       return originalUpdateStock(id, newStock, actor, ctx);
     });
 
-    // Thá»±c hiá»‡n checkout -> Pháº£i throw vÃ  rollback
+    // Thực hiện checkout -> Phải throw và rollback
     await expect(actionRef.current.checkout()).rejects.toThrow();
 
-    // Verify: tá»“n kho cá»§a prod1 Ä‘Æ°á»£c phá»¥c há»“i nguyÃªn váº¹n
+    // Verify: tồn kho của prod1 được phục hồi nguyên vẹn
     const prod1After = await productApi.getById(prod1.id);
     expect(prod1After.data.stockQuantity).toBe(initialStock1);
 
-    // Verify: Theo thá»© tá»± má»›i (trá»« kho trÆ°á»›c, táº¡o Ä‘Æ¡n sau), khi trá»« kho lá»—i thÃ¬ KHÃ”NG táº¡o Ä‘Æ¡n
+    // Verify: Theo thứ tự mới (trừ kho trước, tạo đơn sau), khi trừ kho lỗi thì KHÔNG tạo đơn
     expect(createdOrderId).toBeNull();
     const ordersRes = await orderApi.getAll();
     expect(ordersRes.data.length).toBe(initialOrderCount);
@@ -211,12 +211,12 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     await waitFor(() => expect(actionRef.current?.products?.length).toBeGreaterThan(0));
     const testProd = actionRef.current.products[0];
 
-    // importStock bá»‹ cháº·n
+    // importStock bị chặn
     await expect(
       actionRef.current.importStock(testProd.id, 5, 100000, 'Test nháº­p')
     ).rejects.toThrow();
 
-    // exportStock bá»‹ cháº·n
+    // exportStock bị chặn
     await expect(
       actionRef.current.exportStock(testProd.id, 2, 'Test xuáº¥t')
     ).rejects.toThrow();
@@ -241,12 +241,12 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     const testProd = actionRef.current.products[0];
     const initialStock = testProd.stockQuantity;
 
-    // 1. NHáº¬P KHO (IN)
+    // 1. NHẬP KHO (IN)
     await act(async () => {
       await actionRef.current.importStock(testProd.id, 10, 200000, 'Nháº­p hÃ ng ca sÃ¡ng');
     });
 
-    // Kiá»ƒm tra transaction IN cÃ³ accountId vÃ  workSessionId
+    // Kiểm tra transaction IN có accountId và workSessionId
     const inTxRes = await inventoryApi.getAllTransactions({ type: 'IN' });
     const matchingInTx = inTxRes.data.find(t => t.note === 'Nháº­p hÃ ng ca sÃ¡ng');
     expect(matchingInTx).toBeDefined();
@@ -254,16 +254,16 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     expect(matchingInTx.workSessionId).toBe('ws-active-200');
     expect(matchingInTx.quantity).toBe(10);
 
-    // Kiá»ƒm tra tá»“n kho tÄƒng +10
+    // Kiểm tra tồn kho tăng +10
     const prodAfterIn = await productApi.getById(testProd.id);
     expect(prodAfterIn.data.stockQuantity).toBe(initialStock + 10);
 
-    // 2. XUáº¤T KHO (OUT)
+    // 2. XUẤT KHO (OUT)
     await act(async () => {
       await actionRef.current.exportStock(testProd.id, 3, 'Xuáº¥t chuyá»ƒn kho');
     });
 
-    // Kiá»ƒm tra transaction OUT cÃ³ accountId vÃ  workSessionId
+    // Kiểm tra transaction OUT có accountId và workSessionId
     const outTxRes = await inventoryApi.getAllTransactions({ type: 'OUT' });
     const matchingOutTx = outTxRes.data.find(t => t.note === 'Xuáº¥t chuyá»ƒn kho');
     expect(matchingOutTx).toBeDefined();
@@ -271,7 +271,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     expect(matchingOutTx.workSessionId).toBe('ws-active-200');
     expect(matchingOutTx.quantity).toBe(3);
 
-    // Kiá»ƒm tra tá»“n kho giáº£m -3
+    // Kiểm tra tồn kho giảm -3
     const prodAfterOut = await productApi.getById(testProd.id);
     expect(prodAfterOut.data.stockQuantity).toBe(initialStock + 10 - 3);
   });
@@ -279,7 +279,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
   it('Flags outOfShift: true on orders and transactions executed past shift official end time', async () => {
     const actionRef = { current: null };
     const authVal = { currentUser: { id: 'acc-late-seller', role: 'staff', permissions: ['inventory.import'] }, isAuthenticated: true };
-    // Ca sÃ¡ng (morning) cÃ³ giá» káº¿t thÃºc chÃ­nh thá»©c 12:00
+    // Ca sáng (morning) có giờ kết thúc chính thức 12:00
     const sessionVal = {
       currentSession: { id: 'ws-morning-late', shiftType: 'morning', status: 'active' },
       currentMember: { id: 'wsm-morning-late', attendanceStatus: 'present' },
@@ -295,11 +295,11 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     await waitFor(() => expect(actionRef.current?.products?.length).toBeGreaterThan(0));
     const testProd = actionRef.current.products[0];
 
-    // Mock Date hiá»‡n táº¡i lÃ  22:45 (sau giá» Ä‘Ã³ng cá»­a 22:00)
+    // Mock Date hiện tại là 22:45 (sau giờ đóng cửa 22:00)
     const mockLateDate = new Date(2026, 7, 28, 22, 45, 0);
     vi.setSystemTime(mockLateDate);
 
-    // 1. Checkout Ä‘Æ¡n hÃ ng bÃ¡n sau giá» ca
+    // 1. Checkout đơn hàng bán sau giờ ca
     await act(async () => {
       actionRef.current.addToCart(testProd);
     });
@@ -312,7 +312,7 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
     expect(createdOrder).toBeDefined();
     expect(createdOrder.outOfShift).toBe(true);
 
-    // 2. Nháº­p kho sau giá» ca
+    // 2. Nhập kho sau giờ ca
     await act(async () => {
       await actionRef.current.importStock(testProd.id, 5, 200000, 'Nháº­p bÃ¹ cuá»‘i ca');
     });

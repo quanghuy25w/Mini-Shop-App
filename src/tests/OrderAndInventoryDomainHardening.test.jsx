@@ -589,7 +589,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       });
 
       await waitFor(() => expect(actionRef.current?.products?.length).toBeGreaterThan(0));
-      const testProd = actionRef.current.products[0]; // 436,000Ä‘
+      const testProd = actionRef.current.products[0]; // 436,000đ
 
       await act(async () => {
         actionRef.current.addToCart(testProd, 1);
@@ -610,7 +610,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       });
 
       await waitFor(() => expect(actionRef.current?.products?.length).toBeGreaterThan(0));
-      const testProd = actionRef.current.products[0]; // 436,000Ä‘
+      const testProd = actionRef.current.products[0]; // 436,000đ
 
       await act(async () => {
         actionRef.current.addToCart(testProd, 1);

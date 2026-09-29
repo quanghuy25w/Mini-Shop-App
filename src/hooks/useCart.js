@@ -12,7 +12,7 @@ import { getCurrentRegisterId } from '../utils/registerConfig';
 import { getBusinessDate } from '../utils/businessDate';
 import { isOutOfShift } from '../api/workSessionApi';
 
-// KhÃ³a Ä‘á»“ng bá»™ cáº¥p module chá»‘ng cháº¡y song song nhiá»u lá»‡nh checkout cÃ¹ng lÃºc
+// Khóa đồng bộ cấp module chống chạy song song nhiều lệnh checkout cùng lúc
 let isCheckoutRunning = false;
 
 export const useCart = () => {
@@ -99,11 +99,11 @@ export const useCart = () => {
 
     isCheckoutRunning = true;
 
-    // Biáº¿n lÆ°u trá»¯ lá»‹ch sá»­ cÃ¡c bÆ°á»›c Ä‘á»ƒ rollback khi cáº§n
+    // Biến lưu trữ lịch sử các bước để rollback khi cần
     const rollbackSteps = [];
 
     try {
-      // Sao chÃ©p snapshot danh sÃ¡ch sáº£n pháº©m Ä‘á»ƒ trÃ¡nh race condition khi cartItems thay Ä‘á»•i giá»¯a chá»«ng
+      // Sao chép snapshot danh sách sản phẩm để tránh race condition khi cartItems thay đổi giữa chừng
       const itemsToProcess = [...cartContext.cartItems];
 
       // Upfront validation: verify all products exist, are active, and have sufficient stock before mutating anything
@@ -177,13 +177,13 @@ export const useCart = () => {
         ? Math.max(0, Number(cashReceived) - finalAmount)
         : 0;
 
-      // STAGE 1: Trá»« tá»“n kho sáº£n pháº©m (dÃ¹ng updateStock Ä‘á»ƒ kÃ­ch hoáº¡t versioning & atomic validation)
+      // STAGE 1: Trừ tồn kho sản phẩm (dùng updateStock để kích hoạt versioning & atomic validation)
       for (const item of itemsWithTx) {
         const currentProd = freshProductsMap.get(item.productId);
         const updatedStock = currentProd.stockQuantity - item.quantity;
         await productApi.deductStockForCheckout(item.productId, item.quantity, currentUser);
 
-        // Ghi láº¡i delta phá»¥c há»“i
+        // Ghi lại delta phục hồi
         rollbackSteps.push({
           type: 'STOCK_DELTA',
           productId: item.productId,
@@ -191,7 +191,7 @@ export const useCart = () => {
         });
       }
 
-      // STAGE 2: Táº¡o order vá»›i status "completed" Ä‘Ã£ cÃ³ sáºµn inventoryTransactionIds (báº¥t biáº¿n ngay tá»« Ä‘áº§u)
+      // STAGE 2: Tạo order với status "completed" đã có sẵn inventoryTransactionIds (bất biến ngay từ đầu)
       const orderData = {
         ...extraPayload,
         id: orderId,
@@ -238,7 +238,7 @@ export const useCart = () => {
         throw new Error("Lá»—i khi khá»Ÿi táº¡o Ä‘Æ¡n hÃ ng má»›i trÃªn há»‡ thá»‘ng.", { cause: orderErr });
       }
 
-      // STAGE 3: Ghi nháº­n cÃ¡c giao dá»‹ch xuáº¥t kho SALE sau khi Ä‘Æ¡n hÃ ng Ä‘Ã£ tá»“n táº¡i há»£p lá»‡
+      // STAGE 3: Ghi nhận các giao dịch xuất kho SALE sau khi đơn hàng đã tồn tại hợp lệ
       for (const item of itemsWithTx) {
         const transactionData = {
           id: item.txId,
@@ -267,7 +267,7 @@ export const useCart = () => {
         });
       }
 
-      // ThÃ nh cÃ´ng toÃ n bá»™: Cáº­p nháº­t dá»¯ liá»‡u sáº£n pháº©m trong AppDataContext trÆ°á»›c, sau Ä‘Ã³ xÃ³a giá» hÃ ng
+      // Thành công toàn bộ: Cập nhật dữ liệu sản phẩm trong AppDataContext trước, sau đó xóa giỏ hàng
       try {
         await refreshProducts();
       } catch (refreshErr) {
