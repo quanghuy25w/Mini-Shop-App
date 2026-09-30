@@ -1,4 +1,4 @@
-﻿import { initSeedData } from './mockApi';
+ import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { workSessionApi } from '../api/workSessionApi';
 import { staffApi } from '../api/staffApi';

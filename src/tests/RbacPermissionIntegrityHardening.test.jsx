@@ -63,7 +63,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
       const orderPayload = {
         id: 'ord-admin-01',
         code: 'HD-ADM-01',
-        totalAmount: 150000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 150000 }],
+        totalAmount: 150000, items: [{ productId: 'p-150K', quantity: 1, price: 150000 }],
         paymentMethod: 'cash',
       };
 
@@ -84,7 +84,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         status: 'completed',
         createdAt: oneHourAgo,
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }],
+        items: [{ productId: 'p-100K', quantity: 1, price: 100000 }],
       };
       await orderApi.create(oldOrder, adminActor);
 
@@ -318,7 +318,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
       const order = {
         id: 'ord-emp1-legit',
         code: 'HD-E1-01',
-        totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+        totalAmount: 50000, items: [{ productId: 'p-50K', quantity: 1, price: 50000 }],
       };
 
       const res = await orderApi.create(order, employee1Actor);
@@ -334,7 +334,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         orderApi.create({
           workSessionId: 'ws-mock-test',
           accountId: employee2Actor.id,
-          totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+          totalAmount: 50000, items: [{ productId: 'p-50K', quantity: 1, price: 50000 }],
         }, employee1Actor);
       }).toThrow(/PERMISSION_DENIED/);
 
@@ -343,7 +343,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         orderApi.create({
           workSessionId: 'ws-mock-test',
           sellerId: employee2Actor.id,
-          totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+          totalAmount: 50000, items: [{ productId: 'p-50K', quantity: 1, price: 50000 }],
         }, employee1Actor);
       }).toThrow(/PERMISSION_DENIED/);
 
@@ -352,7 +352,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         orderApi.create({
           workSessionId: 'ws-mock-test',
           employeeId: employee2Actor.employeeId,
-          totalAmount: 50000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+          totalAmount: 50000, items: [{ productId: 'p-50K', quantity: 1, price: 50000 }],
         }, employee1Actor);
       }).toThrow(/PERMISSION_DENIED/);
     });
@@ -367,7 +367,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         status: 'completed',
         createdAt: fiveMinsAgo,
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+        items: [{ productId: 'p-50K', quantity: 1, price: 50000 }],
       };
       await orderApi.create(order, employee1Actor);
 
@@ -392,7 +392,7 @@ describe('Phase 6A: Authoritative RBAC & Permission Integrity Hardening Tests', 
         totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
         status: 'completed',
         createdAt: twentyMinsAgo,
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 50000 }],
+        items: [{ productId: 'p-50K', quantity: 1, price: 50000 }],
       };
       await orderApi.create(order, employee1Actor);
 

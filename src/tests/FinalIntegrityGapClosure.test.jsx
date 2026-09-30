@@ -8,8 +8,6 @@ import { workSessionApi } from '../api/workSessionApi';
 import { registerApi } from '../api/registerApi';
 import { calculateSessionReconciliation } from '../utils/reconciliation';
 
-vi.mock('../api/axiosClient');
-
 describe('Final Integrity Gap Closure Pass', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -25,7 +23,6 @@ describe('Final Integrity Gap Closure Pass', () => {
           items: [],
           workSessionId: 'ws-1',
           registerId: 'POS01',
-          totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         }, adminActor);
       }).toThrow(/phải có ít nhất 1 sản phẩm/i);
     });
@@ -33,11 +30,10 @@ describe('Final Integrity Gap Closure Pass', () => {
     it('rejects order without workSessionId when selling context is enforced', async () => {
       expect(() => {
         orderApi.create({
-          workSessionId: 'ws-mock-test',
           status: 'completed',
           items: [{ productId: 'p1', productName: 'Bút bi', quantity: 1, price: 10000 }],
           registerId: 'POS01',
-          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
+          totalAmount: 10000,
         }, adminActor, { requireSellingContext: true });
       }).toThrow(/bắt buộc phải gắn với ca làm việc/i);
     });
@@ -50,7 +46,7 @@ describe('Final Integrity Gap Closure Pass', () => {
           items: [{ productId: 'p1', productName: 'Bút bi', quantity: 2, price: 10000 }],
           workSessionId: 'ws-1',
           registerId: 'POS01',
-          totalAmount: 999999, items: [{ productId: 'p4', quantity: 999999, price: 1 }], // Mismatched total
+          totalAmount: 999999, // Mismatched total
         }, adminActor, { requireStrictTotals: true });
       }).toThrow(/không khớp với giá trị sản phẩm tính toán/i);
     });
@@ -240,46 +236,42 @@ describe('Final Integrity Gap Closure Pass', () => {
     it('rejects order with unknown registerId not present in canonical registers', () => {
       expect(() => {
         orderApi.create({
-          workSessionId: 'ws-mock-test',
           status: 'completed',
           items: [{ productId: 'p1', price: 10000, quantity: 1 }],
           workSessionId: 'ws-1',
           registerId: 'POS-FABRICATED-99',
-          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
+          totalAmount: 10000,
         }, adminActor);
       }).toThrow(/không tồn tại trong hệ thống/i);
     });
 
     it('dynamically recognizes new register added to canonical register collection', async () => {
       const originalRegisters = registerApi.getSyncRegisters();
+      const originalAxiosGet = axiosClient.get;
       try {
         registerApi.setCachedRegisters([
           ...originalRegisters,
           { id: 'POS-NEW-99', name: 'Quầy lưu động 99', isActive: true }
         ]);
 
-        axiosClient.get.mockImplementation(url => {
-          if (url.includes('/products/')) {
-            return Promise.resolve({ data: { id: 'p1', isActive: true, price: 10000 } });
-          }
+        axiosClient.get = vi.fn().mockImplementation(url => {
           if (url.includes('/registers')) {
             return Promise.resolve({ data: registerApi.getSyncRegisters() });
           }
-          return Promise.resolve({ data: [] });
+          return originalAxiosGet(url);
         });
-        axiosClient.post.mockResolvedValue({ data: { id: 'ord-dyn-pos' } });
 
         const res = await orderApi.create({
-          workSessionId: 'ws-mock-test',
           status: 'completed',
-          items: [{ productId: 'p1', price: 10000, quantity: 1 }],
+          items: [{ productId: 'p1', price: 250000, quantity: 1 }],
           workSessionId: 'ws-1',
           registerId: 'POS-NEW-99',
-          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
+          totalAmount: 250000,
         }, adminActor);
 
-        expect(res.data.id).toBe('ord-dyn-pos');
+        expect(res.data.id).toBeDefined();
       } finally {
+        axiosClient.get = originalAxiosGet;
         registerApi.setCachedRegisters(originalRegisters);
       }
     });

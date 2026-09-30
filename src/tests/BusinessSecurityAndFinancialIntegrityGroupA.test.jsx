@@ -190,14 +190,14 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
   // ---------------------------------------------------------------------------
   it('6. source=rollback cannot grant privileged authorization to delete foreign records', async () => {
     // Seed transaction belonging to another user
-    const tx = (await inventoryApi.createSystemTransaction({
+    const tx = (await inventoryApi.createTransaction({
       id: 'tx-foreign-user',
       productId: 'p0000000-0000-0000-0000-000000000001',
       type: 'OUT',
       quantity: 1,
       unitPrice: 10000,
       accountId: 'acc-other-user'
-    })).data;
+    }, adminActor)).data;
 
     // Employee cannot delete it even with source='rollback'
     await expect(
@@ -341,7 +341,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       paymentMethod: 'cash',
       businessDate: '2026-09-25',
       registerId: 'POS01',
-      items: [{ productId: 'p1', quantity: 1, price: 200000 }]
+      items: [{ productId: 'p-200K', quantity: 1, price: 200000 }]
     }, adminActor)).data;
 
     await expect(orderApi.patch(order.id, { subtotal: 50000 }, adminActor)).rejects.toThrow(/ORDER_MUTATION_RESTRICTED/);
@@ -363,7 +363,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       status: 'completed',
       totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       inventoryTransactionIds: ['tx-initial-1'],
-      items: [{ productId: 'p1', quantity: 1, price: 100000 }]
+      items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     await expect(
@@ -383,7 +383,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       id: 'ord-sale-check',
       code: 'HD-SALE-01',
       status: 'completed',
-      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 50000 }]
+      totalAmount: 100000, items: [{ productId: 'p-50K', quantity: 2, price: 50000 }]
     }, adminActor)).data;
 
     // Reject product not in order
@@ -420,7 +420,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       id: 'ord-dup-sale',
       code: 'HD-DUP-SALE',
       status: 'completed',
-      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      totalAmount: 100000, items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     // 1st SALE transaction succeeds
@@ -455,7 +455,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       id: 'ord-not-cancelled',
       code: 'HD-NOT-CANCEL',
       status: 'completed', // Not cancelled!
-      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      totalAmount: 100000, items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     await expect(
@@ -479,7 +479,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       id: 'ord-dup-cancel',
       code: 'HD-DUP-CANCEL',
       status: 'cancelled',
-      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      totalAmount: 100000, items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     // 1st RESTOCK succeeds
@@ -581,18 +581,18 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       accountId: 'acc-other',
       sellerId: 'acc-other',
-      items: [{ productId: 'p1', quantity: 1, price: 100000 }]
+      items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     // Legitimate transaction 1
-    const tx1 = (await inventoryApi.createSystemTransaction({
+    const tx1 = (await inventoryApi.createTransaction({
       id: 'tx-safe-1',
       productId: 'p0000000-0000-0000-0000-000000000001',
       type: 'IN',
       quantity: 10,
       unitPrice: 10000,
       accountId: adminActor.id
-    })).data;
+    }, adminActor)).data;
 
     // Employee cannot delete order1 via removeInFlightOrder
     await expect(
@@ -647,7 +647,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       id: 'ord-fail-cancel',
       code: 'HD-FAIL-CANCEL',
       status: 'completed',
-      totalAmount: 100000, items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 50000 }]
+      totalAmount: 100000, items: [{ productId: 'p-50K', quantity: 2, price: 50000 }]
     }, adminActor)).data;
 
     const initialStock = (await productApi.getById('p0000000-0000-0000-0000-000000000001')).data.stockQuantity;
@@ -735,7 +735,7 @@ describe('GROUP A: Business Security & Financial Integrity Adversarial Test Suit
       totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
       accountId: adminActor.id,
       sellerId: adminActor.id,
-      items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }]
+      items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
     }, adminActor)).data;
 
     // 1st cancelAndRestock succeeds

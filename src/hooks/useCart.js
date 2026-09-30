@@ -1,4 +1,4 @@
-﻿import { useContext } from 'react';
+import { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import { AppDataContext } from '../context/AppDataContext';
 import { AuthContext } from '../context/AuthContext';
@@ -37,11 +37,11 @@ export const useCart = () => {
 
     const isNotCheckedIn = !isCheckedIn || !currentSession?.id || currentSession?.status !== 'active' || (currentMember && currentMember.attendanceStatus === 'checked_out');
     if (isNotCheckedIn) {
-      throw new Error('Báº¡n chÆ°a check-in vÃ o ca lÃ m viá»‡c nÃ o. Vui lÃ²ng check-in trÆ°á»›c khi thanh toÃ¡n.');
+      throw new Error('Báº¡n chÆ°a check-in vÃ o ca lÃ m viá»‡c nÃ o. Vui lÃ²ng check-in trÆ°á»›c khi thanh toÃ¡n.');
     }
 
     if (!cartContext.cartItems || cartContext.cartItems.length === 0) {
-      throw new Error("Giá» hÃ ng trá»‘ng!");
+      throw new Error("Giá» hÃ ng trá»‘ng!");
     }
 
     let customTotalAmount = undefined;
@@ -73,20 +73,22 @@ export const useCart = () => {
     }
 
     // Validate canonical register from registerApi/db.json
-    const localRegisterId = getCurrentRegisterId();
-    let registerId = localRegisterId || 'POS01';
+    const registerId = getCurrentRegisterId();
+    if (!registerId) {
+      throw new Error('REGISTER_MISSING: Không xác định được quầy bán hàng. Vui lòng cấu hình quầy.');
+    }
 
     try {
       const canonicalRegisters = await registerApi.getAll();
       if (Array.isArray(canonicalRegisters) && canonicalRegisters.length > 0) {
         const foundReg = canonicalRegisters.find(r => r.id === registerId);
         if (!foundReg) {
-          const err = new Error(`REGISTER_NOT_FOUND: Quáº§y bÃ¡n hÃ ng "${registerId}" khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng.`);
+          const err = new Error(`REGISTER_NOT_FOUND: Quáº§y bÃ¡n hÃ ng "${registerId}" khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng.`);
           err.code = 'REGISTER_NOT_FOUND';
           throw err;
         }
         if (foundReg.isActive === false) {
-          const err = new Error(`REGISTER_INACTIVE: Quáº§y bÃ¡n hÃ ng "${foundReg.name || foundReg.id}" Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a.`);
+          const err = new Error(`REGISTER_INACTIVE: Quáº§y bÃ¡n hÃ ng "${foundReg.name || foundReg.id}" Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a.`);
           err.code = 'REGISTER_INACTIVE';
           throw err;
         }
@@ -139,16 +141,17 @@ export const useCart = () => {
       const orderId = generateId();
       const itemsWithTx = itemsToProcess.map(item => {
         const currentProd = freshProductsMap.get(item.productId);
-        const canonPrice = Number(currentProd.sellPrice !== undefined ? currentProd.sellPrice : currentProd.price) || Number(item.price) || 0;
-        const canonCost = Number(currentProd.costPrice) || canonPrice || 0;
+        const canonPrice = Number(currentProd.sellPrice !== undefined ? currentProd.sellPrice : currentProd.price);
+        if (isNaN(canonPrice)) {
+          throw new Error(`Sản phẩm "${currentProd.name || item.productId}" không có giá niêm yết hợp lệ!`);
+        }
+        const canonCost = Number(currentProd.costPrice); // Can be undefined or NaN, but canonicalPrice is the selling price
         return {
           ...item,
-          txId: generateId(),
           canonicalPrice: canonPrice,
           canonicalCost: canonCost
         };
       });
-      const preGeneratedTxIds = itemsWithTx.map(i => i.txId);
 
       const authoritativeSubtotal = itemsWithTx.reduce((sum, item) => sum + (item.canonicalPrice * (item.quantity || 1)), 0);
       let calculatedDiscount = 0;
@@ -169,34 +172,17 @@ export const useCart = () => {
       if (paymentMethod === 'cash' && cashReceived !== undefined && cashReceived !== null) {
         const numReceived = Number(cashReceived);
         if (isNaN(numReceived) || numReceived < finalAmount) {
-          throw new Error(`Sá»‘ tiá»n khÃ¡ch Ä‘Æ°a (${numReceived.toLocaleString('vi-VN')}Ä‘) khÃ´ng Ä‘á»§ Ä‘á»ƒ thanh toÃ¡n Ä‘Æ¡n hÃ ng (${finalAmount.toLocaleString('vi-VN')}Ä‘).`);
+          throw new Error(`Sá»‘ tiá»n khÃ¡ch Ä‘Æ°a (${numReceived.toLocaleString('vi-VN')}Ä‘) khÃ´ng Ä‘á»§ Ä‘á»ƒ thanh toÃ¡n Ä‘Æ¡n hÃ ng (${finalAmount.toLocaleString('vi-VN')}Ä‘).`);
         }
       }
 
       const change = (paymentMethod === 'cash' && cashReceived !== undefined && cashReceived !== null)
         ? Math.max(0, Number(cashReceived) - finalAmount)
         : 0;
-
-      // STAGE 1: Trừ tồn kho sản phẩm (dùng updateStock để kích hoạt versioning & atomic validation)
-      for (const item of itemsWithTx) {
-        const currentProd = freshProductsMap.get(item.productId);
-        const updatedStock = currentProd.stockQuantity - item.quantity;
-        await productApi.deductStockForCheckout(item.productId, item.quantity, currentUser);
-
-        // Ghi lại delta phục hồi
-        rollbackSteps.push({
-          type: 'STOCK_DELTA',
-          productId: item.productId,
-          quantity: item.quantity
-        });
-      }
-
-      // STAGE 2: Tạo order với status "completed" đã có sẵn inventoryTransactionIds (bất biến ngay từ đầu)
       const orderData = {
         ...extraPayload,
         id: orderId,
         code: orderCode,
-        inventoryTransactionIds: preGeneratedTxIds,
         items: itemsWithTx.map(i => ({
           productId: i.productId,
           productName: i.productName || '',
@@ -229,57 +215,22 @@ export const useCart = () => {
         if (!createdOrder.items) {
           createdOrder.items = orderData.items;
         }
-        rollbackSteps.push({
-          type: 'ORDER',
-          orderId: createdOrder.id
-        });
       } catch (orderErr) {
-        console.error('[useCart] orderApi.create tháº¥t báº¡i:', orderErr);
-        throw new Error("Lá»—i khi khá»Ÿi táº¡o Ä‘Æ¡n hÃ ng má»›i trÃªn há»‡ thá»‘ng.", { cause: orderErr });
-      }
-
-      // STAGE 3: Ghi nhận các giao dịch xuất kho SALE sau khi đơn hàng đã tồn tại hợp lệ
-      for (const item of itemsWithTx) {
-        const transactionData = {
-          id: item.txId,
-          productId: item.productId,
-          type: 'OUT',
-          reason: 'SALE',
-          quantity: item.quantity,
-          unitPrice: item.canonicalPrice,
-          unitCost: item.canonicalCost,
-          accountId: currentUser.id,
-          workSessionId: currentSession?.id || null,
-          registerId,
-          businessDate,
-          outOfShift: outOfShiftFlag,
-          orderId: createdOrder.id,
-          orderCode: createdOrder.code,
-          note: `BÃ¡n láº» qua Ä‘Æ¡n hÃ ng ${createdOrder.code}`,
-          createdAt: nowIso
-        };
-
-        const transRes = await inventoryApi.createTransaction(transactionData, currentUser, { source: 'pos_checkout' });
-        const txId = transRes?.data?.id || item.txId;
-        rollbackSteps.push({
-          type: 'TRANSACTION',
-          transactionId: txId
-        });
+        console.error('[useCart] orderApi.create thất bại:', orderErr);
+        throw new Error("Lỗi khi khởi tạo đơn hàng mới trên hệ thống.", { cause: orderErr });
       }
 
       // Thành công toàn bộ: Cập nhật dữ liệu sản phẩm trong AppDataContext trước, sau đó xóa giỏ hàng
       try {
         await refreshProducts();
       } catch (refreshErr) {
-        console.warn("[useCart] refreshProducts gáº·p sá»± cá»‘:", refreshErr);
+        console.warn("[useCart] refreshProducts gặp sự cố:", refreshErr);
       }
       cartContext.clearCart();
 
       return createdOrder;
     } catch (err) {
-      // Non-destructive delta-based rollback of all in-flight actions if checkout failed
-      await orderApi.compensateCheckoutRollback(rollbackSteps, currentUser);
-      throw new Error(err.message || "QuÃ¡ trÃ¬nh thanh toÃ¡n gáº·p sá»± cá»‘.", { cause: err });
+      throw new Error(err.message || "Quá trình thanh toán gặp sự cố.", { cause: err });
     } finally {
       isCheckoutRunning = false;
     }
@@ -290,3 +241,5 @@ export const useCart = () => {
     checkout
   };
 };
+
+

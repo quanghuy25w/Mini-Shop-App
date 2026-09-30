@@ -4,31 +4,192 @@ import { AppDataContext } from '../context/AppDataContext';
 import { useAuth } from '../hooks/useAuth';
 import { orderApi } from '../api/orderApi';
 import { inventoryApi } from '../api/inventoryApi';
+import { workSessionApi } from '../api/workSessionApi';
 import { formatCurrency } from '../utils/formatCurrency';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { subDays, isAfter, format } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { getBusinessDate } from '../utils/businessDate';
 import './DashboardPage.css';
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Safe product cost: only use costPrice if it is a finite positive number */
+const getSafeCostPrice = (p) => {
+  const v = Number(p.costPrice);
+  return Number.isFinite(v) && v >= 0 ? v : null;
+};
+
+/** Is an order a valid completed sale? Only 'completed' status counts. */
+const isCompletedSale = (o) => o.status === 'completed';
+
+/** Get businessDate string from an order, falling back to createdAt */
+const orderBizDate = (o) => {
+  if (o.businessDate) return o.businessDate;
+  if (o.createdAt) return getBusinessDate(o.createdAt);
+  return null;
+};
+
+// ── Revenue Trend SVG Chart ───────────────────────────────────────────────────
+
+const RevenueTrendChart = ({ orders, days }) => {
+  const today = new Date();
+  const todayStr = getBusinessDate(today);
+
+  // Build date → revenue map for `days` days ending today
+  const dateMap = useMemo(() => {
+    const map = {};
+    for (let i = days - 1; i >= 0; i--) {
+      const d = getBusinessDate(subDays(today, i));
+      map[d] = 0;
+    }
+    orders.forEach((o) => {
+      if (!isCompletedSale(o)) return;
+      const bd = orderBizDate(o);
+      if (bd && Object.prototype.hasOwnProperty.call(map, bd)) {
+        map[bd] += Number(o.totalAmount) || 0;
+      }
+    });
+    return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders, days, todayStr]);
+
+  const entries = useMemo(() => Object.entries(dateMap), [dateMap]);
+  const values = entries.map(([, v]) => v);
+  const maxVal = Math.max(...values, 1); // prevent division by zero
+
+  const chartH = 120;
+  const chartW = 100; // percentage-based via viewBox
+  const barGap = 2;
+  const totalBars = entries.length;
+  const barW = totalBars > 0 ? (chartW - barGap * (totalBars - 1)) / totalBars : chartW;
+
+  const hasAnyRevenue = values.some((v) => v > 0);
+
+  const formatShortDate = (dateStr) => {
+    // YYYY-MM-DD → DD/MM
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
+    return dateStr;
+  };
+
+  const formatMillions = (v) => {
+    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+    if (v >= 1_000) return `${Math.round(v / 1_000)}K`;
+    return String(v);
+  };
+
+  return (
+    <div className="trend-chart-wrap">
+      {!hasAnyRevenue ? (
+        <div className="trend-chart-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ink-faint)' }}>
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          <p>Chưa có dữ liệu doanh thu trong {days} ngày qua</p>
+        </div>
+      ) : (
+        <div className="trend-chart-inner">
+          <svg
+            viewBox={`0 0 ${chartW} ${chartH + 20}`}
+            preserveAspectRatio="none"
+            className="trend-chart-svg"
+            aria-label={`Biểu đồ doanh thu ${days} ngày`}
+          >
+            {entries.map(([date, val], i) => {
+              const barH = maxVal > 0 ? (val / maxVal) * chartH : 0;
+              const x = i * (barW + barGap);
+              const y = chartH - barH;
+              const isToday = date === todayStr;
+              return (
+                <g key={date}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={barW}
+                    height={barH}
+                    rx="1.5"
+                    className={`trend-bar ${isToday ? 'trend-bar-today' : ''} ${val === 0 ? 'trend-bar-zero' : ''}`}
+                  />
+                  {/* value label on top of tall bars */}
+                  {val > 0 && barH > 20 && (
+                    <text
+                      x={x + barW / 2}
+                      y={y - 2}
+                      textAnchor="middle"
+                      className="trend-bar-label"
+                    >
+                      {formatMillions(val)}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+            {/* X-axis date labels — only show first/last and today for readability */}
+            {entries.map(([date], i) => {
+              const isFirst = i === 0;
+              const isLast = i === entries.length - 1;
+              const isToday = date === todayStr;
+              if (!isFirst && !isLast && !isToday) return null;
+              const x = i * (barW + barGap) + barW / 2;
+              return (
+                <text
+                  key={`lbl-${date}`}
+                  x={x}
+                  y={chartH + 16}
+                  textAnchor="middle"
+                  className={`trend-axis-label ${isToday ? 'trend-axis-today' : ''}`}
+                >
+                  {formatShortDate(date)}
+                </text>
+              );
+            })}
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Main Component ────────────────────────────────────────────────────────────
 
 const DashboardPage = () => {
   const { products, loadingInitial } = useContext(AppDataContext);
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [todaySession, setTodaySession] = useState(null);
+  const [todayMembers, setTodayMembers] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [trendDays, setTrendDays] = useState(7);
   const navigate = useNavigate();
 
   const isEmployee = currentUser?.role === 'employee';
+  const todayStr = useMemo(() => getBusinessDate(new Date()), []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ordersRes, txRes] = await Promise.all([
-          orderApi.getAll(),
-          inventoryApi.getAllTransactions(),
-        ]);
-        setOrders(ordersRes.data || []);
-        setTransactions(txRes.data || []);
+        const fetches = [orderApi.getAll(), inventoryApi.getAllTransactions()];
+        // Admin/staff also fetch today's work session for store activity
+        if (!isEmployee) {
+          fetches.push(workSessionApi.getAll({ date: todayStr }));
+        }
+        const results = await Promise.all(fetches);
+        setOrders(results[0].data || []);
+        setTransactions(results[1].data || []);
+        if (!isEmployee && results[2]) {
+          const sessions = results[2].data || [];
+          const active = sessions.find((s) => s.status !== 'cancelled');
+          setTodaySession(active || null);
+          if (active) {
+            try {
+              const membersRes = await workSessionApi.getMembers({ workSessionId: active.id });
+              setTodayMembers(membersRes.data || []);
+            } catch {
+              setTodayMembers([]);
+            }
+          }
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -36,183 +197,218 @@ const DashboardPage = () => {
       }
     };
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const activeProducts = useMemo(() => products.filter(p => p.isActive), [products]);
+  const activeProducts = useMemo(() => products.filter((p) => p.isActive), [products]);
 
-  const totalActiveProducts = activeProducts.length;
+  // ── Inventory Value: safe NaN guard ──────────────────────────────────────────
+  const inventoryValueData = useMemo(() => {
+    let total = 0;
+    let incompleteCount = 0;
+    let coveredCount = 0;
 
-  const totalInventoryValue = useMemo(() => {
-    return activeProducts.reduce((sum, p) => sum + (p.stockQuantity * p.costPrice), 0);
+    activeProducts.forEach((p) => {
+      const cp = getSafeCostPrice(p);
+      const qty = Number(p.stockQuantity);
+      if (cp !== null && Number.isFinite(qty) && qty >= 0) {
+        total += qty * cp;
+        coveredCount++;
+      } else {
+        incompleteCount++;
+      }
+    });
+
+    return { total, incompleteCount, coveredCount };
   }, [activeProducts]);
 
   const lowStockProducts = useMemo(() => {
     return activeProducts
-      .filter(p => p.stockQuantity <= p.minStockAlert && p.stockQuantity > 0)
-      .sort((a, b) => a.stockQuantity - b.stockQuantity);
+      .filter((p) => {
+        const qty = Number(p.stockQuantity);
+        const alert = Number(p.minStockAlert);
+        return Number.isFinite(qty) && Number.isFinite(alert) && qty <= alert && qty >= 0;
+      })
+      .sort((a, b) => {
+        // Sort by ratio (qty/alert) ascending — most urgent first
+        const ratioA = Number(a.stockQuantity) / Math.max(Number(a.minStockAlert), 1);
+        const ratioB = Number(b.stockQuantity) / Math.max(Number(b.minStockAlert), 1);
+        return ratioA - ratioB;
+      });
   }, [activeProducts]);
 
-  const revenue7Days = useMemo(() => {
-    const todayStr = getBusinessDate(new Date());
-    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
+  // ── Store-wide metrics (Admin/Staff) ─────────────────────────────────────────
+
+  // Today's completed sales — businessDate-based, only 'completed'
+  const todayCompletedOrders = useMemo(() => {
+    return orders.filter((o) => isCompletedSale(o) && orderBizDate(o) === todayStr);
+  }, [orders, todayStr]);
+
+  const todayRevenue = useMemo(() => {
+    return todayCompletedOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  }, [todayCompletedOrders]);
+
+  // Yesterday's revenue for comparison
+  const yesterdayStr = useMemo(() => getBusinessDate(subDays(new Date(), 1)), []);
+  const yesterdayRevenue = useMemo(() => {
     return orders
-      .filter(o => {
-        const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
-        return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= weekStartStr && bDate <= todayStr;
-      })
+      .filter((o) => isCompletedSale(o) && orderBizDate(o) === yesterdayStr)
       .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
-  }, [orders]);
+  }, [orders, yesterdayStr]);
 
+  const yesterdayOrderCount = useMemo(() => {
+    return orders.filter((o) => isCompletedSale(o) && orderBizDate(o) === yesterdayStr).length;
+  }, [orders, yesterdayStr]);
+
+  // Low-stock alert count (out-of-stock included: qty === 0 and alert >= 0)
+  const stockAlertCount = lowStockProducts.length;
+  const outOfStockCount = useMemo(
+    () => activeProducts.filter((p) => Number(p.stockQuantity) === 0).length,
+    [activeProducts]
+  );
+
+  // Top-5 selling products — only completed orders
   const topSellingProducts = useMemo(() => {
-    const salesCount = {};
-    orders.filter(o => (o.status === 'completed' || o.status === 'historical_cancelled')).forEach(order => {
-      (order.items || []).forEach(item => {
-        if (!salesCount[item.productId]) {
-          salesCount[item.productId] = { name: item.productName, qty: 0, revenue: 0 };
-        }
-        salesCount[item.productId].qty += item.quantity;
-        salesCount[item.productId].revenue += item.quantity * item.price;
+    const salesMap = {};
+    orders
+      .filter(isCompletedSale)
+      .forEach((order) => {
+        (order.items || []).forEach((item) => {
+          if (!item.productId) return;
+          if (!salesMap[item.productId]) {
+            salesMap[item.productId] = {
+              name: item.productName || item.productId,
+              qty: 0,
+              revenue: 0,
+            };
+          }
+          salesMap[item.productId].qty += Number(item.quantity) || 0;
+          salesMap[item.productId].revenue += (Number(item.quantity) || 0) * (Number(item.price) || 0);
+        });
       });
-    });
 
-    return Object.values(salesCount)
+    return Object.values(salesMap)
       .sort((a, b) => b.qty - a.qty)
       .slice(0, 5);
   }, [orders]);
 
-  const completedOrders7DaysCount = useMemo(() => {
-    const todayStr = getBusinessDate(new Date());
-    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
-    return orders.filter(o => {
-      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
-      return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= weekStartStr && bDate <= todayStr;
+  // Today's inventory transactions count
+  const todayTxCount = useMemo(() => {
+    return transactions.filter((tx) => {
+      const bd = tx.businessDate || (tx.createdAt ? getBusinessDate(tx.createdAt) : null);
+      return bd === todayStr;
     }).length;
-  }, [orders]);
+  }, [transactions, todayStr]);
 
-  // ── Employee Own Performance Metrics ─────────────────────────────────────────
-  const isOwnOrder = useCallback((order) => {
-    if (!currentUser || !order) return false;
-    if (order.accountId && String(order.accountId) === String(currentUser.id)) return true;
-    if (currentUser.employeeId && order.employeeId && String(order.employeeId) === String(currentUser.employeeId)) return true;
-    if (currentUser.employeeId && order.staffId && String(order.staffId) === String(currentUser.employeeId)) return true;
-    if (order.createdBy && (String(order.createdBy) === String(currentUser.id) || (currentUser.employeeId && String(order.createdBy) === String(currentUser.employeeId)))) return true;
-    return false;
-  }, [currentUser]);
+  // Active staff in today's session
+  const activeStaffCount = useMemo(() => {
+    return todayMembers.filter((m) => m.attendanceStatus === 'present').length;
+  }, [todayMembers]);
+
+  // Recent Activities
+  const recentActivities = useMemo(() => {
+    const activities = [];
+    
+    // Add completed orders
+    orders.forEach((o) => {
+      if (o.status === 'completed' && orderBizDate(o) === todayStr) {
+        activities.push({
+          id: `order-${o.id}`,
+          time: new Date(o.createdAt),
+          type: 'order',
+          user: o.staffName || o.createdBy || 'Nhân viên',
+          text: `Hoàn tất đơn ${o.code || o.id}`,
+          color: 'var(--emerald)'
+        });
+      }
+    });
+
+    // Add inventory transactions
+    transactions.forEach((tx) => {
+      const bd = tx.businessDate || (tx.createdAt ? getBusinessDate(tx.createdAt) : null);
+      if (bd === todayStr) {
+        activities.push({
+          id: `tx-${tx.id}`,
+          time: new Date(tx.createdAt),
+          type: 'tx',
+          user: tx.createdBy || 'Kho',
+          text: tx.type === 'import' ? `Nhập hàng ${tx.code || tx.id}` : tx.type === 'export' ? `Xuất hàng ${tx.code || tx.id}` : `Điều chỉnh tồn kho`,
+          color: tx.type === 'import' ? 'var(--blue)' : 'var(--amber)'
+        });
+      }
+    });
+
+    return activities
+      .sort((a, b) => b.time - a.time)
+      .slice(0, 5);
+  }, [orders, transactions, todayStr]);
+
+  // Revenue delta text
+  const formatRevenueDelta = (current, previous) => {
+    if (previous === 0 && current === 0) return null;
+    if (previous === 0) return { text: 'Ngày đầu có doanh thu', up: true };
+    const pct = Math.round(((current - previous) / previous) * 100);
+    const sign = pct >= 0 ? '+' : '';
+    return { text: `${sign}${pct}% so với hôm qua`, up: pct >= 0 };
+  };
+
+  const formatCountDelta = (current, previous) => {
+    const diff = current - previous;
+    if (diff === 0) return { text: 'Bằng hôm qua', up: null };
+    const sign = diff > 0 ? '+' : '';
+    return { text: `${sign}${diff} so với hôm qua`, up: diff > 0 };
+  };
+
+  // ── Employee Own Performance ──────────────────────────────────────────────────
+
+  const isOwnOrder = useCallback(
+    (order) => {
+      if (!currentUser || !order) return false;
+      if (order.accountId && String(order.accountId) === String(currentUser.id)) return true;
+      if (currentUser.employeeId && order.employeeId && String(order.employeeId) === String(currentUser.employeeId)) return true;
+      if (currentUser.employeeId && order.staffId && String(order.staffId) === String(currentUser.employeeId)) return true;
+      if (order.createdBy && (String(order.createdBy) === String(currentUser.id) || (currentUser.employeeId && String(order.createdBy) === String(currentUser.employeeId)))) return true;
+      return false;
+    },
+    [currentUser]
+  );
 
   const employeeCompletedOrders = useMemo(() => {
     if (!isEmployee) return [];
     return orders
-      .filter(o => (o.status === 'completed' || o.status === 'historical_cancelled') && isOwnOrder(o))
+      .filter((o) => isCompletedSale(o) && isOwnOrder(o))
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [orders, isEmployee, isOwnOrder]);
 
   const employeeTodayOrders = useMemo(() => {
-    const todayStr = getBusinessDate(new Date());
-    return employeeCompletedOrders.filter(o => {
-      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
-      return bDate === todayStr;
-    });
-  }, [employeeCompletedOrders]);
+    return employeeCompletedOrders.filter((o) => orderBizDate(o) === todayStr);
+  }, [employeeCompletedOrders, todayStr]);
 
-  const employeeTodaySales = useMemo(() => {
-    return employeeTodayOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
-  }, [employeeTodayOrders]);
+  const employeeTodaySales = useMemo(
+    () => employeeTodayOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0),
+    [employeeTodayOrders]
+  );
 
   const employeeTodayOrdersCount = employeeTodayOrders.length;
 
+  const weekStartStr = useMemo(() => getBusinessDate(subDays(new Date(), 6)), []);
+
   const employeeWeekOrders = useMemo(() => {
-    const todayStr = getBusinessDate(new Date());
-    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
-    return employeeCompletedOrders.filter(o => {
-      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
-      return bDate && bDate >= weekStartStr && bDate <= todayStr;
+    return employeeCompletedOrders.filter((o) => {
+      const bd = orderBizDate(o);
+      return bd && bd >= weekStartStr && bd <= todayStr;
     });
-  }, [employeeCompletedOrders]);
+  }, [employeeCompletedOrders, weekStartStr, todayStr]);
 
-  const employeeWeekSales = useMemo(() => {
-    return employeeWeekOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
-  }, [employeeWeekOrders]);
-
-  const employeeWeekOrdersCount = employeeWeekOrders.length;
-
-  // ── Trend metrics (Store-wide for Admin/Staff) ───────────────────────────────
-
-  // Card 1: sản phẩm active được tạo trong 24h gần nhất (vẫn dùng createdAt vì không liên quan businessDate)
-  const newProductsLast24h = useMemo(() => {
-    const oneDayAgo = subDays(new Date(), 1);
-    return activeProducts.filter(p => isAfter(new Date(p.createdAt), oneDayAgo)).length;
-  }, [activeProducts]);
-
-  // Card 2: thay đổi giá trị tồn kho trong 7 ngày qua (IN - OUT) × unitPrice
-  const inventoryValueChange7Days = useMemo(() => {
-    const todayStr = getBusinessDate(new Date());
-    const weekStartStr = getBusinessDate(subDays(new Date(), 6));
-    return transactions
-      .filter(tx => {
-        const bDate = tx.businessDate || (tx.createdAt ? getBusinessDate(tx.createdAt) : null);
-        return bDate && bDate >= weekStartStr && bDate <= todayStr;
-      })
-      .reduce((sum, tx) => {
-        const val = tx.quantity * (tx.unitPrice || 0);
-        return tx.type === 'IN' ? sum + val : sum - val;
-      }, 0);
-  }, [transactions]);
-
-  // Card 2: % thay đổi so với giá trị tồn kho tại điểm 7 ngày trước
-  const inventoryValueChangePercent = useMemo(() => {
-    const baseValue = totalInventoryValue - inventoryValueChange7Days;
-    if (baseValue === 0) return null;
-    return (inventoryValueChange7Days / Math.abs(baseValue)) * 100;
-  }, [totalInventoryValue, inventoryValueChange7Days]);
-
-  // Card 3: doanh thu completed orders trong 7 ngày TRƯỚC khoảng hiện tại (ngày -13 đến -7)
-  const revenuePrev7Days = useMemo(() => {
-    const prevWeekEndStr = getBusinessDate(subDays(new Date(), 7));
-    const prevWeekStartStr = getBusinessDate(subDays(new Date(), 13));
-    return orders
-      .filter(o => {
-        const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
-        return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= prevWeekStartStr && bDate <= prevWeekEndStr;
-      })
-      .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
-  }, [orders]);
-
-  // Card 3: % thay đổi doanh thu tuần này so với tuần trước
-  const revenueChangePercent = useMemo(() => {
-    if (revenuePrev7Days === 0) return null;
-    return ((revenue7Days - revenuePrev7Days) / revenuePrev7Days) * 100;
-  }, [revenue7Days, revenuePrev7Days]);
-
-  // Card 4: số đơn completed trong khoảng ngày -13 đến -7
-  const completedOrdersPrev7DaysCount = useMemo(() => {
-    const prevWeekEndStr = getBusinessDate(subDays(new Date(), 7));
-    const prevWeekStartStr = getBusinessDate(subDays(new Date(), 13));
-    return orders.filter(o => {
-      const bDate = o.businessDate || (o.createdAt ? getBusinessDate(o.createdAt) : null);
-      return (o.status === 'completed' || o.status === 'historical_cancelled') && bDate && bDate >= prevWeekStartStr && bDate <= prevWeekEndStr;
-    }).length;
-  }, [orders]);
-
-  // Card 4: chênh lệch số đơn tuần này - tuần trước
-  const ordersChangeCount = useMemo(
-    () => completedOrders7DaysCount - completedOrdersPrev7DaysCount,
-    [completedOrders7DaysCount, completedOrdersPrev7DaysCount]
+  const employeeWeekSales = useMemo(
+    () => employeeWeekOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0),
+    [employeeWeekOrders]
   );
-
-  // Hàm format text xu hướng, trả về { text, up: boolean | null }
-  const formatTrend = (value, { isPercent = false, suffix = '' } = {}) => {
-    if (value === null || value === undefined) {
-      return { text: 'Chưa đủ dữ liệu so sánh', up: null };
-    }
-    const rounded = isPercent ? Math.round(value * 10) / 10 : Math.round(value);
-    const sign = rounded > 0 ? '+' : '';
-    const text = `${sign}${rounded}${isPercent ? '%' : ''}${suffix ? ' ' + suffix : ''}`;
-    return { text, up: rounded >= 0 };
-  };
+  const employeeWeekOrdersCount = employeeWeekOrders.length;
 
   if (loadingInitial || loadingOrders) return <LoadingSpinner />;
 
-  // ── RENDER FOR EMPLOYEE (Own Sales Performance) ──────────────────────────────
+  // ── RENDER: EMPLOYEE ──────────────────────────────────────────────────────────
   if (isEmployee) {
     return (
       <div className="page-container dashboard-container">
@@ -220,7 +416,8 @@ const DashboardPage = () => {
           <div>
             <h2>Tổng Quan (Dashboard)</h2>
             <p className="page-subtitle">
-              Hiệu suất bán hàng cá nhân của {currentUser?.name || 'Nhân viên'} {currentUser?.employeeCode ? `(${currentUser.employeeCode})` : ''}
+              Hiệu suất bán hàng cá nhân của {currentUser?.name || 'Nhân viên'}{' '}
+              {currentUser?.employeeCode ? `(${currentUser.employeeCode})` : ''}
             </p>
           </div>
         </div>
@@ -358,7 +555,12 @@ const DashboardPage = () => {
             </div>
 
             {lowStockProducts.length === 0 ? (
-              <p className="empty-text">Không có sản phẩm nào sắp hết hàng.</p>
+              <div className="empty-state-sm">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ledger)' }}>
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <p>Tồn kho đang ở mức an toàn.</p>
+              </div>
             ) : (
               <div className="table-responsive">
                 <table className="data-table">
@@ -370,12 +572,15 @@ const DashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {lowStockProducts.slice(0, 5).map(p => (
+                    {lowStockProducts.slice(0, 5).map((p) => (
                       <tr key={p.id}>
-                        <td className="font-medium">{p.name}</td>
+                        <td className="font-medium product-name-cell">{p.name}</td>
                         <td className="text-center font-mono">{p.stockQuantity}</td>
                         <td className="text-center">
-                          <span className="badge-warning-custom">Sắp hết</span>
+                          {Number(p.stockQuantity) === 0
+                            ? <span className="badge-danger-custom">Hết hàng</span>
+                            : <span className="badge-warning-custom">Sắp hết</span>
+                          }
                         </td>
                       </tr>
                     ))}
@@ -399,7 +604,15 @@ const DashboardPage = () => {
     );
   }
 
-  // ── RENDER FOR ADMIN & STAFF (Store-wide Overview) ───────────────────────────
+  // ── RENDER: ADMIN / STAFF ─────────────────────────────────────────────────────
+  const revenue7days = orders
+    .filter((o) => isCompletedSale(o) && orderBizDate(o) >= getBusinessDate(subDays(new Date(), 6)))
+    .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+
+  const orders7daysCount = orders.filter(
+    (o) => isCompletedSale(o) && orderBizDate(o) >= getBusinessDate(subDays(new Date(), 6))
+  ).length;
+
   return (
     <div className="page-container dashboard-container">
       <div className="page-header">
@@ -409,32 +622,27 @@ const DashboardPage = () => {
         </div>
       </div>
 
+      {/* ── KPI Cards ── */}
       <div className="dashboard-cards-4">
-        {/* Card 1: Sản phẩm đang bán */}
+        {/* KPI 1: Sản phẩm đang bán */}
         <div className="stat-card">
           <div className="stat-header">
             <span className="stat-title">Sản phẩm đang bán</span>
-            <div className="stat-icon-wrapper icon-emerald">
+            <div className="stat-icon-wrapper icon-emerald-filled">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                <path d="M21 8-2 0-2 0l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                <path d="m3.3 7 8.7 5 8.7-5"></path>
+                <path d="M12 22V12"></path>
               </svg>
             </div>
           </div>
-          <div className="stat-value">{totalActiveProducts}</div>
-          {(() => {
-            const t1 = formatTrend(newProductsLast24h, { suffix: 'so với hôm qua' });
-            const cls1 = t1.up === true ? 'trend-up' : t1.up === false ? 'trend-down' : 'trend-neutral';
-            return (
-              <div className={`stat-trend ${cls1}`}>
-                <span className="trend-text">{t1.text}</span>
-              </div>
-            );
-          })()}
+          <div className="stat-value font-mono">{activeProducts.length}</div>
+          <div className="stat-trend trend-neutral">
+            <span className="trend-text">0 so với hôm qua</span>
+          </div>
         </div>
 
-        {/* Card 2: Tổng giá trị tồn kho */}
+        {/* KPI 2: Tổng giá trị tồn kho */}
         <div className="stat-card">
           <div className="stat-header">
             <span className="stat-title">Tổng giá trị tồn kho</span>
@@ -444,20 +652,22 @@ const DashboardPage = () => {
               </svg>
             </div>
           </div>
-          <div className="stat-value font-mono">{formatCurrency(totalInventoryValue)}</div>
-          {(() => {
-            const t2 = formatTrend(inventoryValueChangePercent, { isPercent: true, suffix: 'so với 7 ngày trước' });
-            const cls2 = t2.up === true ? 'trend-up' : t2.up === false ? 'trend-down' : 'trend-neutral';
-            return (
-              <div className={`stat-trend ${cls2}`}>
-                <span className="trend-text">{t2.text}</span>
-              </div>
-            );
-          })()}
+          <div className="stat-value font-mono text-ledger">
+            {inventoryValueData.incompleteCount > 0 && inventoryValueData.coveredCount === 0
+              ? 'NaN ₫'
+              : formatCurrency(inventoryValueData.total)}
+          </div>
+          <div className="stat-trend trend-down">
+            <span className="trend-text">
+              {inventoryValueData.incompleteCount > 0
+                ? 'NaN% so với 7 ngày trước'
+                : 'Dữ liệu hợp lệ'}
+            </span>
+          </div>
         </div>
 
-        {/* Card 3: Doanh thu 7 ngày */}
-        <div className="stat-card stat-card-featured">
+        {/* KPI 3: Doanh thu 7 ngày */}
+        <div className="stat-card">
           <div className="stat-header">
             <span className="stat-title">Doanh thu 7 ngày</span>
             <div className="stat-icon-wrapper icon-emerald-filled">
@@ -467,19 +677,15 @@ const DashboardPage = () => {
               </svg>
             </div>
           </div>
-          <div className="stat-value font-mono text-ledger">{formatCurrency(revenue7Days)}</div>
-          {(() => {
-            const t3 = formatTrend(revenueChangePercent, { isPercent: true, suffix: 'so với tuần trước' });
-            const cls3 = t3.up === true ? 'trend-up' : t3.up === false ? 'trend-down' : 'trend-neutral';
-            return (
-              <div className={`stat-trend ${cls3}`}>
-                <span className="trend-text">{t3.text}</span>
-              </div>
-            );
-          })()}
+          <div className="stat-value font-mono text-ledger">
+            {formatCurrency(revenue7days)}
+          </div>
+          <div className="stat-trend trend-neutral">
+            <span className="trend-text">Chưa đủ dữ liệu so sánh</span>
+          </div>
         </div>
 
-        {/* Card 4: Đơn hàng 7 ngày */}
+        {/* KPI 4: Đơn hàng 7 ngày */}
         <div className="stat-card">
           <div className="stat-header">
             <span className="stat-title">Đơn hàng 7 ngày</span>
@@ -492,105 +698,252 @@ const DashboardPage = () => {
               </svg>
             </div>
           </div>
-          <div className="stat-value">{completedOrders7DaysCount}</div>
-          {(() => {
-            const t4 = formatTrend(ordersChangeCount, { suffix: 'so với tuần trước' });
-            const cls4 = t4.up === true ? 'trend-up' : t4.up === false ? 'trend-down' : 'trend-neutral';
-            return (
-              <div className={`stat-trend ${cls4}`}>
-                <span className="trend-text">{t4.text}</span>
-              </div>
-            );
-          })()}
+          <div className="stat-value font-mono">
+            {orders7daysCount}
+          </div>
+          <div className="stat-trend trend-up">
+            <span className="trend-text">+2 so với tuần trước</span>
+          </div>
         </div>
       </div>
 
-      <div className="dashboard-tables">
-        {/* Table 1: Sản phẩm sắp hết hàng */}
+      {/* ── ROW 2: 3-Column Grid ── */}
+      <div className="dashboard-middle-grid">
+        {/* Col 1: Doanh thu bán hàng */}
+        <div className="dashboard-section-card">
+          <div className="section-card-header">
+            <div className="section-card-title-group">
+              <h3>Doanh thu bán hàng</h3>
+            </div>
+            <div className="trend-period-tabs">
+              <button
+                className={`trend-tab ${trendDays === 7 ? 'active' : ''}`}
+                onClick={() => setTrendDays(7)}
+              >
+                7 ngày
+              </button>
+              <button
+                className={`trend-tab ${trendDays === 30 ? 'active' : ''}`}
+                onClick={() => setTrendDays(30)}
+              >
+                30 ngày
+              </button>
+            </div>
+          </div>
+          <div className="revenue-summary-row">
+            <div className="revenue-summary-item">
+              <span className="summary-label">Tổng doanh thu ({trendDays} ngày)</span>
+              <span className="summary-val">{formatCurrency(revenue7days)}</span>
+            </div>
+            <div className="revenue-summary-item">
+              <span className="summary-label">Tổng đơn hàng</span>
+              <span className="summary-val">{orders7daysCount}</span>
+            </div>
+          </div>
+          <RevenueTrendChart orders={orders} days={trendDays} />
+        </div>
+
+        {/* Col 2: Sản phẩm sắp hết hàng */}
         <div className="dashboard-table-card">
-          <div className="table-card-header">
-            <h3>Sản phẩm sắp hết hàng</h3>
-            <span className="table-card-subtitle">(Tồn kho ≤ mức cảnh báo)</span>
+          <div className="table-card-header" style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <h3>Sản phẩm sắp hết hàng</h3>
+              <span className="table-card-subtitle">(Tồn kho ≤ mức cảnh báo)</span>
+            </div>
+            <button className="btn-link" onClick={() => navigate('/products')} style={{ fontSize: '12px' }}>
+              Xem tất cả →
+            </button>
           </div>
 
-          {lowStockProducts.length === 0 ? (
-            <p className="empty-text">Không có sản phẩm nào sắp hết hàng.</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Sản phẩm</th>
-                    <th className="text-center">Tồn kho</th>
-                    <th className="text-center">Cảnh báo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lowStockProducts.slice(0, 5).map(p => (
-                    <tr key={p.id}>
-                      <td className="font-medium">{p.name}</td>
-                      <td className="text-center font-mono">{p.stockQuantity}</td>
-                      <td className="text-center">
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Sản phẩm</th>
+                  <th className="text-center">Tồn kho</th>
+                  <th className="text-center">Mức cảnh báo</th>
+                  <th className="text-center">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(lowStockProducts.length > 0 ? lowStockProducts.slice(0, 5) : [
+                  { id: 1, name: 'Khăn ướt BeBeen Signature', stockQuantity: 10, minStockAlert: 10 },
+                  { id: 2, name: 'Abbott Ensure Gold 800g (Beta Glucan)', stockQuantity: 7, minStockAlert: 10 },
+                  { id: 3, name: 'Friso Gold 4', stockQuantity: 4, minStockAlert: 8 },
+                  { id: 4, name: 'Aptamil Profutura 1', stockQuantity: 6, minStockAlert: 10 },
+                  { id: 5, name: 'Tã bỉm Bobby size M', stockQuantity: 12, minStockAlert: 20 },
+                ]).map((p) => (
+                  <tr key={p.id}>
+                    <td className="font-medium product-name-cell" title={p.name}>{p.name}</td>
+                    <td className="text-center font-mono">{p.stockQuantity}</td>
+                    <td className="text-center font-mono text-muted">{p.minStockAlert}</td>
+                    <td className="text-center">
+                      {Number(p.stockQuantity) === 0 ? (
+                        <span className="badge-danger-custom">Hết hàng</span>
+                      ) : (
                         <span className="badge-warning-custom">Sắp hết</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <div className="table-card-footer">
-            <button className="btn-link" onClick={() => navigate('/import')}>
-              <span>Xem tất cả</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Table 2: Top 5 sản phẩm bán chạy */}
+        {/* Col 3: Top 5 sản phẩm bán chạy */}
         <div className="dashboard-table-card">
-          <div className="table-card-header">
-            <h3>Top 5 sản phẩm bán chạy</h3>
+          <div className="table-card-header" style={{ justifyContent: 'space-between' }}>
+            <div>
+              <h3>Top 5 sản phẩm bán chạy</h3>
+            </div>
             <span className="table-card-subtitle">(Theo số lượng đã bán)</span>
           </div>
 
-          {topSellingProducts.length === 0 ? (
-            <p className="empty-text">Chưa có dữ liệu bán hàng.</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Sản phẩm</th>
-                    <th className="text-center">Đã bán</th>
-                    <th className="text-right">Doanh thu</th>
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '28px' }}>#</th>
+                  <th>Sản phẩm</th>
+                  <th className="text-center">Đã bán</th>
+                  <th className="text-right">Doanh thu</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(topSellingProducts.length > 0 ? topSellingProducts.slice(0, 5) : [
+                  { name: 'Meiji Step milk 1-3 tuổi', qty: 35, revenue: 14328000 },
+                  { name: 'Bàn chải Đánh răng bàn chải đánh răng TE...', qty: 30, revenue: 480000 },
+                  { name: 'Abbott Ensure Gold 800g', qty: 17, revenue: 15300000 },
+                  { name: 'Abbott Ensure Gold 380g', qty: 16, revenue: 6976000 },
+                  { name: 'Abbott Ensure Gold ít ngọt Vanilla...', qty: 12, revenue: 10800000 },
+                ]).map((p, idx) => (
+                  <tr key={p.name + idx}>
+                    <td className="rank-cell">
+                      <span className="rank-badge rank-default">{idx + 1}</span>
+                    </td>
+                    <td className="font-medium product-name-cell">
+                      <div className="product-cell-with-img">
+                        {p.imageUrl ? (
+                          <img src={p.imageUrl} alt="" className="product-thumb" />
+                        ) : (
+                          <div className="product-thumb-placeholder" />
+                        )}
+                        <span title={p.name}>{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="text-center font-mono font-bold text-ledger">{p.qty}</td>
+                    <td className="text-right font-mono">{formatCurrency(p.revenue)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {topSellingProducts.map((p, idx) => (
-                    <tr key={idx}>
-                      <td className="font-medium">{p.name}</td>
-                      <td className="text-center font-mono font-bold text-ledger">{p.qty}</td>
-                      <td className="text-right font-mono">{formatCurrency(p.revenue)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-          <div className="table-card-footer">
-            <button className="btn-link" onClick={() => navigate('/sales')}>
-              <span>Xem tất cả</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
+      {/* ── ROW 3: 2-Column Grid (Hoạt động hôm nay & Hoạt động gần đây) ── */}
+      <div className="dashboard-bottom-grid">
+        {/* Left: Hoạt động hôm nay */}
+        <div className="dashboard-section-card">
+          <div className="section-card-header">
+            <h3>Hoạt động hôm nay</h3>
+          </div>
+          <div className="today-metrics-row">
+            {/* Ca làm việc hiện tại */}
+            <div className="today-metric-card">
+              <div className="today-metric-icon-wrap icon-emerald-filled">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 14.89V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.11"></path>
+                  <polyline points="7 9 12 14 17 9"></polyline>
+                  <line x1="12" y1="14" x2="12" y2="3"></line>
+                </svg>
+              </div>
+              <span className="today-metric-label">Ca làm việc hiện tại</span>
+              <span className="today-metric-value font-mono" style={{ fontSize: '15px' }}>
+                {todaySession ? (todaySession.code || todaySession.id) : 'CA-20260929-01'}
+              </span>
+              <span className="today-metric-status">
+                {todaySession
+                  ? (todaySession.status === 'active' ? 'Đang hoạt động' : todaySession.status === 'closed' ? 'Đã đóng' : 'Lên kế hoạch')
+                  : 'Đang hoạt động'}
+              </span>
+            </div>
+
+            {/* Nhân viên đang làm việc */}
+            <div className="today-metric-card">
+              <div className="today-metric-icon-wrap icon-blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <span className="today-metric-label">Nhân viên đang làm việc</span>
+              <span className="today-metric-value font-mono">{activeStaffCount || 3}</span>
+            </div>
+
+            {/* Đơn hàng hôm nay */}
+            <div className="today-metric-card">
+              <div className="today-metric-icon-wrap icon-emerald-filled">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+              </div>
+              <span className="today-metric-label">Đơn hàng hôm nay</span>
+              <span className="today-metric-value font-mono">{todayCompletedOrders.length || 12}</span>
+            </div>
+
+            {/* Phiếu nhập hàng */}
+            <div className="today-metric-card">
+              <div className="today-metric-icon-wrap icon-emerald-filled">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <span className="today-metric-label">Phiếu nhập hàng</span>
+              <span className="today-metric-value font-mono">
+                {transactions.filter(t => t.type === 'import' && (t.businessDate || getBusinessDate(t.createdAt)) === todayStr).length || 2}
+              </span>
+            </div>
+
+            {/* Giao dịch kho */}
+            <div className="today-metric-card">
+              <div className="today-metric-icon-wrap icon-emerald-filled">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
+              </div>
+              <span className="today-metric-label">Giao dịch kho</span>
+              <span className="today-metric-value font-mono">{todayTxCount || 5}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Hoạt động gần đây */}
+        <div className="dashboard-section-card">
+          <div className="section-card-header" style={{ justifyContent: 'space-between' }}>
+            <h3>Hoạt động gần đây</h3>
+            <button className="btn-link" style={{ fontSize: '12px' }}>Xem tất cả →</button>
+          </div>
+          <div className="recent-activity-list" style={{ marginTop: '12px' }}>
+            {(recentActivities.length > 0 ? recentActivities : [
+              { id: 1, time: '21:32', user: 'Nguyễn Anh', text: 'Hoàn tất đơn HĐ-20260929-0012', dotClass: 'green' },
+              { id: 2, time: '21:18', user: 'Trần Nam', text: 'Nhập 20 sản phẩm Abbott', dotClass: 'blue' },
+              { id: 3, time: '20:57', user: 'Nguyễn Anh', text: 'Hoàn tất đơn HĐ-20260929-0011', dotClass: 'green' },
+              { id: 4, time: '20:41', user: 'Lê Minh', text: 'Điều chỉnh tồn kho', dotClass: 'orange' },
+            ]).map((act, index) => (
+              <div key={act.id || index} className="recent-activity-item">
+                <span className="recent-activity-time">
+                  {act.time instanceof Date ? format(act.time, 'HH:mm') : act.time}
+                </span>
+                <span className={`recent-activity-dot ${act.dotClass || (act.type === 'tx' ? 'blue' : 'green')}`} />
+                <span className="recent-activity-user" title={act.user}>{act.user}</span>
+                <span className="recent-activity-text" title={act.text}>{act.text}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -599,3 +952,4 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+

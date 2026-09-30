@@ -7,7 +7,8 @@ import { validateEmail, validatePassword, validatePin } from '../utils/validate'
 import { hasPermission } from '../utils/permissions';
 import { logActivity, ACTIVITY_ACTIONS } from '../utils/activityLogger';
 import { getBusinessDate } from '../utils/businessDate';
-import { getCurrentRegisterId, REGISTERS } from '../utils/registerConfig';
+import { getCurrentRegisterId } from '../utils/registerConfig';
+import { registerApi } from '../api/registerApi';
 
 // eslint-disable-next-line react-refresh/only-export-components -- Context + Provider 
 export const AuthContext = createContext(null);
@@ -94,7 +95,8 @@ const performAutoCheckIn = async (userSession) => {
         if (otherActiveAtThisPos) {
           // Có người khác đang active tại quầy này
           // Dùng staffApi để lấy tên nv (optional), hoặc đơn giản dùng câu báo lỗi chung
-          const regName = REGISTERS.find(r => r.id === registerId)?.name || registerId;
+          const syncRegisters = registerApi.getSyncRegisters();
+          const regName = syncRegisters.find(r => r.id === registerId)?.name || registerId;
           return {
              success: false,
              mode: 'pos_in_use',
@@ -107,7 +109,8 @@ const performAutoCheckIn = async (userSession) => {
       const myActiveMembers = activeMembers.filter(m => m.accountId === accountId);
       const activeAtOtherPos = myActiveMembers.find(m => m.registerId && m.registerId !== registerId);
       if (activeAtOtherPos) {
-          const otherRegName = REGISTERS.find(r => r.id === activeAtOtherPos.registerId)?.name || activeAtOtherPos.registerId;
+          const syncRegisters = registerApi.getSyncRegisters();
+          const otherRegName = syncRegisters.find(r => r.id === activeAtOtherPos.registerId)?.name || activeAtOtherPos.registerId;
           return {
              success: false,
              mode: 'employee_active_elsewhere',

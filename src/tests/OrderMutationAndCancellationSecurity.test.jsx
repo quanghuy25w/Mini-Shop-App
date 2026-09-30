@@ -1,4 +1,4 @@
-﻿import { initSeedData } from './mockApi';
+ import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ROLES } from '../utils/permissions';
 import { orderApi } from '../api/orderApi';
@@ -20,7 +20,7 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
   const staffActor = {
     id: 'acc-staff',
     role: ROLES.STAFF,
-    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
+    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
     employeeCode: 'NV002',
     permissions: [],
     isActive: true,
@@ -64,19 +64,19 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
         totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
         status: 'completed',
         createdAt: fiveMinsAgo,
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 100000 }],
+        items: [{ productId: 'p-100K', quantity: 1, price: 100000 }],
       };
       await orderApi.create(order, employee1Actor);
 
       const cancelRes = await orderApi.cancel(order.id, {
         actor: employee1Actor,
-        reason: 'KhÃ¡ch Ä‘á»•i Ã½ tráº£ hÃ ng',
+        reason: 'KhÃ¡ch Ä‘á»•i Ã½ tráº£ hÃ ng',
         order,
         currentSessionId: 'ws-active-1',
       });
 
       expect(cancelRes.data.status).toBe('cancelled');
-      expect(cancelRes.data.cancelReason).toBe('KhÃ¡ch Ä‘á»•i Ã½ tráº£ hÃ ng');
+      expect(cancelRes.data.cancelReason).toBe('KhÃ¡ch Ä‘á»•i Ã½ tráº£ hÃ ng');
       expect(cancelRes.data.cancelledBy).toBe(employee1Actor.id);
     });
 
@@ -350,10 +350,10 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
         unitPrice: prod.sellPrice,
         accountId: adminActor.id,
         workSessionId: 'ws-active-1',
-        note: 'HoÃ n kho - há»§y HD-RESTORE-01',
+        note: 'HoÃ n kho - há»§y HD-RESTORE-01',
         createdAt: new Date().toISOString(),
       };
-      await inventoryApi.createSystemTransaction(inTx);
+      await inventoryApi.createTransaction(inTx, adminActor);
 
       // Verify stock
       const prodAfter = (await productApi.getById(prod.id)).data;
@@ -361,7 +361,7 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
 
       // Verify transaction IN
       const allTx = (await inventoryApi.getAllTransactions({ type: 'IN' })).data;
-      const tx = allTx.find(t => t.note === 'HoÃ n kho - há»§y HD-RESTORE-01');
+      const tx = allTx.find(t => t.note === 'HoÃ n kho - há»§y HD-RESTORE-01');
       expect(tx).toBeDefined();
       expect(tx.quantity).toBe(3);
     });
@@ -398,7 +398,7 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
 
       await orderApi.cancel(order.id, {
         actor: employee1Actor,
-        reason: 'KhÃ¡ch hÃ ng yÃªu cáº§u há»§y Ä‘Æ¡n',
+        reason: 'KhÃ¡ch hÃ ng yÃªu cáº§u há»§y Ä‘Æ¡n',
         order,
         currentSessionId: 'ws-active-1',
       });
@@ -407,7 +407,7 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
       const cancelLog = logs.find(l => l.action === 'ORDER_CANCELLED' && l.entityId === order.id);
       expect(cancelLog).toBeDefined();
       expect(cancelLog.actorId).toBe(employee1Actor.id);
-      expect(cancelLog.metadata.reason).toBe('KhÃ¡ch hÃ ng yÃªu cáº§u há»§y Ä‘Æ¡n');
+      expect(cancelLog.metadata.reason).toBe('KhÃ¡ch hÃ ng yÃªu cáº§u há»§y Ä‘Æ¡n');
     });
 
     it('21. Failed/denied cancellation does not create a false successful cancellation audit', async () => {
@@ -470,12 +470,12 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
 
       const res = await orderApi.cancelAndRestock(order.id, {
         actor: employee1Actor,
-        reason: 'KhÃ¡ch tráº£ hÃ ng ngay sau khi mua',
+        reason: 'KhÃ¡ch tráº£ hÃ ng ngay sau khi mua',
         currentSessionId: 'ws-active-1',
       });
 
       expect(res.data.status).toBe('cancelled');
-      expect(res.data.cancelReason).toBe('KhÃ¡ch tráº£ hÃ ng ngay sau khi mua');
+      expect(res.data.cancelReason).toBe('KhÃ¡ch tráº£ hÃ ng ngay sau khi mua');
       expect(res.data.cancelledBy).toBe(employee1Actor.id);
 
       // Verify stock increased by 2
@@ -548,7 +548,7 @@ describe('Authoritative Order Mutation & Cancellation Authorization Security Tes
 
       const res = await orderApi.cancelAndRestock(order.id, {
         actor: adminActor,
-        reason: 'Admin duyá»‡t há»§y Ä‘iá»u chá»‰nh Ä‘Æ¡n ngÃ y cÅ©',
+        reason: 'Admin duyá»‡t há»§y Ä‘iá»u chá»‰nh Ä‘Æ¡n ngÃ y cÅ©',
         currentSessionId: 'ws-active-1',
       });
 

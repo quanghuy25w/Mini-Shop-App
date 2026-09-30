@@ -1,4 +1,4 @@
-﻿import { initSeedData } from './mockApi';
+import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React, { useContext } from 'react';
 import { render, act, waitFor } from '@testing-library/react';
@@ -71,7 +71,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           accountId: null,
           sellerId: null,
           code: 'HD-TEST-01',
-          totalAmount: 100000, items: [{ productId: 'p1', quantity: 1, price: 100000 }]
+          totalAmount: 100000, items: [{ productId: 'p-100K', quantity: 1, price: 100000 }]
         }, { role: 'admin', permissions: ['order.create'] });
       }).toThrow(/ORDER_VALIDATION_ERROR.*ngÆ°á»i bÃ¡n/i);
     });
@@ -83,7 +83,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           accountId: 'acc-emp',
           code: 'HD-TEST-02',
           totalAmount: -50000,
-          items: [{ productId: 'p1', quantity: 1, price: 50000 }]
+          items: [{ productId: 'p1', quantity: 1, price: 250000 }]
         }, employeeActor);
       }).toThrow(/ORDER_VALIDATION_ERROR.*Ã¢m/i);
     });
@@ -94,7 +94,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           workSessionId: 'ws-mock-test',
           accountId: 'acc-emp',
           code: 'HD-TEST-03',
-          totalAmount: 50000, items: [{ productId: 'p1', quantity: 0, price: 50000 }]
+          totalAmount: 50000, items: [{ productId: 'p1', quantity: 0, price: 250000 }]
         }, employeeActor);
       }).toThrow(/ORDER_VALIDATION_ERROR.*sá»‘ lÆ°á»£ng/i);
     });
@@ -107,9 +107,9 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           code: 'HD-TEST-04',
           totalAmount: 50000, items: [{ productId: 'p4', quantity: 50000, price: 1 }],
           status: 'completed',
-          items: [{ productId: 'p1', quantity: 1, price: 50000 }]
+          items: [{ productId: 'p1', quantity: 1, price: 250000 }]
         }, employeeActor, { requireSellingContext: true });
-      }).toThrow(/ORDER_VALIDATION_ERROR.*ca lÃ m viá»‡c/i);
+      }).toThrow(/ORDER_VALIDATION_ERROR.*ca lÃ m viá»‡c/i);
     });
 
     it('Creates valid order with full authoritative selling context', async () => {
@@ -125,7 +125,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
         totalAmount: 200000, items: [{ productId: 'p4', quantity: 200000, price: 1 }],
         subtotal: 200000,
         status: 'completed',
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 2, price: 100000 }]
+        items: [{ productId: 'p-100K', quantity: 2, price: 100000 }]
       }, employeeActor);
 
       expect(res.data).toBeDefined();
@@ -396,7 +396,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
           order: orderDiffSession,
           currentSessionId: 'ws-active-1'
         });
-      }).toThrow(/CANCEL_DENIED.*thuá»™c ca lÃ m viá»‡c hiá»‡n táº¡i/i);
+      }).toThrow(/CANCEL_DENIED.*thuá»™c ca lÃ m viá»‡c hiá»‡n táº¡i/i);
     });
 
     it('Employee cannot cancel order after 15-minute window', () => {
@@ -430,10 +430,10 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       expect(() => {
         orderApi.cancel('ord-past-date', {
           actor: staffActor,
-          reason: 'Quáº£n lÃ½ muá»‘n há»§y ngÃ y cÅ©',
+          reason: 'Quáº£n lÃ½ muá»‘n há»§y ngÃ y cÅ©',
           order: pastDateOrder
         });
-      }).toThrow(/CANCEL_DENIED.*trong ngÃ y lÃ m viá»‡c hiá»‡n táº¡i/i);
+      }).toThrow(/CANCEL_DENIED.*trong ngÃ y lÃ m viá»‡c hiá»‡n táº¡i/i);
     });
 
     it('Rejects cancellation without reason', () => {
@@ -471,7 +471,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       // First cancellation
       await orderApi.cancel('ord-to-cancel-idemp', {
         actor: employeeActor,
-        reason: 'KhÃ¡ch yÃªu cáº§u hoÃ n tiá»n',
+        reason: 'KhÃ¡ch yÃªu cáº§u hoÃ n tiá»n',
         currentSessionId: 'ws-active-1'
       });
 
@@ -517,7 +517,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       // 2. Cancel and restock
       const cancelRes = await orderApi.cancelAndRestock(order.id, {
         actor: adminActor,
-        reason: 'KhÃ¡ch hÃ ng tráº£ toÃ n bá»™ hÃ ng lá»—i',
+        reason: 'KhÃ¡ch hÃ ng tráº£ toÃ n bá»™ hÃ ng lá»—i',
         currentSessionId: 'ws-active-1'
       });
 
@@ -539,7 +539,7 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
       await expect(
         orderApi.cancelAndRestock(order.id, {
           actor: adminActor,
-          reason: 'Cá»‘ hoÃ n kho láº§n 2'
+          reason: 'Cá»‘ hoÃ n kho láº§n 2'
         })
       ).rejects.toThrow(/ORDER_ALREADY_CANCELLED/);
     });
@@ -556,10 +556,10 @@ describe('Order & Inventory Domain Hardening Integration Tests', () => {
         code: 'HD-PAST-99',
         accountId: adminActor.id,
         businessDate: pastDate,
-        totalAmount: 500000, items: [{ productId: 'p4', quantity: 500000, price: 1 }],
+        totalAmount: 250000,
         status: 'completed',
         createdAt: '2026-08-10T14:00:00.000Z',
-        items: [{ productId: 'p1', quantity: 1, price: 500000 }]
+        items: [{ productId: 'p1', quantity: 1, price: 250000 }]
       };
       await orderApi.create(pastOrder, adminActor);
 

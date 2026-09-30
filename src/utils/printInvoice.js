@@ -227,8 +227,8 @@ export const printInvoice = (order) => {
               <tr>
                 <td class="text-left">${item.productName || ''}</td>
                 <td class="text-center font-mono">${item.quantity || 0}</td>
-                <td class="text-right font-mono">${formatCurrency(item.price || 0)}</td>
-                <td class="text-right font-mono font-bold">${formatCurrency((item.price || 0) * (item.quantity || 0))}</td>
+                <td class="text-right font-mono">${formatCurrency(item.price)}</td>
+                <td class="text-right font-mono font-bold">${formatCurrency((item.price) * (item.quantity || 0))}</td>
               </tr>
             `).join('')}
           </tbody>

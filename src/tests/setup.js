@@ -62,6 +62,7 @@ Storage.prototype.clear = function () {
 
 // ─── Seed initial data ────────────────────────────────────────────────────────
 initSeedData();
+window.localStorage.setItem('minishop_current_register_id', 'POS01');
 
 // ─── Mock: axiosClient ────────────────────────────────────────────────────────
 vi.mock('../api/axiosClient', async (importOriginal) => {
@@ -80,3 +81,5 @@ vi.mock('../api/axiosClient', async (importOriginal) => {
     },
   };
 });
+
+

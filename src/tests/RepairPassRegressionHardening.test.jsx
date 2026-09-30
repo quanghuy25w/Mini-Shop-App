@@ -22,6 +22,7 @@ import { initSeedData } from './mockApi';
 import { orderApi } from '../api/orderApi';
 import { inventoryApi } from '../api/inventoryApi';
 import { productApi } from '../api/productApi';
+import axiosClient from '../api/axiosClient';
 import { reportApi } from '../api/reportApi';
 import { useCart } from '../hooks/useCart';
 import { AppDataProvider, AppDataContext } from '../context/AppDataContext';
@@ -113,11 +114,12 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
         accountId: employee1.id,
         registerId: 'POS01',
         paymentMethod: 'cash',
-        totalAmount: 150000, items: [{ productId: 'p4', quantity: 150000, price: 1 }],
+        totalAmount: 150000,
         subtotal: 150000,
         status: 'completed',
         businessDate: '2026-09-24',
-        items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 150000 }],
+        workSessionId: 'ws-active-1',
+        items: [{ productId: 'p-150K', quantity: 1, price: 150000 }],
         createdAt: new Date().toISOString(),
       };
       await orderApi.create(order, employee1);
@@ -169,9 +171,11 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
         accountId: employee1.id,
         registerId: 'POS01',
         paymentMethod: 'cash',
-        totalAmount: 100000, items: [{ productId: 'p4', quantity: 100000, price: 1 }],
+        totalAmount: 150000,
+        items: [{ productId: 'p-150K', quantity: 1, price: 150000 }],
         status: 'cancelled',
         businessDate: '2026-09-24',
+        workSessionId: 'ws-active-1',
         createdAt: new Date().toISOString(),
       };
       await orderApi.create(order, employee1);
@@ -233,16 +237,15 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
           id: 'ord-rp-no-items',
           workSessionId: 'ws-active-1',
           items: [],
-          totalAmount: 0, items: [{ productId: 'p4', quantity: 0, price: 1 }],
+          totalAmount: 0,
         }, employee1, { requireSellingContext: true });
       }).toThrow(/phải có ít nhất 1 sản phẩm/i);
 
       expect(() => {
         orderApi.create({
-          workSessionId: 'ws-mock-test',
           id: 'ord-rp-no-ws',
           items: [{ productId: 'p0000000-0000-0000-0000-000000000001', quantity: 1, price: 10000 }],
-          totalAmount: 10000, items: [{ productId: 'p4', quantity: 10000, price: 1 }],
+          totalAmount: 10000,
         }, employee1, { requireSellingContext: true });
       }).toThrow(/bắt buộc phải gắn với ca làm việc/i);
     });
@@ -432,12 +435,12 @@ describe('Repair & Stabilization Pass Regression Hardening Suite', () => {
       });
 
       // Mock updateStock to fail on second product
-      const originalUpdateStock = productApi.updateStock;
-      vi.spyOn(productApi, 'updateStock').mockImplementation(async (id, newStock, actor, ctx) => {
-        if (id === prod2.id) {
+      const originalPatch = axiosClient.patch;
+      vi.spyOn(axiosClient, 'patch').mockImplementation(async (url, data) => {
+        if (url.includes(`/products/${prod2.id}`)) {
           throw new Error('Mô phỏng đứt kết nối mạng khi trừ prod2!');
         }
-        return originalUpdateStock(id, newStock, actor, ctx);
+        return originalPatch(url, data);
       });
 
       await expect(actionRef.current.checkout()).rejects.toThrow(/đứt kết nối mạng/);

@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeEach } from 'vitest';
+ import { describe, it, expect, beforeEach } from 'vitest';
 import axiosClient from '../api/axiosClient';
 import { workSessionApi } from '../api/workSessionApi';
 import { inventoryApi } from '../api/inventoryApi';

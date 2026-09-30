@@ -1,4 +1,4 @@
-﻿import axiosClient from './axiosClient';
+ import axiosClient from './axiosClient';
 import { assertPermission, hasPermission, PERMISSIONS } from '../utils/permissions';
 import { logActivity, ACTIVITY_ACTIONS } from '../utils/activityLogger';
 import { getBusinessDate } from '../utils/businessDate';
@@ -49,14 +49,14 @@ export const inventoryApi = {
       }
     } else if (data.reason === INVENTORY_REASONS.SALE) {
       if (!extractedOrderCode) {
-        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dá»‹ch xuáº¥t bÃ¡n hÃ ng (SALE) báº¯t buá»™c pháº£i gáº¯n vá»›i mÃ£ Ä‘Æ¡n hÃ ng (orderId/orderCode).');
+        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dá»‹ch xuáº¥t bÃ¡n hÃ ng (SALE) báº¯t buá»™c pháº£i gáº¯n vá»›i mÃ£ Ä‘Æ¡n hÃ ng (orderId/orderCode).');
         err.code = 'INVALID_TRANSACTION_CONTEXT';
         throw err;
       }
       key = PERMISSIONS.ORDER_CREATE;
     } else if (data.reason === INVENTORY_REASONS.CANCEL_RESTOCK) {
       if (!extractedOrderCode) {
-        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dá»‹ch hoÃ n kho (CANCEL_RESTOCK) báº¯t buá»™c pháº£i gáº¯n vá»›i Ä‘Æ¡n hÃ ng Ä‘Æ°á»£c há»§y (orderId/orderCode).');
+        const err = new Error('INVALID_TRANSACTION_CONTEXT: Giao dá»‹ch hoÃ n kho (CANCEL_RESTOCK) báº¯t buá»™c pháº£i gáº¯n vá»›i Ä‘Æ¡n hÃ ng Ä‘Æ°á»£c há»§y (orderId/orderCode).');
         err.code = 'INVALID_TRANSACTION_CONTEXT';
         throw err;
       }
@@ -78,23 +78,23 @@ export const inventoryApi = {
         const orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
         const order = orders.find(o => o.code === extractedOrderCode || o.id === extractedOrderCode);
         if (!order) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng "${extractedOrderCode}" trong há»‡ thá»‘ng.`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng "${extractedOrderCode}" trong há»‡ thá»‘ng.`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (order.status !== 'completed') {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: ÄÆ¡n hÃ ng "${extractedOrderCode}" chÆ°a hoÃ n táº¥t (tráº¡ng thÃ¡i: ${order.status}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: ÄÆ¡n hÃ ng "${extractedOrderCode}" chÆ°a hoÃ n táº¥t (tráº¡ng thÃ¡i: ${order.status}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         const orderItem = (order.items || []).find(i => String(i.productId) === String(data.productId));
         if (!orderItem) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sáº£n pháº©m "${data.productId}" khÃ´ng cÃ³ trong Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sáº£n pháº©m "${data.productId}" khÃ´ng cÃ³ trong Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (Number(data.quantity) !== Number(orderItem.quantity)) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sá»‘ lÆ°á»£ng giao dá»‹ch (${data.quantity}) khÃ´ng khá»›p vá»›i sá»‘ lÆ°á»£ng trÃªn Ä‘Æ¡n hÃ ng (${orderItem.quantity}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sá»‘ lÆ°á»£ng giao dá»‹ch (${data.quantity}) khÃ´ng khá»›p vá»›i sá»‘ lÆ°á»£ng trÃªn Ä‘Æ¡n hÃ ng (${orderItem.quantity}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
@@ -107,7 +107,7 @@ export const inventoryApi = {
           !t.isVoided
         );
         if (duplicate) {
-          const err = new Error(`DUPLICATE_TRANSACTION: ÄÃ£ tá»“n táº¡i giao dá»‹ch xuáº¥t kho SALE cho Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
+          const err = new Error(`DUPLICATE_TRANSACTION: ÄÃ£ tá»“n táº¡i giao dá»‹ch xuáº¥t kho SALE cho Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'DUPLICATE_TRANSACTION';
           throw err;
         }
@@ -119,23 +119,23 @@ export const inventoryApi = {
         const orders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
         const order = orders.find(o => o.code === extractedOrderCode || o.id === extractedOrderCode);
         if (!order) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng "${extractedOrderCode}" trong há»‡ thá»‘ng.`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng "${extractedOrderCode}" trong há»‡ thá»‘ng.`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (order.status !== 'cancelled' && order.status !== 'historical_cancelled') {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng thá»ƒ táº¡o giao dá»‹ch hoÃ n kho cho Ä‘Æ¡n hÃ ng chÆ°a bá»‹ há»§y (tráº¡ng thÃ¡i: ${order.status}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: KhÃ´ng thá»ƒ táº¡o giao dá»‹ch hoÃ n kho cho Ä‘Æ¡n hÃ ng chÆ°a bá»‹ há»§y (tráº¡ng thÃ¡i: ${order.status}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         const orderItem = (order.items || []).find(i => String(i.productId) === String(data.productId));
         if (!orderItem) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sáº£n pháº©m "${data.productId}" khÃ´ng cÃ³ trong Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sáº£n pháº©m "${data.productId}" khÃ´ng cÃ³ trong Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
         if (Number(data.quantity) !== Number(orderItem.quantity)) {
-          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sá»‘ lÆ°á»£ng hoÃ n kho (${data.quantity}) khÃ´ng khá»›p vá»›i sá»‘ lÆ°á»£ng trÃªn Ä‘Æ¡n hÃ ng (${orderItem.quantity}).`);
+          const err = new Error(`INVALID_TRANSACTION_CONTEXT: Sá»‘ lÆ°á»£ng hoÃ n kho (${data.quantity}) khÃ´ng khá»›p vá»›i sá»‘ lÆ°á»£ng trÃªn Ä‘Æ¡n hÃ ng (${orderItem.quantity}).`);
           err.code = 'INVALID_TRANSACTION_CONTEXT';
           throw err;
         }
@@ -148,7 +148,7 @@ export const inventoryApi = {
           !t.isVoided
         );
         if (duplicate) {
-          const err = new Error(`DUPLICATE_TRANSACTION: ÄÃ£ tá»“n táº¡i giao dá»‹ch hoÃ n kho CANCEL_RESTOCK cho Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
+          const err = new Error(`DUPLICATE_TRANSACTION: ÄÃ£ tá»“n táº¡i giao dá»‹ch hoÃ n kho CANCEL_RESTOCK cho Ä‘Æ¡n hÃ ng "${extractedOrderCode}".`);
           err.code = 'DUPLICATE_TRANSACTION';
           throw err;
         }
@@ -185,7 +185,7 @@ export const inventoryApi = {
 
     const requiredPermission = PERMISSIONS.INVENTORY_ADJUST;
     if (!hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
-      const err = new Error(`PERMISSION_DENIED: Cáº§n quyá»n "${requiredPermission}" Ä‘á»ƒ hoÃ n tÃ¡c giao dá»‹ch.`);
+      const err = new Error(`PERMISSION_DENIED: Cáº§n quyá»n "${requiredPermission}" Ä‘á»ƒ hoÃ n tÃ¡c giao dá»‹ch.`);
       err.code = 'PERMISSION_DENIED';
       err.requiredPermission = requiredPermission;
       throw err;
@@ -197,7 +197,7 @@ export const inventoryApi = {
         const txRes = await axiosClient.get(`/inventoryTransactions/${id}`);
         const tx = txRes.data;
         if (tx && tx.accountId && String(tx.accountId) !== String(actor.id)) {
-          const err = new Error('PERMISSION_DENIED: Báº¡n chá»‰ cÃ³ thá»ƒ hoÃ n tÃ¡c giao dá»‹ch do chÃ­nh mÃ¬nh táº¡o.');
+          const err = new Error('PERMISSION_DENIED: Báº¡n chá»‰ cÃ³ thá»ƒ hoÃ n tÃ¡c giao dá»‹ch do chÃ­nh mÃ¬nh táº¡o.');
           err.code = 'PERMISSION_DENIED';
           throw err;
         }

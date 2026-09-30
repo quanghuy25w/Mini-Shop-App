@@ -30,12 +30,14 @@
       "unit": "Hộp",
       "costPrice": 400000,
       "sellPrice": 436000,
-      "stockQuantity": 76,
+      "stockQuantity": 74,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ensure-380g2-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T08:00:00.000Z",
-      "updatedAt": "2026-08-18T08:00:00.000Z"
+      "updatedAt": "2026-09-29T06:18:43.037Z",
+      "stockVersion": 2,
+      "_occSession": "xaevaqqtmw"
     },
     {
       "id": "p0000000-0000-0000-0000-000000000002",
@@ -47,7 +49,7 @@
       "sellPrice": 900000,
       "stockQuantity": 42,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ensure-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T08:10:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -62,7 +64,7 @@
       "sellPrice": 436000,
       "stockQuantity": 61,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-380g-2-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T08:20:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -77,7 +79,7 @@
       "sellPrice": 900000,
       "stockQuantity": 32,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/it-ngot-800g-1-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T08:30:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -92,7 +94,7 @@
       "sellPrice": 345000,
       "stockQuantity": 45,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/pedia-380g-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T08:40:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -107,7 +109,7 @@
       "sellPrice": 405000,
       "stockQuantity": 40,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/canvas-41fa534f-50b8-4ff3-978a-43d812db388f-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T08:50:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -122,7 +124,7 @@
       "sellPrice": 23900,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-0-1-nhap-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T09:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -137,7 +139,7 @@
       "sellPrice": 584000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-1-3-nhap-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T09:10:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -152,7 +154,7 @@
       "sellPrice": 20950,
       "stockQuantity": 44,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-1-3-nhap-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T09:20:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -167,7 +169,7 @@
       "sellPrice": 20000,
       "stockQuantity": 45,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-30-thanh-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T09:30:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -182,7 +184,7 @@
       "sellPrice": 398000,
       "stockQuantity": 24,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/1111111-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T09:40:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -197,7 +199,7 @@
       "sellPrice": 19000,
       "stockQuantity": 45,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/meiji-1-3-1-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T09:50:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -212,7 +214,7 @@
       "sellPrice": 725000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ronkid-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T10:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -227,7 +229,7 @@
       "sellPrice": 357000,
       "stockQuantity": 35,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ron1-400.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T10:10:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -242,7 +244,7 @@
       "sellPrice": 704000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ron1-800-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T10:20:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -257,7 +259,7 @@
       "sellPrice": 352000,
       "stockQuantity": 37,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ron2-400.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T10:30:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -272,7 +274,7 @@
       "sellPrice": 693000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ron2-800-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T10:40:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -287,7 +289,7 @@
       "sellPrice": 683000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ron3-800-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T10:50:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -302,7 +304,7 @@
       "sellPrice": 580000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/0000000000-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T11:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -317,7 +319,7 @@
       "sellPrice": 540000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/khung-tgs-moi-nhat-1024-x-1024-07-09-23-3373defe-94c3-48f7-a8d5-283ef3e1c79c-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-07-01T11:10:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -332,7 +334,7 @@
       "sellPrice": 215000,
       "stockQuantity": 40,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/z5882059402516-db9b172303eeb0212d2ef1da48a321a3.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -347,7 +349,7 @@
       "sellPrice": 160000,
       "stockQuantity": 45,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/z5882150377884-d06dbabc708b6a2759fb7271d71b013f.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -362,7 +364,7 @@
       "sellPrice": 270000,
       "stockQuantity": 35,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/z5768344299329-5d778b9c661713ab17b34340783d473d-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -377,7 +379,7 @@
       "sellPrice": 396000,
       "stockQuantity": 32,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/z5768373493781-d42e8fb7bdde4b99ba0a9b4dfa590e76.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -392,7 +394,7 @@
       "sellPrice": 30000,
       "stockQuantity": 80,
       "minStockAlert": 20,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/q11-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -407,7 +409,7 @@
       "sellPrice": 66000,
       "stockQuantity": 50,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/thhhhhhhh-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -422,7 +424,7 @@
       "sellPrice": 19000,
       "stockQuantity": 100,
       "minStockAlert": 25,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/admm-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -437,7 +439,7 @@
       "sellPrice": 30000,
       "stockQuantity": 90,
       "minStockAlert": 20,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/adm-m-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -452,7 +454,7 @@
       "sellPrice": 19000,
       "stockQuantity": 100,
       "minStockAlert": 25,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/adm-it-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -467,7 +469,7 @@
       "sellPrice": 46000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ap110-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -482,7 +484,7 @@
       "sellPrice": 37000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/canvas-cd31b06a-02f8-4958-924b-a025bd64d718-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -497,7 +499,7 @@
       "sellPrice": 56000,
       "stockQuantity": 50,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/12345-6478fc2b-9319-4ebb-af24-a79dc14381fc-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -512,7 +514,7 @@
       "sellPrice": 370000,
       "stockQuantity": 35,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/1-e48e4b48-5829-42ef-ab9b-a1fbf8c083e8-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -527,7 +529,7 @@
       "sellPrice": 38000,
       "stockQuantity": 70,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/22222222222-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -542,7 +544,7 @@
       "sellPrice": 33000,
       "stockQuantity": 70,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/1100000ml-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -557,7 +559,7 @@
       "sellPrice": 50000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/180-d35eedf0-c299-45e4-a8e4-b930c15179b3-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -572,7 +574,7 @@
       "sellPrice": 130000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/1-739a6e2e-0cbd-47ef-9324-a4e07abf9b56-300x300.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -587,7 +589,7 @@
       "sellPrice": 40000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ta-300x300.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -602,7 +604,7 @@
       "sellPrice": 34000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/222-610b07d4-63ed-4eb1-b59a-550b1adb0990-300x300.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -632,7 +634,7 @@
       "sellPrice": 292000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/bau-300x300.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:00:00.000Z",
       "updatedAt": "2026-08-18T08:00:00.000Z"
@@ -647,7 +649,7 @@
       "sellPrice": 292000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/socola-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:10:00.000Z",
       "updatedAt": "2026-08-18T08:10:00.000Z"
@@ -662,7 +664,7 @@
       "sellPrice": 292000,
       "stockQuantity": 30,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/matillla-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:20:00.000Z",
       "updatedAt": "2026-08-18T08:20:00.000Z"
@@ -677,7 +679,7 @@
       "sellPrice": 489000,
       "stockQuantity": 25,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/900g-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T08:30:00.000Z",
       "updatedAt": "2026-08-18T08:30:00.000Z"
@@ -692,7 +694,7 @@
       "sellPrice": 37000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/bee-moi-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:00:00.000Z",
       "updatedAt": "2026-08-18T09:00:00.000Z"
@@ -707,7 +709,7 @@
       "sellPrice": 25000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/batman-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:05:00.000Z",
       "updatedAt": "2026-08-18T09:05:00.000Z"
@@ -722,7 +724,7 @@
       "sellPrice": 16000,
       "stockQuantity": 30,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/canh-cuc-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:10:00.000Z",
       "updatedAt": "2026-08-18T09:10:00.000Z"
@@ -737,7 +739,7 @@
       "sellPrice": 15000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/minion-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:15:00.000Z",
       "updatedAt": "2026-08-18T09:15:00.000Z"
@@ -752,7 +754,7 @@
       "sellPrice": 22000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ban-chai-rua-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:20:00.000Z",
       "updatedAt": "2026-08-18T09:20:00.000Z"
@@ -767,7 +769,7 @@
       "sellPrice": 28000,
       "stockQuantity": 40,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/khung-tgs-moi-nhat-1024-x-1024-07-09-23-674b094e-4de3-457d-aa2f-798ce0e8c22f-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:25:00.000Z",
       "updatedAt": "2026-08-18T09:25:00.000Z"
@@ -782,7 +784,7 @@
       "sellPrice": 18000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/ban-chai-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:30:00.000Z",
       "updatedAt": "2026-08-18T09:30:00.000Z"
@@ -797,7 +799,7 @@
       "sellPrice": 15000,
       "stockQuantity": 60,
       "minStockAlert": 15,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/bee-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:35:00.000Z",
       "updatedAt": "2026-08-18T09:35:00.000Z"
@@ -812,7 +814,7 @@
       "sellPrice": 10000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/cam-dien-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:40:00.000Z",
       "updatedAt": "2026-08-18T09:40:00.000Z"
@@ -827,7 +829,7 @@
       "sellPrice": 132000,
       "stockQuantity": 30,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/dung-cu-an-1-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:45:00.000Z",
       "updatedAt": "2026-08-18T09:45:00.000Z"
@@ -842,7 +844,7 @@
       "sellPrice": 145000,
       "stockQuantity": 30,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/chen-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:50:00.000Z",
       "updatedAt": "2026-08-18T09:50:00.000Z"
@@ -857,7 +859,7 @@
       "sellPrice": 316000,
       "stockQuantity": 20,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/dung-cu-an-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T09:55:00.000Z",
       "updatedAt": "2026-08-18T09:55:00.000Z"
@@ -872,7 +874,7 @@
       "sellPrice": 280000,
       "stockQuantity": 20,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/170529060-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:00:00.000Z",
       "updatedAt": "2026-08-18T10:00:00.000Z"
@@ -887,7 +889,7 @@
       "sellPrice": 20000,
       "stockQuantity": 40,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/eeeee-cb9fc136-6c17-4790-9ba2-5aa346390e26-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:05:00.000Z",
       "updatedAt": "2026-08-18T10:05:00.000Z"
@@ -902,7 +904,7 @@
       "sellPrice": 8000,
       "stockQuantity": 50,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/170689002-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:10:00.000Z",
       "updatedAt": "2026-08-18T10:10:00.000Z"
@@ -917,7 +919,7 @@
       "sellPrice": 18000,
       "stockQuantity": 40,
       "minStockAlert": 10,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/bbbbbb-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:15:00.000Z",
       "updatedAt": "2026-08-18T10:15:00.000Z"
@@ -932,7 +934,7 @@
       "sellPrice": 65000,
       "stockQuantity": 30,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/44444-1c388df3-7073-43f3-9e34-a5d527a72631-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:20:00.000Z",
       "updatedAt": "2026-08-18T10:20:00.000Z"
@@ -947,7 +949,7 @@
       "sellPrice": 149000,
       "stockQuantity": 25,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/coc-nc-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:25:00.000Z",
       "updatedAt": "2026-08-18T10:25:00.000Z"
@@ -962,7 +964,7 @@
       "sellPrice": 78000,
       "stockQuantity": 25,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/qqqqqqqqq-0a53c481-1fe5-47ec-b4d6-5fa7913480ec-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:30:00.000Z",
       "updatedAt": "2026-08-18T10:30:00.000Z"
@@ -977,7 +979,7 @@
       "sellPrice": 23000,
       "stockQuantity": 30,
       "minStockAlert": 5,
-      "image": "https://thegioisua.com/wp-content/uploads/2026/08/170954004-600x600.webp",
+      "image": "https://placehold.co/600x600.png?text=Product",
       "isActive": true,
       "createdAt": "2026-08-18T10:35:00.000Z",
       "updatedAt": "2026-08-18T10:35:00.000Z"
@@ -1008,6 +1010,83 @@
       "isActive": true,
       "createdAt": "2026-08-19T06:56:47.282Z",
       "updatedAt": "2026-08-19T06:56:47.282Z"
+    },
+    {
+      "id": "p-100K",
+      "name": "Mock 100K",
+      "sellPrice": 100000,
+      "price": 100000,
+      "stockQuantity": 9999,
+      "isActive": false,
+      "categoryId": "c1",
+      "updatedAt": "2026-09-29T07:58:37.857Z"
+    },
+    {
+      "id": "p-150K",
+      "name": "Mock 150K",
+      "sellPrice": 150000,
+      "price": 150000,
+      "stockQuantity": 9999,
+      "isActive": true,
+      "categoryId": "c1"
+    },
+    {
+      "id": "p-200K",
+      "name": "Mock 200K",
+      "sellPrice": 200000,
+      "price": 200000,
+      "stockQuantity": 9999,
+      "isActive": true,
+      "categoryId": "c1"
+    },
+    {
+      "id": "p-50K",
+      "name": "Mock 50K",
+      "sellPrice": 50000,
+      "price": 50000,
+      "stockQuantity": 9999,
+      "isActive": true,
+      "categoryId": "c1"
+    },
+    {
+      "id": "p4",
+      "name": "Mock 1VND",
+      "sellPrice": 1,
+      "price": 1,
+      "stockQuantity": 999999,
+      "isActive": false,
+      "categoryId": "c1",
+      "updatedAt": "2026-09-29T07:58:47.946Z"
+    },
+    {
+      "id": "p1",
+      "name": "Mock P1 50K",
+      "sellPrice": 50000,
+      "price": 50000,
+      "stockQuantity": 9999,
+      "isActive": false,
+      "categoryId": "c1",
+      "updatedAt": "2026-09-29T07:58:26.522Z"
+    },
+    {
+      "id": "p-1",
+      "name": "Mock P-1 100K",
+      "sellPrice": 100000,
+      "price": 100000,
+      "stockQuantity": 9999,
+      "isActive": false,
+      "categoryId": "c1",
+      "updatedAt": "2026-09-29T07:58:10.218Z"
+    },
+    {
+      "id": "p-2",
+      "name": "Mock P-2 150K",
+      "sellPrice": 150000,
+      "price": 150000,
+      "stockQuantity": 9999,
+      "isActive": false,
+      "categoryId": "c1",
+      "updatedAt": "2026-09-29T07:58:01.930Z"
     }
   ],
   "inventoryTransactions": [
@@ -1667,6 +1746,42 @@
       "unitPrice": 400000,
       "note": "[Phiếu PN008] NCC: Nhà phân phối Abbott",
       "createdAt": "2026-08-22T04:40:38.547Z"
+    },
+    {
+      "id": "hbw0iWPk268",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "reason": "SALE",
+      "quantity": 1,
+      "unitPrice": 436000,
+      "unitCost": 400000,
+      "accountId": "0Dksh0LNfL8",
+      "workSessionId": "t5gd0rkCEZY",
+      "registerId": "POS01",
+      "businessDate": "2026-09-29",
+      "outOfShift": false,
+      "orderId": "xOqe7bGMgpk",
+      "orderCode": "HD-20260929-0034",
+      "note": "BÃ¡n láº» qua Ä‘Æ¡n hÃ ng HD-20260929-0034",
+      "createdAt": "2026-09-29T06:12:26.499Z"
+    },
+    {
+      "id": "W_d3d6Vpmuc",
+      "productId": "p0000000-0000-0000-0000-000000000001",
+      "type": "OUT",
+      "reason": "SALE",
+      "quantity": 1,
+      "unitPrice": 436000,
+      "unitCost": 400000,
+      "accountId": "0Dksh0LNfL8",
+      "workSessionId": "t5gd0rkCEZY",
+      "registerId": "POS01",
+      "businessDate": "2026-09-29",
+      "outOfShift": false,
+      "orderId": "0qTFZ-7hJgU",
+      "orderCode": "HD-20260929-0035",
+      "note": "BÃ¡n láº» qua Ä‘Æ¡n hÃ ng HD-20260929-0035",
+      "createdAt": "2026-09-29T06:18:43.017Z"
     }
   ],
   "orders": [
@@ -2274,6 +2389,74 @@
       "totalAmount": 218000,
       "status": "completed",
       "createdAt": "2026-08-21T07:35:35.178Z"
+    },
+    {
+      "note": "",
+      "paymentMethod": "cash",
+      "cashReceived": 436000,
+      "discountType": "amount",
+      "discountValue": 0,
+      "discountAmount": 0,
+      "id": "xOqe7bGMgpk",
+      "code": "HD-20260929-0034",
+      "inventoryTransactionIds": [
+        "45c71162-6652-4413-928a-c62df79da410"
+      ],
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000001",
+          "productName": "Abbott Ensure Gold 380g (Beta Glucan)",
+          "quantity": 1,
+          "price": 436000
+        }
+      ],
+      "subtotal": 436000,
+      "totalAmount": 436000,
+      "change": 0,
+      "status": "completed",
+      "accountId": "0Dksh0LNfL8",
+      "sellerId": "0Dksh0LNfL8",
+      "workSessionId": "t5gd0rkCEZY",
+      "registerId": "POS01",
+      "businessDate": "2026-09-29",
+      "outOfShift": false,
+      "createdAt": "2026-09-29T06:12:26.499Z",
+      "employeeId": "JM8VriGgIU0",
+      "updatedAt": "2026-09-29T06:12:26.543Z"
+    },
+    {
+      "note": "",
+      "paymentMethod": "cash",
+      "cashReceived": 436000,
+      "discountType": "amount",
+      "discountValue": 0,
+      "discountAmount": 0,
+      "id": "0qTFZ-7hJgU",
+      "code": "HD-20260929-0035",
+      "inventoryTransactionIds": [
+        "d43ff50a-973c-474d-8c23-fc9c786bd275"
+      ],
+      "items": [
+        {
+          "productId": "p0000000-0000-0000-0000-000000000001",
+          "productName": "Abbott Ensure Gold 380g (Beta Glucan)",
+          "quantity": 1,
+          "price": 436000
+        }
+      ],
+      "subtotal": 436000,
+      "totalAmount": 436000,
+      "change": 0,
+      "status": "completed",
+      "accountId": "0Dksh0LNfL8",
+      "sellerId": "0Dksh0LNfL8",
+      "workSessionId": "t5gd0rkCEZY",
+      "registerId": "POS01",
+      "businessDate": "2026-09-29",
+      "outOfShift": false,
+      "createdAt": "2026-09-29T06:18:43.017Z",
+      "employeeId": "JM8VriGgIU0",
+      "updatedAt": "2026-09-29T06:18:43.059Z"
     }
   ],
   "registers": [
@@ -2304,7 +2487,7 @@
       "employeeId": null,
       "role": "admin",
       "email": "admin123@gmail.com",
-      "password": "$2b$10$ndZo7fwhEN9XdEDOrOcH7uxuIqPhHmNCrThmOaHXMnKvPVCbxyqMm",
+      "password": "$2b$10$N8Mew1bjJ66iPnDitejPh.FS4pBIIpFPEAOxHyGQUV7IO.h6OyvpC",
       "pin": null,
       "permissions": [],
       "isActive": true,
@@ -2586,6 +2769,240 @@
       "shiftType": "daily",
       "name": "Ca làm việc ngày 28/09/2026",
       "startTime": "2026-09-28T14:38:24.696Z",
+      "endTime": "2026-09-29T04:52:02.305Z",
+      "status": "closed",
+      "initialCash": 0,
+      "actualCash": null,
+      "totalRevenue": 0,
+      "totalOrders": 0,
+      "note": "",
+      "createdBy": null,
+      "closedBy": null,
+      "createdAt": "2026-09-28T14:38:24.696Z",
+      "updatedAt": "2026-09-29T04:52:02.305Z",
+      "closedAt": "2026-09-29T04:52:02.305Z",
+      "expectedCash": 0,
+      "reconciliationStatus": "UNRECONCILED",
+      "isAutoClosed": true,
+      "grossSales": 0,
+      "refundTotal": 0,
+      "netRevenue": 0,
+      "cashSales": 0,
+      "cashRefunds": 0,
+      "posBreakdown": {
+        "POS01": {
+          "registerId": "POS01",
+          "registerName": "Quầy 01",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        },
+        "POS02": {
+          "registerId": "POS02",
+          "registerName": "Quầy 02",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        },
+        "POS03": {
+          "registerId": "POS03",
+          "registerName": "Quầy 03",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        }
+      },
+      "reconciliationSnapshot": {
+        "isStoredSnapshot": false,
+        "sessionId": "vLPOqL_vR2o",
+        "sessionCode": "CA-20260928-01",
+        "sessionDate": "2026-09-28",
+        "grossSales": 0,
+        "totalRevenue": 0,
+        "completedOrderCount": 0,
+        "cancelledOrderCount": 0,
+        "refundTotal": 0,
+        "netRevenue": 0,
+        "initialCash": 0,
+        "cashSales": 0,
+        "cashRefunds": 0,
+        "expectedCash": 0,
+        "actualCash": null,
+        "cashDifference": null,
+        "reconciliationStatus": "UNRECONCILED",
+        "posBreakdown": {
+          "POS01": {
+            "registerId": "POS01",
+            "registerName": "Quầy 01",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          },
+          "POS02": {
+            "registerId": "POS02",
+            "registerName": "Quầy 02",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          },
+          "POS03": {
+            "registerId": "POS03",
+            "registerName": "Quầy 03",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          }
+        }
+      }
+    },
+    {
+      "id": "t5gd0rkCEZY",
+      "code": "CA-20260929-01",
+      "date": "2026-09-29",
+      "shiftType": "daily",
+      "name": "Ca làm việc ngày 29/09/2026",
+      "startTime": "2026-09-29T04:52:02.370Z",
+      "endTime": "2026-09-30T01:04:36.804Z",
+      "status": "closed",
+      "initialCash": 0,
+      "actualCash": null,
+      "totalRevenue": 872000,
+      "totalOrders": 2,
+      "note": "",
+      "createdBy": null,
+      "closedBy": null,
+      "createdAt": "2026-09-29T04:52:02.370Z",
+      "updatedAt": "2026-09-30T01:04:36.804Z",
+      "closedAt": "2026-09-30T01:04:36.804Z",
+      "expectedCash": 872000,
+      "reconciliationStatus": "UNRECONCILED",
+      "isAutoClosed": true,
+      "grossSales": 872000,
+      "refundTotal": 0,
+      "netRevenue": 872000,
+      "cashSales": 872000,
+      "cashRefunds": 0,
+      "posBreakdown": {
+        "POS01": {
+          "registerId": "POS01",
+          "registerName": "Quầy 01",
+          "initialCash": 0,
+          "cashSales": 872000,
+          "cashRefunds": 0,
+          "expectedCash": 872000,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        },
+        "POS02": {
+          "registerId": "POS02",
+          "registerName": "Quầy 02",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        },
+        "POS03": {
+          "registerId": "POS03",
+          "registerName": "Quầy 03",
+          "initialCash": 0,
+          "cashSales": 0,
+          "cashRefunds": 0,
+          "expectedCash": 0,
+          "actualCash": null,
+          "difference": null,
+          "status": "UNRECONCILED"
+        }
+      },
+      "reconciliationSnapshot": {
+        "isStoredSnapshot": false,
+        "sessionId": "t5gd0rkCEZY",
+        "sessionCode": "CA-20260929-01",
+        "sessionDate": "2026-09-29",
+        "grossSales": 872000,
+        "totalRevenue": 872000,
+        "completedOrderCount": 2,
+        "cancelledOrderCount": 0,
+        "refundTotal": 0,
+        "netRevenue": 872000,
+        "initialCash": 0,
+        "cashSales": 872000,
+        "cashRefunds": 0,
+        "expectedCash": 872000,
+        "actualCash": null,
+        "cashDifference": null,
+        "reconciliationStatus": "UNRECONCILED",
+        "posBreakdown": {
+          "POS01": {
+            "registerId": "POS01",
+            "registerName": "Quầy 01",
+            "initialCash": 0,
+            "cashSales": 872000,
+            "cashRefunds": 0,
+            "expectedCash": 872000,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          },
+          "POS02": {
+            "registerId": "POS02",
+            "registerName": "Quầy 02",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          },
+          "POS03": {
+            "registerId": "POS03",
+            "registerName": "Quầy 03",
+            "initialCash": 0,
+            "cashSales": 0,
+            "cashRefunds": 0,
+            "expectedCash": 0,
+            "actualCash": null,
+            "difference": null,
+            "status": "UNRECONCILED"
+          }
+        }
+      }
+    },
+    {
+      "id": "OSCpZ-fkOFw",
+      "code": "CA-20260930-01",
+      "date": "2026-09-30",
+      "shiftType": "daily",
+      "name": "Ca làm việc ngày 30/09/2026",
+      "startTime": "2026-09-30T01:04:36.832Z",
       "endTime": null,
       "status": "active",
       "initialCash": 0,
@@ -2595,8 +3012,8 @@
       "note": "",
       "createdBy": null,
       "closedBy": null,
-      "createdAt": "2026-09-28T14:38:24.696Z",
-      "updatedAt": "2026-09-28T14:38:24.696Z"
+      "createdAt": "2026-09-30T01:04:36.832Z",
+      "updatedAt": "2026-09-30T01:04:36.832Z"
     }
   ],
   "workSessionMembers": [],
@@ -2610,6 +3027,412 @@
       "entityId": "JM8VriGgIU0",
       "workSessionId": null,
       "timestamp": "2026-09-25T04:45:50.738Z",
+      "metadata": null
+    },
+    {
+      "id": "7S_mIK-SQHw",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:48:51.875Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "w5_H-ZCkkw4",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:49:32.408Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "RzV9LPFFkBU",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:50:03.382Z",
+      "metadata": null
+    },
+    {
+      "id": "lomfpc7tccg",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:51:37.014Z",
+      "metadata": null
+    },
+    {
+      "id": "nW4KPUE7LFE",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:52:57.034Z",
+      "metadata": null
+    },
+    {
+      "id": "FDj41kR9bWY",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:53:15.172Z",
+      "metadata": null
+    },
+    {
+      "id": "hc1vxOoXqZg",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T05:54:18.979Z",
+      "metadata": null
+    },
+    {
+      "id": "oeafOP1KScI",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T06:00:24.090Z",
+      "metadata": null
+    },
+    {
+      "id": "UZ-wKX_7N1w",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T06:01:08.380Z",
+      "metadata": null
+    },
+    {
+      "id": "CuXDyyFukSo",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T06:11:09.488Z",
+      "metadata": null
+    },
+    {
+      "id": "RkyZrLKslcY",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T06:12:20.916Z",
+      "metadata": null
+    },
+    {
+      "id": "34aJw1QI308",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "ORDER_CREATED",
+      "entityType": "order",
+      "entityId": "xOqe7bGMgpk",
+      "workSessionId": "t5gd0rkCEZY",
+      "timestamp": "2026-09-29T06:12:26.615Z",
+      "metadata": {
+        "totalAmount": 436000,
+        "code": "HD-20260929-0034"
+      }
+    },
+    {
+      "id": "id0DS05PAZs",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "EXPORT",
+      "entityType": "inventoryTransaction",
+      "entityId": "hbw0iWPk268",
+      "workSessionId": "t5gd0rkCEZY",
+      "timestamp": "2026-09-29T06:12:26.674Z",
+      "metadata": {
+        "productId": "p0000000-0000-0000-0000-000000000001",
+        "quantity": 1,
+        "reason": "SALE"
+      }
+    },
+    {
+      "id": "HR4N2V2pZ1I",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T06:18:37.570Z",
+      "metadata": null
+    },
+    {
+      "id": "bS5wVvlZ2Lw",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "ORDER_CREATED",
+      "entityType": "order",
+      "entityId": "0qTFZ-7hJgU",
+      "workSessionId": "t5gd0rkCEZY",
+      "timestamp": "2026-09-29T06:18:43.130Z",
+      "metadata": {
+        "totalAmount": 436000,
+        "code": "HD-20260929-0035"
+      }
+    },
+    {
+      "id": "FAQSOv6OG3o",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "EXPORT",
+      "entityType": "inventoryTransaction",
+      "entityId": "W_d3d6Vpmuc",
+      "workSessionId": "t5gd0rkCEZY",
+      "timestamp": "2026-09-29T06:18:43.192Z",
+      "metadata": {
+        "productId": "p0000000-0000-0000-0000-000000000001",
+        "quantity": 1,
+        "reason": "SALE"
+      }
+    },
+    {
+      "id": "G_C64f1kGhM",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "DEACTIVATE",
+      "entityType": "product",
+      "entityId": "p-2",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T07:58:01.943Z",
+      "metadata": null
+    },
+    {
+      "id": "2ICwhmHF87U",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "DEACTIVATE",
+      "entityType": "product",
+      "entityId": "p-1",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T07:58:10.226Z",
+      "metadata": null
+    },
+    {
+      "id": "R4Tx9X5VJEg",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "DEACTIVATE",
+      "entityType": "product",
+      "entityId": "p1",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T07:58:26.536Z",
+      "metadata": null
+    },
+    {
+      "id": "Mh2M6u4VELY",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "DEACTIVATE",
+      "entityType": "product",
+      "entityId": "p-100K",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T07:58:37.869Z",
+      "metadata": null
+    },
+    {
+      "id": "mNGtrlZVUts",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "DEACTIVATE",
+      "entityType": "product",
+      "entityId": "p4",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T07:58:47.958Z",
+      "metadata": null
+    },
+    {
+      "id": "kLia67iGleI",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-29T15:39:16.824Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "0ZpaLRjsgbI",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-29T15:39:32.187Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "tZdtF-O4SH0",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "AiYZ04jChns",
+      "workSessionId": null,
+      "timestamp": "2026-09-29T15:43:24.332Z",
+      "metadata": null
+    },
+    {
+      "id": "rUxJeQCuuwc",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-30T01:56:38.748Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "sXUjCrm7kOA",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-30T01:57:02.143Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "fGHXAj90XTk",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "LOGOUT",
+      "entityType": "auth",
+      "entityId": "AiYZ04jChns",
+      "workSessionId": null,
+      "timestamp": "2026-09-30T01:57:33.405Z",
+      "metadata": null
+    },
+    {
+      "id": "nGIQYG2YXcY",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-30T01:57:56.146Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "XcpRBtdoR8w",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "AiYZ04jChns",
+      "workSessionId": null,
+      "timestamp": "2026-09-30T01:58:07.650Z",
+      "metadata": null
+    },
+    {
+      "id": "WbobYxE6RHg",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-30T02:26:52.449Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "zFBCbwdH7Ms",
+      "actorId": null,
+      "actorRole": null,
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "entityId": null,
+      "workSessionId": null,
+      "timestamp": "2026-09-30T02:26:57.575Z",
+      "metadata": {
+        "attemptedRole": "admin"
+      }
+    },
+    {
+      "id": "7EPQcbtOEUU",
+      "actorId": "0Dksh0LNfL8",
+      "actorRole": "staff",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "0Dksh0LNfL8",
+      "workSessionId": null,
+      "timestamp": "2026-09-30T02:27:11.265Z",
+      "metadata": null
+    },
+    {
+      "id": "5ea-N1tN4Vo",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "LOGOUT",
+      "entityType": "auth",
+      "entityId": "AiYZ04jChns",
+      "workSessionId": null,
+      "timestamp": "2026-09-30T02:32:43.387Z",
+      "metadata": null
+    },
+    {
+      "id": "5JgTwIhMDTs",
+      "actorId": "AiYZ04jChns",
+      "actorRole": "admin",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "AiYZ04jChns",
+      "workSessionId": null,
+      "timestamp": "2026-09-30T02:33:13.792Z",
       "metadata": null
     }
   ],

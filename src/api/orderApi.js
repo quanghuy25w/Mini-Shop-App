@@ -1,4 +1,4 @@
-﻿import axiosClient from './axiosClient';
+import axiosClient from './axiosClient';
 import { logActivity, ACTIVITY_ACTIONS } from '../utils/activityLogger';
 import { hasPermission, assertPermission, PERMISSIONS } from '../utils/permissions';
 import { productApi } from './productApi';
@@ -17,73 +17,73 @@ export const orderApi = {
     const context = (actorArg && !actorArg.role && actorArg.actor) ? { ...actorArg, ...contextArg } : contextArg;
 
     if (!data || typeof data !== 'object') {
-      const err = new Error('ORDER_VALIDATION_ERROR: Dá»¯ liá»‡u Ä‘Æ¡n hÃ ng khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng.');
+      const err = new Error('ORDER_VALIDATION_ERROR: Dữ liệu đơn hàng không được để trống.');
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (!actor) {
-      const err = new Error('NOT_AUTHENTICATED: YÃªu cáº§u Ä‘Äƒng nháº­p Ä‘á»ƒ táº¡o Ä‘Æ¡n hÃ ng.');
+      const err = new Error('NOT_AUTHENTICATED: Yêu cầu đăng nhập để tạo đơn hàng.');
       err.code = 'NOT_AUTHENTICATED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (!data.accountId && !data.sellerId && !actor.id) {
-      const err = new Error('ORDER_VALIDATION_ERROR: Thiáº¿u thÃ´ng tin ngÆ°á»i bÃ¡n (sellerId/accountId).');
+      const err = new Error('ORDER_VALIDATION_ERROR: Thiếu thông tin người bán (sellerId/accountId).');
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (!actor.id) {
-      const err = new Error('NOT_AUTHENTICATED: YÃªu cáº§u Ä‘Äƒng nháº­p Ä‘á»ƒ táº¡o Ä‘Æ¡n hÃ ng.');
+      const err = new Error('NOT_AUTHENTICATED: Yêu cầu đăng nhập để tạo đơn hàng.');
       err.code = 'NOT_AUTHENTICATED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const userRole = (actor.role || '').toLowerCase();
     if (!['admin', 'staff', 'employee'].includes(userRole)) {
-      const err = new Error('PERMISSION_DENIED: Vai trÃ² ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»‡.');
+      const err = new Error('PERMISSION_DENIED: Vai trò người dùng không hợp lệ.');
       err.code = 'PERMISSION_DENIED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     assertPermission(actor, PERMISSIONS.ORDER_CREATE);
 
     if (userRole === 'employee') {
       if (data.accountId && String(data.accountId) !== String(actor.id)) {
-        const err = new Error('PERMISSION_DENIED: NhÃ¢n viÃªn khÃ´ng thá»ƒ táº¡o Ä‘Æ¡n hÃ ng thay máº·t tÃ i khoáº£n khÃ¡c.');
+        const err = new Error('PERMISSION_DENIED: Nhân viên không thể tạo đơn hàng thay mặt tài khoản khác.');
         err.code = 'PERMISSION_DENIED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       if (data.sellerId && String(data.sellerId) !== String(actor.id)) {
-        const err = new Error('PERMISSION_DENIED: NhÃ¢n viÃªn khÃ´ng thá»ƒ táº¡o Ä‘Æ¡n hÃ ng thay máº·t ngÆ°á»i bÃ¡n khÃ¡c.');
+        const err = new Error('PERMISSION_DENIED: Nhân viên không thể tạo đơn hàng thay mặt người bán khác.');
         err.code = 'PERMISSION_DENIED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       if (data.employeeId && actor.employeeId && String(data.employeeId) !== String(actor.employeeId)) {
-        const err = new Error('PERMISSION_DENIED: NhÃ¢n viÃªn khÃ´ng thá»ƒ táº¡o Ä‘Æ¡n hÃ ng thay máº·t nhÃ¢n viÃªn khÃ¡c.');
+        const err = new Error('PERMISSION_DENIED: Nhân viên không thể tạo đơn hàng thay mặt nhân viên khác.');
         err.code = 'PERMISSION_DENIED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       if (data.employeeCode && actor.employeeCode && String(data.employeeCode) !== String(actor.employeeCode)) {
-        const err = new Error('PERMISSION_DENIED: NhÃ¢n viÃªn khÃ´ng thá»ƒ táº¡o Ä‘Æ¡n hÃ ng thay máº·t nhÃ¢n viÃªn khÃ¡c.');
+        const err = new Error('PERMISSION_DENIED: Nhân viên không thể tạo đơn hàng thay mặt nhân viên khác.');
         err.code = 'PERMISSION_DENIED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
     }
 
     const seller = actor.id || data.accountId || data.sellerId;
     if (!seller) {
-      const err = new Error('ORDER_VALIDATION_ERROR: ÄÆ¡n hÃ ng thiáº¿u thÃ´ng tin tÃ i khoáº£n ngÆ°á»i bÃ¡n.');
+      const err = new Error('ORDER_VALIDATION_ERROR: Đơn hàng thiếu thông tin tài khoản người bán.');
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const VALID_PAYMENT_METHODS = ['cash', 'transfer', 'card'];
     if (data.paymentMethod && !VALID_PAYMENT_METHODS.includes(data.paymentMethod)) {
-      const err = new Error(`ORDER_VALIDATION_ERROR: PhÆ°Æ¡ng thá»©c thanh toÃ¡n "${data.paymentMethod}" khÃ´ng há»£p lá»‡. Chá»‰ cháº¥p nháº­n: cash, transfer, card.`);
+      const err = new Error(`ORDER_VALIDATION_ERROR: Phương thức thanh toán "${data.paymentMethod}" không hợp lệ. Chỉ chấp nhận: cash, transfer, card.`);
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (data.registerId) {
@@ -91,14 +91,14 @@ export const orderApi = {
       if (Array.isArray(canonicalRegs) && canonicalRegs.length > 0) {
         const knownReg = canonicalRegs.find(r => r.id === data.registerId);
         if (!knownReg) {
-          const err = new Error(`ORDER_VALIDATION_ERROR: Quáº§y bÃ¡n hÃ ng "${data.registerId}" khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng.`);
+          const err = new Error(`ORDER_VALIDATION_ERROR: Quầy bán hàng "${data.registerId}" không tồn tại trong hệ thống.`);
           err.code = 'ORDER_VALIDATION_ERROR';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
         if (knownReg.isActive === false) {
-          const err = new Error(`ORDER_VALIDATION_ERROR: Quáº§y bÃ¡n hÃ ng "${data.registerId}" Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a.`);
+          const err = new Error(`ORDER_VALIDATION_ERROR: Quầy bán hàng "${data.registerId}" đang bị vô hiệu hóa.`);
           err.code = 'ORDER_VALIDATION_ERROR';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       }
     }
@@ -106,33 +106,33 @@ export const orderApi = {
     const hasItems = data.items !== undefined;
     if (hasItems) {
       if (!Array.isArray(data.items) || data.items.length === 0) {
-        const err = new Error('ORDER_VALIDATION_ERROR: ÄÆ¡n hÃ ng hoÃ n táº¥t pháº£i cÃ³ Ã­t nháº¥t 1 sáº£n pháº©m.');
+        const err = new Error('ORDER_VALIDATION_ERROR: Đơn hàng hoàn tất phải có ít nhất 1 sản phẩm.');
         err.code = 'ORDER_VALIDATION_ERROR';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       for (const item of data.items) {
         if (!item || !item.productId) {
-          const err = new Error('ORDER_VALIDATION_ERROR: Sáº£n pháº©m trong Ä‘Æ¡n hÃ ng thiáº¿u thÃ´ng tin productId.');
+          const err = new Error('ORDER_VALIDATION_ERROR: Sản phẩm trong đơn hàng thiếu thông tin productId.');
           err.code = 'ORDER_VALIDATION_ERROR';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
         if (typeof item.quantity !== 'number' || !Number.isInteger(item.quantity) || item.quantity <= 0) {
-          const err = new Error('ORDER_VALIDATION_ERROR: Má»—i sáº£n pháº©m trong Ä‘Æ¡n hÃ ng pháº£i cÃ³ sá»‘ lÆ°á»£ng nguyÃªn > 0.');
+          const err = new Error('ORDER_VALIDATION_ERROR: Mỗi sản phẩm trong đơn hàng phải có số lượng nguyên > 0.');
           err.code = 'ORDER_VALIDATION_ERROR';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       }
     } else {
-      const err = new Error('ORDER_VALIDATION_ERROR: ÄÆ¡n hÃ ng hoÃ n táº¥t báº¯t buá»™c pháº£i cÃ³ Ã­t nháº¥t 1 sáº£n pháº©m.');
+      const err = new Error('ORDER_VALIDATION_ERROR: Đơn hàng hoàn tất bắt buộc phải có ít nhất 1 sản phẩm.');
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (!data.workSessionId) {
-      const err = new Error('ORDER_VALIDATION_ERROR: ÄÆ¡n hÃ ng hoÃ n táº¥t báº¯t buá»™c pháº£i gáº¯n vá»›i ca lÃ m viá»‡c (workSessionId).');
+      const err = new Error('ORDER_VALIDATION_ERROR: Đơn hàng hoàn tất bắt buộc phải gắn với ca làm việc (workSessionId).');
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     // Synchronous total and discount validation
@@ -141,9 +141,9 @@ export const orderApi = {
     if (hasItems) {
       for (const item of data.items) {
         if (item.price !== undefined && (isNaN(Number(item.price)) || Number(item.price) < 0)) {
-          const err = new Error('ORDER_VALIDATION_ERROR: ÄÆ¡n giÃ¡ sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c Ã¢m.');
+          const err = new Error('ORDER_VALIDATION_ERROR: Đơn giá sản phẩm không được âm.');
           err.code = 'ORDER_VALIDATION_ERROR';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
         syncSubtotal += Number(item.price || 0) * Number(item.quantity || 0);
       }
@@ -155,57 +155,57 @@ export const orderApi = {
     if (data.discountType === 'percent') {
       const val = Number(data.discountValue !== undefined ? data.discountValue : (data.discount || 0));
       if (isNaN(val) || !isFinite(val) || val < 0) {
-        const err = new Error('ORDER_VALIDATION_ERROR: GiÃ¡ trá»‹ chiáº¿t kháº¥u khÃ´ng há»£p lá»‡.');
+        const err = new Error('ORDER_VALIDATION_ERROR: Giá trị chiết khấu không hợp lệ.');
         err.code = 'ORDER_VALIDATION_ERROR';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       if (val > maxCap) {
-        const err = new Error(`DISCOUNT_LIMIT_EXCEEDED: Vai trÃ² "${userRole}" chá»‰ Ä‘Æ°á»£c Ã¡p dá»¥ng chiáº¿t kháº¥u tá»‘i Ä‘a ${maxCap}%.`);
+        const err = new Error(`DISCOUNT_LIMIT_EXCEEDED: Vai trò "${userRole}" chỉ được áp dụng chiết khấu tối đa ${maxCap}%.`);
         err.code = 'DISCOUNT_LIMIT_EXCEEDED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       calculatedDiscount = Math.round(syncSubtotal * (val / 100));
     } else if (data.discountType === 'fixed') {
       const val = Number(data.discountValue !== undefined ? data.discountValue : (data.discountAmount || data.discount || 0));
       if (isNaN(val) || !isFinite(val) || val < 0) {
-        const err = new Error('ORDER_VALIDATION_ERROR: GiÃ¡ trá»‹ chiáº¿t kháº¥u khÃ´ng há»£p lá»‡.');
+        const err = new Error('ORDER_VALIDATION_ERROR: Giá trị chiết khấu không hợp lệ.');
         err.code = 'ORDER_VALIDATION_ERROR';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       const maxFixed = Math.round(syncSubtotal * (maxCap / 100));
       if (val > maxFixed) {
-        const err = new Error(`DISCOUNT_LIMIT_EXCEEDED: Vai trÃ² "${userRole}" chá»‰ Ä‘Æ°á»£c Ã¡p dá»¥ng chiáº¿t kháº¥u tá»‘i Ä‘a ${maxCap}%.`);
+        const err = new Error(`DISCOUNT_LIMIT_EXCEEDED: Vai trò "${userRole}" chỉ được áp dụng chiết khấu tối đa ${maxCap}%.`);
         err.code = 'DISCOUNT_LIMIT_EXCEEDED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       calculatedDiscount = Math.min(val, syncSubtotal);
     } else {
       const rawDiscount = Number(data.discountAmount !== undefined ? data.discountAmount : (data.discount || 0));
       if (isNaN(rawDiscount) || !isFinite(rawDiscount) || rawDiscount < 0) {
-        const err = new Error('ORDER_VALIDATION_ERROR: GiÃ¡ trá»‹ chiáº¿t kháº¥u khÃ´ng há»£p lá»‡.');
+        const err = new Error('ORDER_VALIDATION_ERROR: Giá trị chiết khấu không hợp lệ.');
         err.code = 'ORDER_VALIDATION_ERROR';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       const maxFixed = Math.round(syncSubtotal * (maxCap / 100));
       if (rawDiscount > maxFixed) {
-        const err = new Error(`DISCOUNT_LIMIT_EXCEEDED: Vai trÃ² "${userRole}" chá»‰ Ä‘Æ°á»£c Ã¡p dá»¥ng chiáº¿t kháº¥u tá»‘i Ä‘a ${maxCap}%.`);
+        const err = new Error(`DISCOUNT_LIMIT_EXCEEDED: Vai trò "${userRole}" chỉ được áp dụng chiết khấu tối đa ${maxCap}%.`);
         err.code = 'DISCOUNT_LIMIT_EXCEEDED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       calculatedDiscount = Math.min(rawDiscount, syncSubtotal);
     }
 
     if (data.totalAmount !== undefined && (isNaN(Number(data.totalAmount)) || Number(data.totalAmount) < 0)) {
-      const err = new Error('ORDER_VALIDATION_ERROR: Tá»•ng tiá»n Ä‘Æ¡n hÃ ng khÃ´ng Ä‘Æ°á»£c Ã¢m.');
+      const err = new Error('ORDER_VALIDATION_ERROR: Tổng tiền đơn hàng không được âm.');
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const expectedTotal = Math.max(0, syncSubtotal - calculatedDiscount);
     if (data.totalAmount !== undefined && Math.abs(Number(data.totalAmount) - expectedTotal) > 1) {
-      const err = new Error(`ORDER_VALIDATION_ERROR: Tá»•ng tiá»n Ä‘Æ¡n hÃ ng (${data.totalAmount}) khÃ´ng khá»›p vá»›i giÃ¡ trá»‹ sáº£n pháº©m tÃ­nh toÃ¡n (${expectedTotal}).`);
+      const err = new Error(`ORDER_VALIDATION_ERROR: Tổng tiền đơn hàng (${data.totalAmount}) không khớp với giá trị sản phẩm tính toán (${expectedTotal}).`);
       err.code = 'ORDER_VALIDATION_ERROR';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const nowIso = new Date().toISOString();
@@ -227,15 +227,15 @@ export const orderApi = {
               const prod = prodMap.get(String(item.productId));
               if (prod) {
                 if (prod.isActive === false) {
-                  const err = new Error(`ORDER_VALIDATION_ERROR: Sáº£n pháº©m "${prod.name}" Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a.`);
+                  const err = new Error(`ORDER_VALIDATION_ERROR: Sản phẩm "${prod.name}" đang bị vô hiệu hóa.`);
                   err.code = 'ORDER_VALIDATION_ERROR';
-                  throw err;
+                  console.log("ORDER API THROW:", err.message); throw err;
                 }
                 const canonicalPrice = Number(prod.sellPrice !== undefined ? prod.sellPrice : prod.price) || 0;
                 if (item.price !== undefined && Math.abs(Number(item.price) - canonicalPrice) > 0.01) {
-                  const err = new Error(`ORDER_PRICE_MISMATCH: ÄÆ¡n giÃ¡ cá»§a sáº£n pháº©m "${prod.name}" khÃ´ng khá»›p vá»›i giÃ¡ niÃªm yáº¿t há»‡ thá»‘ng.`);
+                  const err = new Error(`ORDER_PRICE_MISMATCH: Đơn giá của sản phẩm "${prod.name}" không khớp với giá niêm yết hệ thống.`);
                   err.code = 'ORDER_PRICE_MISMATCH';
-                  throw err;
+                  console.log("ORDER API THROW:", err.message); throw err;
                 }
                 const effectivePrice = canonicalPrice;
                 verifiedSubtotal += effectivePrice * item.quantity;
@@ -246,9 +246,9 @@ export const orderApi = {
                   price: effectivePrice
                 });
               } else {
-                const err = new Error(`ORDER_VALIDATION_ERROR: Sáº£n pháº©m "${item.productId}" khÃ´ng tá»“n táº¡i.`);
+                const err = new Error(`ORDER_VALIDATION_ERROR: Sản phẩm "${item.productId}" không tồn tại.`);
                 err.code = 'ORDER_VALIDATION_ERROR';
-                throw err;
+                console.log("ORDER API THROW:", err.message); throw err;
               }
             }
             canonicalItems = verifiedItems;
@@ -269,14 +269,14 @@ export const orderApi = {
           if (regList.length > 0) {
             const found = regList.find(r => r.id === data.registerId);
             if (!found) {
-              const err = new Error(`ORDER_VALIDATION_ERROR: Quáº§y bÃ¡n hÃ ng "${data.registerId}" khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng.`);
+              const err = new Error(`ORDER_VALIDATION_ERROR: Quầy bán hàng "${data.registerId}" không tồn tại trong hệ thống.`);
               err.code = 'ORDER_VALIDATION_ERROR';
-              throw err;
+              console.log("ORDER API THROW:", err.message); throw err;
             }
             if (found.isActive === false) {
-              const err = new Error(`ORDER_VALIDATION_ERROR: Quáº§y bÃ¡n hÃ ng "${data.registerId}" Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a.`);
+              const err = new Error(`ORDER_VALIDATION_ERROR: Quầy bán hàng "${data.registerId}" đang bị vô hiệu hóa.`);
               err.code = 'ORDER_VALIDATION_ERROR';
-              throw err;
+              console.log("ORDER API THROW:", err.message); throw err;
             }
           }
         } catch (regErr) {
@@ -290,14 +290,14 @@ export const orderApi = {
           const sessionRes = await axiosClient.get(`/workSessions/${data.workSessionId}`);
           if (sessionRes?.data) {
             if (sessionRes.data.status === 'cancelled') {
-              const err = new Error('ORDER_VALIDATION_ERROR: KhÃ´ng thá»ƒ táº¡o Ä‘Æ¡n hÃ ng cho ca lÃ m viá»‡c Ä‘Ã£ bá»‹ há»§y.');
+              const err = new Error('ORDER_VALIDATION_ERROR: Không thể tạo đơn hàng cho ca làm việc đã bị hủy.');
               err.code = 'ORDER_VALIDATION_ERROR';
-              throw err;
+              console.log("ORDER API THROW:", err.message); throw err;
             }
             if (data.businessDate && sessionRes.data.date && data.businessDate !== sessionRes.data.date) {
-              const err = new Error(`ORDER_VALIDATION_ERROR: NgÃ y cá»§a Ä‘Æ¡n hÃ ng (${data.businessDate}) khÃ´ng khá»›p vá»›i ngÃ y cá»§a ca lÃ m viá»‡c (${sessionRes.data.date}).`);
+              const err = new Error(`ORDER_VALIDATION_ERROR: Ngày của đơn hàng (${data.businessDate}) không khớp với ngày của ca làm việc (${sessionRes.data.date}).`);
               err.code = 'ORDER_VALIDATION_ERROR';
-              throw err;
+              console.log("ORDER API THROW:", err.message); throw err;
             }
           }
         } catch (sessionErr) {
@@ -326,7 +326,119 @@ export const orderApi = {
         updatedAt: nowIso,
       };
 
-      const res = await axiosClient.post('/orders', payload);
+      // 1. Deduct stock safely (OCC)
+      const stockRollback = [];
+      const internalUpdateStock = async (productId, deltaQuantity) => {
+        let attempt = 0;
+        while (attempt < 3) {
+          attempt++;
+          try {
+            const prodRes = await axiosClient.get(`/products/${productId}`);
+            const prod = prodRes?.data !== undefined ? prodRes.data : prodRes;
+            if (!prod) {
+              const err = new Error(`PRODUCT_NOT_FOUND: Không tìm thấy sản phẩm ${productId}`);
+              err.code = 'PRODUCT_NOT_FOUND';
+              console.log("ORDER API THROW:", err.message); throw err;
+            }
+            const currentStock = Number(prod.stockQuantity) || 0;
+            const newStock = currentStock + deltaQuantity;
+            if (newStock < 0) {
+              const err = new Error(`INVALID_STOCK: Sản phẩm không đủ tồn kho để thanh toán.`);
+              err.code = 'INVALID_STOCK';
+              console.log("ORDER API THROW:", err.message); throw err;
+            }
+            const expectedNextVersion = (prod.stockVersion || 0) + 1;
+            const occSessionId = Math.random().toString(36).substring(2);
+            await axiosClient.patch(`/products/${productId}`, {
+              stockQuantity: newStock,
+              stockVersion: expectedNextVersion,
+              _occSession: occSessionId,
+              updatedAt: new Date().toISOString()
+            });
+            const verifyRes = await axiosClient.get(`/products/${productId}`);
+            const verifyData = verifyRes?.data !== undefined ? verifyRes.data : verifyRes;
+            if (verifyData.stockVersion !== expectedNextVersion || verifyData._occSession !== occSessionId) {
+              const occErr = new Error('OCC_CONFLICT');
+              occErr.code = 'OCC_CONFLICT';
+              throw occErr;
+            }
+            break;
+          } catch (err) {
+            if (err.code === 'OCC_CONFLICT' && attempt < 3) continue;
+            console.log("ORDER API THROW:", err.message); throw err;
+          }
+        }
+      };
+
+      try {
+        if (payload.status === 'completed') {
+          for (const item of canonicalItems) {
+            console.log("ABOUT TO UPDATE STOCK FOR ITEM", item.productId);
+            console.log("UPDATING STOCK"); await internalUpdateStock(item.productId, -item.quantity);
+            stockRollback.push({ productId: item.productId, quantity: item.quantity });
+          }
+        }
+      } catch (err) {
+        for (const r of stockRollback) {
+            console.log("ABOUT TO UPDATE STOCK FOR ITEM", item.productId);
+          try { console.log("UPDATING STOCK"); await internalUpdateStock(r.productId, r.quantity); } catch (e) {}
+        }
+        console.log("ORDER API THROW:", err.message); throw err;
+      }
+
+      // 2. Post order
+        console.log("ABOUT TO POST ORDER");
+      let res;
+      try {
+        res = await axiosClient.post('/orders', payload);
+        console.log("POSTED ORDER SUCCESSFULLY");
+      } catch (err) {
+        for (const r of stockRollback) {
+            console.log("ABOUT TO UPDATE STOCK FOR ITEM", item.productId);
+          try { console.log("UPDATING STOCK"); await internalUpdateStock(r.productId, r.quantity); } catch (e) {}
+        }
+        console.log("ORDER API THROW:", err.message); throw err;
+      }
+
+      // 3. Create transactions
+      if (payload.status === 'completed') {
+        const generatedTxIds = [];
+        for (const item of canonicalItems) {
+          try {
+            const txId = generateId();
+            generatedTxIds.push(txId);
+            console.log("ABOUT TO CREATE TX FOR ITEM", item.productId);
+            console.log("CREATING TX"); await inventoryApi.createTransaction({
+              id: txId,
+              productId: item.productId,
+              type: INVENTORY_TYPES.OUT,
+              reason: INVENTORY_REASONS.SALE,
+              quantity: item.quantity,
+              unitPrice: item.price,
+              unitCost: item.price, // assuming canonical price is also used as cost here
+              orderId: payload.id,
+              orderCode: payload.code,
+              accountId: actor.id,
+              workSessionId: payload.workSessionId,
+              registerId: payload.registerId,
+              businessDate: payload.businessDate,
+              note: `Bán lẻ qua đơn hàng ${payload.code}`,
+              createdAt: nowIso
+            }, actor);
+          } catch (txErr) {
+             console.error('Failed to create inventory transaction', txErr);
+          }
+        }
+        if (generatedTxIds.length > 0) {
+          // Patch order to include transaction IDs
+          try {
+             await axiosClient.patch(`/orders/${payload.id}`, { inventoryTransactionIds: generatedTxIds });
+             payload.inventoryTransactionIds = generatedTxIds;
+             if (res && res.data) res.data.inventoryTransactionIds = generatedTxIds;
+          } catch (e) {}
+        }
+      }
+
       logActivity({
         actor,
         action: ACTIVITY_ACTIONS.ORDER_CREATED,
@@ -344,23 +456,23 @@ export const orderApi = {
 
     // Direct mutation to 'cancelled' is strictly forbidden via updateStatus
     if (status === 'cancelled' || status === 'historical_cancelled') {
-      const err = new Error('ORDER_MUTATION_RESTRICTED: Tráº¡ng thÃ¡i Ä‘Æ¡n hÃ ng khÃ´ng thá»ƒ thay Ä‘á»•i sang "cancelled" báº±ng updateStatus. Vui lÃ²ng sá»­ dá»¥ng quy trÃ¬nh há»§y Ä‘Æ¡n chuáº©n orderApi.cancel().');
+      const err = new Error('ORDER_MUTATION_RESTRICTED: Trạng thái đơn hàng không thể thay đổi sang "cancelled" bằng updateStatus. Vui lòng sử dụng quy trình hủy đơn chuẩn orderApi.cancel().');
       err.code = 'ORDER_MUTATION_RESTRICTED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     return (async () => {
       const orderRes = await axiosClient.get(`/orders/${id}`);
       const existingOrder = orderRes.data;
       if (!existingOrder) {
-        const err = new Error('ORDER_NOT_FOUND: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng cáº§n cáº­p nháº­t.');
+        const err = new Error('ORDER_NOT_FOUND: Không tìm thấy đơn hàng cần cập nhật.');
         err.code = 'ORDER_NOT_FOUND';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
       if (existingOrder.status === 'completed' && status !== 'completed') {
-        const err = new Error(`ORDER_MUTATION_RESTRICTED: ÄÆ¡n hÃ ng Ä‘Ã£ hoÃ n táº¥t khÃ´ng thá»ƒ chuyá»ƒn sang tráº¡ng thÃ¡i "${status}" qua updateStatus.`);
+        const err = new Error(`ORDER_MUTATION_RESTRICTED: Đơn hàng đã hoàn tất không thể chuyển sang trạng thái "${status}" qua updateStatus.`);
         err.code = 'ORDER_MUTATION_RESTRICTED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       return axiosClient.patch(`/orders/${id}`, {
@@ -374,24 +486,24 @@ export const orderApi = {
     assertPermission(actor, PERMISSIONS.ORDER_CANCEL_MANAGEMENT);
 
     if (data && (data.status === 'cancelled' || data.status === 'historical_cancelled')) {
-      const err = new Error('ORDER_MUTATION_RESTRICTED: Tráº¡ng thÃ¡i Ä‘Æ¡n hÃ ng khÃ´ng thá»ƒ thay Ä‘á»•i sang "cancelled" báº±ng update. Vui lÃ²ng sá»­ dá»¥ng quy trÃ¬nh há»§y Ä‘Æ¡n chuáº©n orderApi.cancel().');
+      const err = new Error('ORDER_MUTATION_RESTRICTED: Trạng thái đơn hàng không thể thay đổi sang "cancelled" bằng update. Vui lòng sử dụng quy trình hủy đơn chuẩn orderApi.cancel().');
       err.code = 'ORDER_MUTATION_RESTRICTED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     return (async () => {
       const orderRes = await axiosClient.get(`/orders/${id}`);
       const existingOrder = orderRes.data;
       if (!existingOrder) {
-        const err = new Error('ORDER_NOT_FOUND: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng cáº§n cáº­p nháº­t.');
+        const err = new Error('ORDER_NOT_FOUND: Không tìm thấy đơn hàng cần cập nhật.');
         err.code = 'ORDER_NOT_FOUND';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       if (existingOrder.status === 'cancelled' || existingOrder.status === 'historical_cancelled') {
-        const err = new Error('ORDER_MUTATION_RESTRICTED: ÄÆ¡n hÃ ng Ä‘Ã£ bá»‹ há»§y vÃ  khÃ´ng thá»ƒ chá»‰nh sá»­a.');
+        const err = new Error('ORDER_MUTATION_RESTRICTED: Đơn hàng đã bị hủy và không thể chỉnh sửa.');
         err.code = 'ORDER_MUTATION_RESTRICTED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
     const IMMUTABLE_COMPLETED_ORDER_FIELDS = [
@@ -432,9 +544,9 @@ export const orderApi = {
     if (existingOrder.status === 'completed') {
       for (const field of IMMUTABLE_COMPLETED_ORDER_FIELDS) {
         if (data && data[field] !== undefined && JSON.stringify(data[field]) !== JSON.stringify(existingOrder[field])) {
-          const err = new Error(`ORDER_MUTATION_RESTRICTED: TrÆ°á»ng "${field}" cá»§a Ä‘Æ¡n hÃ ng Ä‘Ã£ hoÃ n táº¥t lÃ  báº¥t biáº¿n vÃ  khÃ´ng thá»ƒ chá»‰nh sá»­a qua update/patch. Vui lÃ²ng sá»­ dá»¥ng quy trÃ¬nh há»§y Ä‘Æ¡n chuáº©n orderApi.cancel().`);
+          const err = new Error(`ORDER_MUTATION_RESTRICTED: Trường "${field}" của đơn hàng đã hoàn tất là bất biến và không thể chỉnh sửa qua update/patch. Vui lòng sử dụng quy trình hủy đơn chuẩn orderApi.cancel().`);
           err.code = 'ORDER_MUTATION_RESTRICTED';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       }
     }
@@ -462,15 +574,15 @@ export const orderApi = {
 
   patch: (id, data, actor) => {
     if (!actor || !actor.id) {
-      const err = new Error('NOT_AUTHENTICATED: YÃªu cáº§u Ä‘Äƒng nháº­p Ä‘á»ƒ cáº­p nháº­t Ä‘Æ¡n hÃ ng.');
+      const err = new Error('NOT_AUTHENTICATED: Yêu cầu đăng nhập để cập nhật đơn hàng.');
       err.code = 'NOT_AUTHENTICATED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (data && (data.status === 'cancelled' || data.status === 'historical_cancelled')) {
-      const err = new Error('ORDER_MUTATION_RESTRICTED: Tráº¡ng thÃ¡i Ä‘Æ¡n hÃ ng khÃ´ng thá»ƒ thay Ä‘á»•i sang "cancelled" báº±ng patch. Vui lÃ²ng sá»­ dá»¥ng quy trÃ¬nh há»§y Ä‘Æ¡n chuáº©n orderApi.cancel().');
+      const err = new Error('ORDER_MUTATION_RESTRICTED: Trạng thái đơn hàng không thể thay đổi sang "cancelled" bằng patch. Vui lòng sử dụng quy trình hủy đơn chuẩn orderApi.cancel().');
       err.code = 'ORDER_MUTATION_RESTRICTED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     assertPermission(actor, PERMISSIONS.ORDER_CANCEL_MANAGEMENT);
@@ -479,15 +591,15 @@ export const orderApi = {
       const orderRes = await axiosClient.get(`/orders/${id}`);
       const existingOrder = orderRes.data;
       if (!existingOrder) {
-        const err = new Error('ORDER_NOT_FOUND: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng cáº§n cáº­p nháº­t.');
+        const err = new Error('ORDER_NOT_FOUND: Không tìm thấy đơn hàng cần cập nhật.');
         err.code = 'ORDER_NOT_FOUND';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
     if (existingOrder.status === 'cancelled' || existingOrder.status === 'historical_cancelled') {
-      const err = new Error('ORDER_MUTATION_RESTRICTED: ÄÆ¡n hÃ ng Ä‘Ã£ bá»‹ há»§y vÃ  khÃ´ng thá»ƒ chá»‰nh sá»­a.');
+      const err = new Error('ORDER_MUTATION_RESTRICTED: Đơn hàng đã bị hủy và không thể chỉnh sửa.');
       err.code = 'ORDER_MUTATION_RESTRICTED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const IMMUTABLE_COMPLETED_ORDER_FIELDS = [
@@ -528,9 +640,9 @@ export const orderApi = {
     if (existingOrder.status === 'completed') {
       for (const field of IMMUTABLE_COMPLETED_ORDER_FIELDS) {
         if (data && data[field] !== undefined && JSON.stringify(data[field]) !== JSON.stringify(existingOrder[field])) {
-          const err = new Error(`ORDER_MUTATION_RESTRICTED: TrÆ°á»ng "${field}" cá»§a Ä‘Æ¡n hÃ ng Ä‘Ã£ hoÃ n táº¥t lÃ  báº¥t biáº¿n vÃ  khÃ´ng thá»ƒ chá»‰nh sá»­a qua update/patch. Vui lÃ²ng sá»­ dá»¥ng quy trÃ¬nh há»§y Ä‘Æ¡n chuáº©n orderApi.cancel().`);
+          const err = new Error(`ORDER_MUTATION_RESTRICTED: Trường "${field}" của đơn hàng đã hoàn tất là bất biến và không thể chỉnh sửa qua update/patch. Vui lòng sử dụng quy trình hủy đơn chuẩn orderApi.cancel().`);
           err.code = 'ORDER_MUTATION_RESTRICTED';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       }
     }
@@ -544,9 +656,9 @@ export const orderApi = {
 
   cancel: (id, { actor, reason, order, currentSessionId, refundCash = true, refundMethod, registerId, cancelledRegisterId } = {}) => {
     if (!actor?.id) {
-      const err = new Error('NOT_AUTHENTICATED: NgÆ°á»i thá»±c hiá»‡n chÆ°a Ä‘Äƒng nháº­p.');
+      const err = new Error('NOT_AUTHENTICATED: Người thực hiện chưa đăng nhập.');
       err.code = 'NOT_AUTHENTICATED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     assertPermission(actor, PERMISSIONS.ORDER_CANCEL);
@@ -557,44 +669,44 @@ export const orderApi = {
     // If order was passed, execute synchronous validations to satisfy synchronous assertions
     if (order) {
       if (order.status === 'cancelled' || order.status === 'historical_cancelled') {
-        const err = new Error('ORDER_ALREADY_CANCELLED: ÄÆ¡n hÃ ng Ä‘Ã£ á»Ÿ tráº¡ng thÃ¡i Ä‘Ã£ há»§y.');
+        const err = new Error('ORDER_ALREADY_CANCELLED: Đơn hàng đã ở trạng thái đã hủy.');
         err.code = 'ORDER_ALREADY_CANCELLED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       if (!isManagement) {
         const sellerId = order.accountId || order.sellerId || order.createdBy;
         if (sellerId !== actor.id) {
-          const err = new Error('CANCEL_DENIED: Báº¡n chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng do chÃ­nh mÃ¬nh táº¡o.');
+          const err = new Error('CANCEL_DENIED: Bạn chỉ được hủy đơn hàng do chính mình tạo.');
           err.code = 'NOT_OWN_ORDER';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
 
         if (!currentSessionId || order.workSessionId !== currentSessionId) {
-          const err = new Error('CANCEL_DENIED: Báº¡n chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng thuá»™c ca lÃ m viá»‡c hiá»‡n táº¡i.');
+          const err = new Error('CANCEL_DENIED: Bạn chỉ được hủy đơn hàng thuộc ca làm việc hiện tại.');
           err.code = 'NOT_CURRENT_SESSION';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
 
         const ageMs = Date.now() - new Date(order.createdAt).getTime();
         if (ageMs > 15 * 60 * 1000) {
-          const err = new Error('CANCEL_DENIED: ÄÃ£ quÃ¡ 15 phÃºt ká»ƒ tá»« lÃºc táº¡o Ä‘Æ¡n, khÃ´ng thá»ƒ tá»± há»§y.');
+          const err = new Error('CANCEL_DENIED: Đã quá 15 phút kể từ lúc tạo đơn, không thể tự hủy.');
           err.code = 'CANCEL_WINDOW_EXPIRED';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       } else if (!isAdmin) {
         const orderBizDate = order.businessDate || (order.createdAt ? getBusinessDate(order.createdAt) : null);
         if (orderBizDate && orderBizDate !== getBusinessDate()) {
-          const err = new Error('CANCEL_DENIED: Quáº£n lÃ½ chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng trong ngÃ y lÃ m viá»‡c hiá»‡n táº¡i.');
+          const err = new Error('CANCEL_DENIED: Quản lý chỉ được hủy đơn hàng trong ngày làm việc hiện tại.');
           err.code = 'STAFF_SAME_DAY_ONLY';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       }
 
       if (!reason || !reason.trim()) {
-        const err = new Error('CANCEL_DENIED: Vui lÃ²ng nháº­p lÃ½ do há»§y Ä‘Æ¡n.');
+        const err = new Error('CANCEL_DENIED: Vui lòng nhập lý do hủy đơn.');
         err.code = 'REASON_REQUIRED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
     }
 
@@ -604,56 +716,56 @@ export const orderApi = {
       const targetOrder = orderRes.data;
 
       if (!targetOrder) {
-        const err = new Error('ORDER_NOT_FOUND: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng cáº§n há»§y.');
+        const err = new Error('ORDER_NOT_FOUND: Không tìm thấy đơn hàng cần hủy.');
         err.code = 'ORDER_NOT_FOUND';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       if (targetOrder.status === 'cancelled' || targetOrder.status === 'historical_cancelled') {
-        const err = new Error('ORDER_ALREADY_CANCELLED: ÄÆ¡n hÃ ng Ä‘Ã£ á»Ÿ tráº¡ng thÃ¡i Ä‘Ã£ há»§y.');
+        const err = new Error('ORDER_ALREADY_CANCELLED: Đơn hàng đã ở trạng thái đã hủy.');
         err.code = 'ORDER_ALREADY_CANCELLED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       if (targetOrder.status !== 'completed') {
-        const err = new Error(`ORDER_CANNOT_BE_CANCELLED: Chá»‰ cÃ³ thá»ƒ há»§y Ä‘Æ¡n hÃ ng á»Ÿ tráº¡ng thÃ¡i hoÃ n táº¥t (hiá»‡n táº¡i: ${targetOrder.status}).`);
+        const err = new Error(`ORDER_CANNOT_BE_CANCELLED: Chỉ có thể hủy đơn hàng ở trạng thái hoàn tất (hiện tại: ${targetOrder.status}).`);
         err.code = 'ORDER_CANNOT_BE_CANCELLED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       if (!isManagement) {
         const sellerId = targetOrder.accountId || targetOrder.sellerId || targetOrder.createdBy;
         if (sellerId !== actor.id) {
-          const err = new Error('CANCEL_DENIED: Báº¡n chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng do chÃ­nh mÃ¬nh táº¡o.');
+          const err = new Error('CANCEL_DENIED: Bạn chỉ được hủy đơn hàng do chính mình tạo.');
           err.code = 'NOT_OWN_ORDER';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
 
         if (!currentSessionId || targetOrder.workSessionId !== currentSessionId) {
-          const err = new Error('CANCEL_DENIED: Báº¡n chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng thuá»™c ca lÃ m viá»‡c hiá»‡n táº¡i.');
+          const err = new Error('CANCEL_DENIED: Bạn chỉ được hủy đơn hàng thuộc ca làm việc hiện tại.');
           err.code = 'NOT_CURRENT_SESSION';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
 
         const ageMs = Date.now() - new Date(targetOrder.createdAt).getTime();
         if (ageMs > 15 * 60 * 1000) {
-          const err = new Error('CANCEL_DENIED: ÄÃ£ quÃ¡ 15 phÃºt ká»ƒ tá»« lÃºc táº¡o Ä‘Æ¡n, khÃ´ng thá»ƒ tá»± há»§y.');
+          const err = new Error('CANCEL_DENIED: Đã quá 15 phút kể từ lúc tạo đơn, không thể tự hủy.');
           err.code = 'CANCEL_WINDOW_EXPIRED';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       } else if (!isAdmin) {
         const orderBizDate = targetOrder.businessDate || (targetOrder.createdAt ? getBusinessDate(targetOrder.createdAt) : null);
         if (orderBizDate && orderBizDate !== getBusinessDate()) {
-          const err = new Error('CANCEL_DENIED: Quáº£n lÃ½ chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng trong ngÃ y lÃ m viá»‡c hiá»‡n táº¡i.');
+          const err = new Error('CANCEL_DENIED: Quản lý chỉ được hủy đơn hàng trong ngày làm việc hiện tại.');
           err.code = 'STAFF_SAME_DAY_ONLY';
-          throw err;
+          console.log("ORDER API THROW:", err.message); throw err;
         }
       }
 
       if (!reason || !reason.trim()) {
-        const err = new Error('CANCEL_DENIED: Vui lÃ²ng nháº­p lÃ½ do há»§y Ä‘Æ¡n.');
+        const err = new Error('CANCEL_DENIED: Vui lòng nhập lý do hủy đơn.');
         err.code = 'REASON_REQUIRED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       const orderBizDate = targetOrder.businessDate || (targetOrder.createdAt ? getBusinessDate(targetOrder.createdAt) : null);
@@ -695,38 +807,38 @@ export const orderApi = {
 
   cancelAndRestock: async (id, { actor, reason, currentSessionId, refundCash = true, refundMethod, registerId, cancelledRegisterId } = {}) => {
     if (!actor?.id) {
-      const err = new Error('NOT_AUTHENTICATED: NgÆ°á»i thá»±c hiá»‡n chÆ°a Ä‘Äƒng nháº­p.');
+      const err = new Error('NOT_AUTHENTICATED: Người thực hiện chưa đăng nhập.');
       err.code = 'NOT_AUTHENTICATED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     assertPermission(actor, PERMISSIONS.ORDER_CANCEL);
 
     if (!reason || !reason.trim()) {
-      const err = new Error('CANCEL_DENIED: Vui lÃ²ng nháº­p lÃ½ do há»§y Ä‘Æ¡n.');
+      const err = new Error('CANCEL_DENIED: Vui lòng nhập lý do hủy đơn.');
       err.code = 'REASON_REQUIRED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const orderRes = await axiosClient.get(`/orders/${id}`);
     const targetOrder = orderRes.data;
 
     if (!targetOrder) {
-      const err = new Error('ORDER_NOT_FOUND: KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng cáº§n há»§y.');
+      const err = new Error('ORDER_NOT_FOUND: Không tìm thấy đơn hàng cần hủy.');
       err.code = 'ORDER_NOT_FOUND';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (targetOrder.status === 'cancelled' || targetOrder.status === 'historical_cancelled') {
-      const err = new Error('ORDER_ALREADY_CANCELLED: ÄÆ¡n hÃ ng Ä‘Ã£ á»Ÿ tráº¡ng thÃ¡i Ä‘Ã£ há»§y.');
+      const err = new Error('ORDER_ALREADY_CANCELLED: Đơn hàng đã ở trạng thái đã hủy.');
       err.code = 'ORDER_ALREADY_CANCELLED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     if (targetOrder.isRestocked) {
-      const err = new Error('ORDER_ALREADY_RESTOCKED: ÄÆ¡n hÃ ng Ä‘Ã£ Ä‘Æ°á»£c hoÃ n kho trÆ°á»›c Ä‘Ã³.');
+      const err = new Error('ORDER_ALREADY_RESTOCKED: Đơn hàng đã được hoàn kho trước đó.');
       err.code = 'ORDER_ALREADY_RESTOCKED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const isAdmin = actor.role === 'admin';
@@ -735,29 +847,29 @@ export const orderApi = {
     if (!isManagement) {
       const sellerId = targetOrder.accountId || targetOrder.sellerId || targetOrder.createdBy;
       if (sellerId !== actor.id) {
-        const err = new Error('CANCEL_DENIED: Báº¡n chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng do chÃ­nh mÃ¬nh táº¡o.');
+        const err = new Error('CANCEL_DENIED: Bạn chỉ được hủy đơn hàng do chính mình tạo.');
         err.code = 'NOT_OWN_ORDER';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       if (!currentSessionId || targetOrder.workSessionId !== currentSessionId) {
-        const err = new Error('CANCEL_DENIED: Báº¡n chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng thuá»™c ca lÃ m viá»‡c hiá»‡n táº¡i.');
+        const err = new Error('CANCEL_DENIED: Bạn chỉ được hủy đơn hàng thuộc ca làm việc hiện tại.');
         err.code = 'NOT_CURRENT_SESSION';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
 
       const ageMs = Date.now() - new Date(targetOrder.createdAt).getTime();
       if (ageMs > 15 * 60 * 1000) {
-        const err = new Error('CANCEL_DENIED: ÄÃ£ quÃ¡ 15 phÃºt ká»ƒ tá»« lÃºc táº¡o Ä‘Æ¡n, khÃ´ng thá»ƒ tá»± há»§y.');
+        const err = new Error('CANCEL_DENIED: Đã quá 15 phút kể từ lúc tạo đơn, không thể tự hủy.');
         err.code = 'CANCEL_WINDOW_EXPIRED';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
     } else if (!isAdmin) {
       const orderBizDate = targetOrder.businessDate || (targetOrder.createdAt ? getBusinessDate(targetOrder.createdAt) : null);
       if (orderBizDate && orderBizDate !== getBusinessDate()) {
-        const err = new Error('CANCEL_DENIED: Quáº£n lÃ½ chá»‰ Ä‘Æ°á»£c há»§y Ä‘Æ¡n hÃ ng trong ngÃ y lÃ m viá»‡c hiá»‡n táº¡i.');
+        const err = new Error('CANCEL_DENIED: Quản lý chỉ được hủy đơn hàng trong ngày làm việc hiện tại.');
         err.code = 'STAFF_SAME_DAY_ONLY';
-        throw err;
+        console.log("ORDER API THROW:", err.message); throw err;
       }
     }
 
@@ -792,7 +904,8 @@ export const orderApi = {
       const prod = prodRes.data;
       const costPrice = prod ? (Number(prod.costPrice) || Number(prod.price) || Number(item.price) || 0) : Number(item.price) || 0;
 
-      await inventoryApi.createTransaction({
+            console.log("ABOUT TO CREATE TX FOR ITEM", item.productId);
+      console.log("CREATING TX"); await inventoryApi.createTransaction({
         id: generateId(),
         productId: item.productId,
         type: INVENTORY_TYPES.IN,
@@ -806,7 +919,7 @@ export const orderApi = {
         workSessionId: currentSessionId || targetOrder.workSessionId || null,
         registerId: cancelledRegisterId || registerId || targetOrder.registerId || null,
         businessDate: getBusinessDate(),
-        note: `HoÃ n kho - há»§y ${targetOrder.code || targetOrder.id}`,
+        note: `Hoàn kho - hủy ${targetOrder.code || targetOrder.id}`,
         createdAt: new Date().toISOString(),
       }, actor);
 
@@ -836,7 +949,7 @@ export const orderApi = {
             break;
           } catch (err) {
             if (err.code === 'OCC_CONFLICT' && attempt < 3) continue;
-            throw err;
+            console.log("ORDER API THROW:", err.message); throw err;
           }
         }
       }
@@ -853,71 +966,16 @@ export const orderApi = {
 
   remove: () => {
     // Prevent permanent deletion of historical orders
-    const err = new Error('ORDER_DELETION_RESTRICTED: ÄÆ¡n hÃ ng lÃ  báº£n ghi lá»‹ch sá»­ khÃ´ng Ä‘Æ°á»£c phÃ©p xÃ³a vÄ©nh viá»…n. Vui lÃ²ng sá»­ dá»¥ng chá»©c nÄƒng há»§y Ä‘Æ¡n.');
+    const err = new Error('ORDER_DELETION_RESTRICTED: Đơn hàng là bản ghi lịch sử không được phép xóa vĩnh viễn. Vui lòng sử dụng chức năng hủy đơn.');
     err.code = 'ORDER_DELETION_RESTRICTED';
-    throw err;
-  },
-
-  compensateCheckoutRollback: async (rollbackSteps, actor) => {
-    if (!actor || !actor.id) {
-      const err = new Error('NOT_AUTHENTICATED: Authentication required for rollback.');
-      err.code = 'NOT_AUTHENTICATED';
-      throw err;
-    }
-    const requiredPermission = PERMISSIONS.ORDER_CREATE;
-    if (!hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
-      const err = new Error('PERMISSION_DENIED');
-      err.code = 'PERMISSION_DENIED';
-      err.requiredPermission = requiredPermission;
-      throw err;
-    }
-
-    for (let i = rollbackSteps.length - 1; i >= 0; i--) {
-      const step = rollbackSteps[i];
-      try {
-        if (step.type === 'TRANSACTION') {
-          await axiosClient.delete(`/inventoryTransactions/${step.transactionId}`);
-        } else if (step.type === 'ORDER') {
-          await axiosClient.delete(`/orders/${step.orderId}`);
-        } else if (step.type === 'STOCK_DELTA') {
-          let attempt = 0;
-          while (attempt < 3) {
-            attempt++;
-            try {
-              const prodRes = await axiosClient.get(`/products/${step.productId}`);
-              const prod = prodRes.data;
-              const currentStock = Number(prod.stockQuantity) || 0;
-              const newStock = currentStock + Number(step.quantity);
-              const expectedNextVersion = (prod.stockVersion || 0) + 1;
-              const occSessionId = Math.random().toString(36).substring(2);
-              await axiosClient.patch(`/products/${step.productId}`, {
-                stockQuantity: newStock,
-                stockVersion: expectedNextVersion,
-                _occSession: occSessionId,
-                updatedAt: new Date().toISOString()
-              });
-              const verifyRes = await axiosClient.get(`/products/${step.productId}`);
-              if (verifyRes.data.stockVersion !== expectedNextVersion || verifyRes.data._occSession !== occSessionId) {
-                const occErr = new Error('OCC_CONFLICT');
-                occErr.code = 'OCC_CONFLICT';
-                throw occErr;
-              }
-              break;
-            } catch (err) {
-              if (err.code === 'OCC_CONFLICT' && attempt < 3) continue;
-              throw err;
-            }
-          }
-        }
-      } catch (err) {}
-    }
+    console.log("ORDER API THROW:", err.message); throw err;
   },
 
   removeInFlightOrder: async (orderId, actor) => {
     if (!actor || !actor.id) {
-      const err = new Error('NOT_AUTHENTICATED: YÃªu cáº§u Ä‘Äƒng nháº­p Ä‘á»ƒ hoÃ n tÃ¡c Ä‘Æ¡n hÃ ng in-flight.');
+      const err = new Error('NOT_AUTHENTICATED: Yêu cầu đăng nhập để hoàn tác đơn hàng in-flight.');
       err.code = 'NOT_AUTHENTICATED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
     assertPermission(actor, PERMISSIONS.ORDER_CREATE);
     const orderRes = await axiosClient.get(`/orders/${orderId}`);
@@ -925,18 +983,18 @@ export const orderApi = {
     if (!order) return;
 
     if (actor.role !== 'admin' && String(order.accountId) !== String(actor.id) && String(order.sellerId) !== String(actor.id)) {
-      const err = new Error('PERMISSION_DENIED: Báº¡n chá»‰ cÃ³ thá»ƒ hoÃ n tÃ¡c Ä‘Æ¡n hÃ ng in-flight do chÃ­nh mÃ¬nh táº¡o.');
+      const err = new Error('PERMISSION_DENIED: Bạn chỉ có thể hoàn tác đơn hàng in-flight do chính mình tạo.');
       err.code = 'PERMISSION_DENIED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     const txRes = await axiosClient.get(`/inventoryTransactions?orderId=${orderId}`);
     const txList = Array.isArray(txRes.data) ? txRes.data : [];
     const activeTx = txList.filter(t => !t.isVoided);
     if (activeTx.length > 0) {
-      const err = new Error('ORDER_DELETION_RESTRICTED: ÄÆ¡n hÃ ng Ä‘Ã£ cÃ³ giao dá»‹ch kho Ä‘Æ°á»£c xÃ¡c nháº­n, khÃ´ng thá»ƒ xÃ³a in-flight.');
+      const err = new Error('ORDER_DELETION_RESTRICTED: Đơn hàng đã có giao dịch kho được xác nhận, không thể xóa in-flight.');
       err.code = 'ORDER_DELETION_RESTRICTED';
-      throw err;
+      console.log("ORDER API THROW:", err.message); throw err;
     }
 
     return axiosClient.delete(`/orders/${orderId}`);
@@ -982,6 +1040,9 @@ export const orderApi = {
       }
     }
 
-    throw new Error('KhÃ´ng thá»ƒ táº¡o mÃ£ hÃ³a Ä‘Æ¡n duy nháº¥t, vui lÃ²ng thá»­ láº¡i.');
+    throw new Error('Không thể tạo mã hóa đơn duy nhất, vui lòng thử lại.');
   }
 };
+
+
+

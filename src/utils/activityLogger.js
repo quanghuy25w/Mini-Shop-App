@@ -1,4 +1,4 @@
-﻿import { activityLogApi } from '../api/activityLogApi';
+ import { activityLogApi } from '../api/activityLogApi';
 import { generateId } from './generateId';
 
 export const ACTIVITY_ACTIONS = {

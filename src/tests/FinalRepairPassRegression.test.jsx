@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeEach } from 'vitest';
+ import { describe, it, expect, beforeEach } from 'vitest';
 import { orderApi } from '../api/orderApi';
 import { productApi } from '../api/productApi';
 import { inventoryApi } from '../api/inventoryApi';

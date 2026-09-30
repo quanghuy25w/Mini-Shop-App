@@ -1,8 +1,8 @@
-﻿/**
- * mockApi.js â€” Test-only in-memory API mock.
+/**
+ * mockApi.js — Test-only in-memory API mock.
  *
  * This file is used ONLY by Vitest tests. It is not imported by any production code.
- * It models the current API architecture (axiosClient â†’ json-server â†’ db.json)
+ * It models the current API architecture (axiosClient → json-server → db.json)
  * using an in-memory store seeded from db.json via seedData.js.
  *
  * Rules:
@@ -24,7 +24,7 @@ const getStore = () => {
   return globalThis.__MINISHOP_TEST_STORE__;
 };
 
-// Resource key â†’ localStorage-style storage key mapping
+// Resource key → localStorage-style storage key mapping
 const STORAGE_KEYS = {
   categories: 'minishop_categories',
   products: 'minishop_products',
@@ -49,7 +49,7 @@ export const clearStore = () => {
  * Only seeds a collection if it is not already present (guards against overwriting
  * data that a test's beforeEach explicitly set before calling initSeedData).
  */
-export const initSeedData = () => {
+export const initSeedData = () => { if (typeof window !== 'undefined' && window.localStorage) window.localStorage.setItem('minishop_current_register_id', 'POS01');
   const store = getStore();
   const actualData = seedData?.products ? seedData : (seedData?.default || {});
   const shouldSeedKey = (storageKey) => !Object.prototype.hasOwnProperty.call(store, storageKey);
@@ -62,7 +62,11 @@ export const initSeedData = () => {
 
   seed(STORAGE_KEYS.categories, actualData.categories);
       const syntheticProducts = [
-      { id: 'p1', name: 'Product 1', price: 250000, sellPrice: 250000, stockQuantity: 100, isActive: true },
+      { id: 'p-200K', name: 'Mock 200K', price: 200000, sellPrice: 200000, stockQuantity: 9999, isActive: true },
+      { id: 'p-100K', name: 'Mock 100K', price: 100000, sellPrice: 100000, stockQuantity: 9999, isActive: true },
+      { id: 'p-150K', name: 'Mock 150K', price: 150000, sellPrice: 150000, stockQuantity: 9999, isActive: true },
+      { id: 'p-50K', name: 'Mock 50K', price: 50000, sellPrice: 50000, stockQuantity: 9999, isActive: true },
+{ id: 'p1', name: 'Product 1', price: 250000, sellPrice: 250000, stockQuantity: 100, isActive: true },
       { id: 'p2', name: 'Product 2', price: 150000, sellPrice: 150000, stockQuantity: 100, isActive: true },
       { id: 'p3', name: 'Product 3', price: 50000, sellPrice: 50000, stockQuantity: 100, isActive: true },
       { id: 'product-1', name: 'Product A', price: 100000, sellPrice: 100000, stockQuantity: 100, isActive: true },
@@ -131,7 +135,7 @@ export const setCollectionByStorageKey = (storageKey, data) => {
 export const getCollectionByStorageKey = (storageKey) => {
   const store = getStore();
   const raw = store[storageKey];
-  if (raw === undefined) return null;          // mirrors localStorage.getItem(absent key) â†’ null
+  if (raw === undefined) return null;          // mirrors localStorage.getItem(absent key) → null
   return raw;                                  // caller receives JSON string
 };
 
@@ -152,7 +156,7 @@ let _idSeq = 0;
 const generateId = () => `mock-id-${Date.now()}-${++_idSeq}`;
 
 /**
- * Main request handler â€” mirrors json-server CRUD semantics.
+ * Main request handler — mirrors json-server CRUD semantics.
  * Does NOT enforce any business rules (no WorkSession guards, no permission checks).
  */
 export const handleLocalStorageRequest = (method, url, body = null) => {
@@ -179,9 +183,9 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
 
   if (method === 'GET') {
     const DEFAULT_REGISTERS = [
-      { id: 'POS01', code: 'Q01', name: 'Quáº§y 01', description: 'MÃ¡y POS 01', isActive: true },
-      { id: 'POS02', code: 'Q02', name: 'Quáº§y 02', description: 'MÃ¡y POS 02', isActive: true },
-      { id: 'POS03', code: 'Q03', name: 'Quáº§y 03', description: 'MÃ¡y POS 03', isActive: true },
+      { id: 'POS01', code: 'Q01', name: 'Quầy 01', description: 'Máy POS 01', isActive: true },
+      { id: 'POS02', code: 'Q02', name: 'Quầy 02', description: 'Máy POS 02', isActive: true },
+      { id: 'POS03', code: 'Q03', name: 'Quầy 03', description: 'Máy POS 03', isActive: true },
       { id: 'p4', name: 'Product 1 VND', price: 1, sellPrice: 1, stockQuantity: 99999999, isActive: true }
     ];
     let items = isRegisters
@@ -256,7 +260,7 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
     }
 
     if (resource === 'workSessions') {
-      const msg = 'KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A: Dá»¯ liá»‡u ca lÃ m viá»‡c lÃ  báº£n ghi lá»‹ch sá»­ khÃ´ng thá»ƒ xÃ³a.';
+      const msg = 'KHÔNG ĐƯỢC PHÉP XÓA: Dữ liệu ca làm việc là bản ghi lịch sử không thể xóa.';
       const err = new Error(`${msg} (403)`);
       err.code = 'WORKSESSION_DELETION_RESTRICTED';
       err.response = {
@@ -271,7 +275,7 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
     }
 
     if (resource === 'workSessionMembers') {
-      const msg = 'KHÃ”NG ÄÆ¯á»¢C PHÃ‰P XÃ“A: Dá»¯ liá»‡u nhÃ¢n sá»± trá»±c ca lá»‹ch sá»­ khÃ´ng thá»ƒ xÃ³a (WORKSESSION_MEMBER_DELETION_RESTRICTED).';
+      const msg = 'KHÔNG ĐƯỢC PHÉP XÓA: Dữ liệu nhân sự trực ca lịch sử không thể xóa (WORKSESSION_MEMBER_DELETION_RESTRICTED).';
       const err = new Error(`${msg} (403)`);
       err.code = 'WORKSESSION_MEMBER_DELETION_RESTRICTED';
       err.response = {
@@ -297,3 +301,5 @@ export const handleLocalStorageRequest = (method, url, body = null) => {
 
   return Promise.reject(new Error(`Unsupported method: ${method}`));
 };
+
+

@@ -233,7 +233,7 @@ const SalesPage = () => {
   const handleOpenCheckoutConfirm = useCallback(() => {
     if (isSubmittingRef.current || isProcessing) return;
     if (cartItems.length === 0) {
-      toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
+      console.log("TOAST ERROR CALLED!"); toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
       return;
     }
     setIsCheckoutConfirmOpen(true);
@@ -243,7 +243,7 @@ const SalesPage = () => {
   const handleSaveDraft = useCallback(() => {
     if (isSubmittingRef.current || isProcessing) return;
     if (cartItems.length === 0) {
-      toast.error('Giỏ hàng trống, không thể lưu đơn!');
+      console.log("TOAST ERROR CALLED!"); toast.error('Giỏ hàng trống, không thể lưu đơn!');
       return;
     }
 
@@ -288,7 +288,7 @@ const SalesPage = () => {
     } else if (cartItems.length > 0) {
       toast.info('Vui lòng hoàn tất thanh toán trước khi in hóa đơn.');
     } else {
-      toast.error('Chưa có hóa đơn để in!');
+      console.log("TOAST ERROR CALLED!"); toast.error('Chưa có hóa đơn để in!');
     }
   }, [completedOrder, cartItems.length]);
 
@@ -313,7 +313,7 @@ const SalesPage = () => {
         if (cartItems.length > 0) {
           handleOpenCheckoutConfirm();
         } else {
-          toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
+          console.log("TOAST ERROR CALLED!"); toast.error('Giỏ hàng đang trống! Vui lòng chọn sản phẩm.');
         }
       } else if (e.key === 'F11') {
         e.preventDefault();
@@ -369,21 +369,21 @@ const SalesPage = () => {
           return;
         } else {
           // 0 kết quả -> Báo lỗi, giữ nguyên input
-          toast.error(`Không tìm thấy sản phẩm với từ khóa "${query}".`);
+          console.log("TOAST ERROR CALLED!"); toast.error(`Không tìm thấy sản phẩm với từ khóa "${query}".`);
           return;
         }
       }
 
       // KIỂM TRA TỒN KHO KHẢ DỤNG
       if (matched.stockQuantity <= 0) {
-        toast.error(`Sản phẩm "${matched.name}" đã hết hàng.`);
+        console.log("TOAST ERROR CALLED!"); toast.error(`Sản phẩm "${matched.name}" đã hết hàng.`);
         return;
       }
 
       const cartItem = cartItems.find(item => item.productId === matched.id);
       const currentInCart = cartItem ? cartItem.quantity : 0;
       if (currentInCart + 1 > matched.stockQuantity) {
-        toast.error(`Không thể thêm "${matched.name}". Số lượng trong giỏ (${currentInCart}) đã đạt tồn kho hiện tại (${matched.stockQuantity}).`);
+        console.log("TOAST ERROR CALLED!"); toast.error(`Không thể thêm "${matched.name}". Số lượng trong giỏ (${currentInCart}) đã đạt tồn kho hiện tại (${matched.stockQuantity}).`);
         return;
       }
 
@@ -398,7 +398,7 @@ const SalesPage = () => {
   // Them san pham vao gio
   const handleProductClick = (prod) => {
     if (prod.stockQuantity <= 0) {
-      toast.error(`Sản phẩm "${prod.name}" đã hết hàng trong kho!`);
+      console.log("TOAST ERROR CALLED!"); toast.error(`Sản phẩm "${prod.name}" đã hết hàng trong kho!`);
       return;
     }
     addToCart(prod, 1);
@@ -418,7 +418,7 @@ const SalesPage = () => {
         discountValue: Number(discount) || 0,
         discountAmount
       };
-      const order = await checkout(finalTotal, checkoutPayload);
+      console.log("PAY AND PRINT CHECKOUT START"); const order = await checkout(finalTotal, checkoutPayload); console.log("PAY AND PRINT CHECKOUT END", order);
       if (!isMountedRef.current) return;
       const enrichedOrder = {
         ...order,
@@ -437,7 +437,7 @@ const SalesPage = () => {
       printInvoice(enrichedOrder);
     } catch (err) {
       if (isMountedRef.current) {
-        toast.error(err.message || 'Lỗi khi thanh toán');
+        console.log("TOAST ERROR CALLED!"); console.log("TOAST ACTUAL ERROR:", err.message || 'Lỗi khi thanh toán'); toast.error(err.message || 'Lỗi khi thanh toán');
       }
     } finally {
       if (isMountedRef.current) {
@@ -463,7 +463,7 @@ const SalesPage = () => {
         discountValue: Number(discount) || 0,
         discountAmount
       };
-      const order = await checkout(finalTotal, checkoutPayload);
+      console.log("PAY AND PRINT CHECKOUT START"); const order = await checkout(finalTotal, checkoutPayload); console.log("PAY AND PRINT CHECKOUT END", order);
       if (!isMountedRef.current) return;
       setIsCheckoutConfirmOpen(false);
       setDiscount('0');
@@ -473,7 +473,7 @@ const SalesPage = () => {
       toast.success(`Thanh toán đơn ${order?.code || ''} thành công!`);
     } catch (err) {
       if (isMountedRef.current) {
-        toast.error(err.message || 'Lỗi khi thanh toán');
+        console.log("TOAST ERROR CALLED!"); console.log("TOAST ACTUAL ERROR:", err.message || 'Lỗi khi thanh toán'); toast.error(err.message || 'Lỗi khi thanh toán');
       }
     } finally {
       if (isMountedRef.current) {
@@ -489,7 +489,7 @@ const SalesPage = () => {
   const doRestoreDraft = (draft) => {
     const today = getBusinessDate();
     if (draft.businessDate && draft.businessDate !== today) {
-      toast.error('Đơn tạm đã hết hạn (chỉ áp dụng trong ngày làm việc hiện tại)!');
+      console.log("TOAST ERROR CALLED!"); toast.error('Đơn tạm đã hết hạn (chỉ áp dụng trong ngày làm việc hiện tại)!');
       const filtered = draftOrders.filter(d => d.id !== draft.id);
       setDraftOrders(filtered);
       try {
@@ -1046,3 +1046,7 @@ const SalesPage = () => {
 };
 
 export default SalesPage;
+
+
+
+

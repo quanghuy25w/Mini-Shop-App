@@ -132,65 +132,6 @@ export const productApi = {
     return res;
   },
 
-  deductStockForCheckout: async (id, quantity, actor) => {
-    if (!actor || !actor.id) {
-      const err = new Error('NOT_AUTHENTICATED: Authentication required for stock mutation.');
-      err.code = 'NOT_AUTHENTICATED';
-      throw err;
-    }
-    const requiredPermission = PERMISSIONS.ORDER_CREATE;
-    if (!hasPermission(actor, requiredPermission) && actor.role !== 'admin') {
-      const err = new Error('PERMISSION_DENIED');
-      err.code = 'PERMISSION_DENIED';
-      err.requiredPermission = requiredPermission;
-      throw err;
-    }
-    const stockNum = Number(quantity);
-    if (isNaN(stockNum) || stockNum <= 0) {
-      const err = new Error('INVALID_STOCK');
-      err.code = 'INVALID_STOCK';
-      throw err;
-    }
-    
-    let attempt = 0;
-    while (attempt < 3) {
-      attempt++;
-      try {
-        const prodRes = await axiosClient.get(`/products/${id}`);
-        const prod = prodRes.data;
-        const currentStock = Number(prod.stockQuantity) || 0;
-        const newStock = currentStock - stockNum;
-        if (newStock < 0) {
-          const err = new Error('INVALID_STOCK');
-          err.code = 'INVALID_STOCK';
-          throw err;
-        }
-        
-        const expectedNextVersion = (prod.stockVersion || 0) + 1;
-        const occSessionId = Math.random().toString(36).substring(2);
-        const patchData = {
-          stockQuantity: newStock,
-          stockVersion: expectedNextVersion,
-          _occSession: occSessionId,
-          updatedAt: new Date().toISOString()
-        };
-        
-        const res = await axiosClient.patch(`/products/${id}`, patchData);
-        
-        const verifyRes = await axiosClient.get(`/products/${id}`);
-        if (verifyRes.data.stockVersion !== expectedNextVersion || verifyRes.data._occSession !== occSessionId) {
-          const err = new Error('OCC_CONFLICT');
-          err.code = 'OCC_CONFLICT';
-          throw err;
-        }
-        return res;
-      } catch (err) {
-        if (err.code === 'OCC_CONFLICT' && attempt < 3) continue;
-        throw err;
-      }
-    }
-  },
-
   adjustStockDelta: async (id, delta, actor, context = {}, maxRetries = 3) => {
     let attempt = 0;
     while (attempt < maxRetries) {

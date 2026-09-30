@@ -1,4 +1,4 @@
-﻿import { initSeedData } from './mockApi';
+ import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithProviders } from './testUtils';
@@ -24,7 +24,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
   const staffActor = {
     id: 'acc-staff-manager',
     role: ROLES.STAFF,
-    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
+    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
     employeeCode: 'NV001',
     employeeId: 'staff-001',
     permissions: [],
@@ -112,7 +112,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       await waitFor(() => {
         expect(screen.getAllByText('Lá»‹ch sá»­ hoáº¡t Ä‘á»™ng').length).toBeGreaterThan(0);
         expect(screen.getByText('Check-in ca')).toBeTruthy();
-        expect(screen.getByText('Táº¡o Ä‘Æ¡n hÃ ng')).toBeTruthy();
+        expect(screen.getByText('Táº¡o Ä‘Æ¡n hÃ ng')).toBeTruthy();
       });
     });
 
@@ -225,18 +225,18 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
 
       await waitFor(() => {
         expect(screen.getByText('Tá»•ng Quan (Dashboard)')).toBeTruthy();
-        expect(screen.getByText(/Hiá»‡u suáº¥t bÃ¡n hÃ ng cÃ¡ nhÃ¢n cá»§a Nguyá»…n VÄƒn A/)).toBeTruthy();
+        expect(screen.getByText(/Hiá»‡u suáº¥t bÃ¡n hÃ ng cÃ¡ nhÃ¢n cá»§a Nguyá»…n VÄƒn A/)).toBeTruthy();
       });
 
       // Today KPI card checks
       expect(screen.getByText('Doanh sá»‘ hÃ´m nay')).toBeTruthy();
       expect(screen.getAllByText(/300\.000/).length).toBeGreaterThan(0);
-      expect(screen.getByText('2 Ä‘Æ¡n hÃ ng hÃ´m nay')).toBeTruthy();
+      expect(screen.getByText('2 Ä‘Æ¡n hÃ ng hÃ´m nay')).toBeTruthy();
 
       // This Week KPI card checks
-      expect(screen.getByText('Doanh sá»‘ tuáº§n nÃ y')).toBeTruthy();
+      expect(screen.getByText('Doanh sá»‘ tuáº§n nÃ y')).toBeTruthy();
       expect(screen.getAllByText(/300\.000/).length).toBeGreaterThan(0);
-      expect(screen.getByText('2 Ä‘Æ¡n hÃ ng tuáº§n nÃ y')).toBeTruthy();
+      expect(screen.getByText('2 Ä‘Æ¡n hÃ ng tuáº§n nÃ y')).toBeTruthy();
     });
 
     it('3. Employee CANNOT view another employee sales data on Dashboard', async () => {
@@ -378,7 +378,7 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       // 500k cancelled order is NOT added into sales total
       expect(screen.queryByText(/620\.000/)).toBeNull();
       expect(screen.queryByText(/500\.000/)).toBeNull();
-      expect(screen.getByText('1 Ä‘Æ¡n hÃ ng hÃ´m nay')).toBeTruthy();
+      expect(screen.getByText('1 Ä‘Æ¡n hÃ ng hÃ´m nay')).toBeTruthy();
     });
   });
 
@@ -400,8 +400,8 @@ describe('Confirmed Permissions: Staff Audit Logs & Employee Own Sales (Issue #2
       await waitFor(() => {
         expect(screen.getByText('Sáº£n pháº©m Ä‘ang bÃ¡n')).toBeTruthy();
         expect(screen.getByText('Tá»•ng giÃ¡ trá»‹ tá»“n kho')).toBeTruthy();
-        expect(screen.getByText('Doanh thu 7 ngÃ y')).toBeTruthy();
-        expect(screen.getByText('ÄÆ¡n hÃ ng 7 ngÃ y')).toBeTruthy();
+        expect(screen.getByText('Doanh thu 7 ngÃ y')).toBeTruthy();
+        expect(screen.getByText('ÄÆ¡n hÃ ng 7 ngÃ y')).toBeTruthy();
       });
     });
   });

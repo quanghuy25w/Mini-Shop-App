@@ -87,31 +87,6 @@
   color: var(--ledger-dark);
 }
 
-/* Bottom Quick Guide Box */
-.sidebar-quick-guide {
-  margin: 16px 14px 20px;
-  padding: 14px 16px;
-  background-color: #fffbeb;
-  border: 1px solid #fef3c7;
-  border-radius: var(--radius-md);
-}
-
-.guide-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #92400e;
-  margin-bottom: 6px;
-}
-
-.guide-desc {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
-  color: #b45309;
-}
 
 .btn-sidebar-close {
   display: none;

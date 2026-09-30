@@ -1,4 +1,4 @@
-﻿import { initSeedData } from './mockApi';
+ import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React, { useContext } from 'react';
 import { render, act, waitFor } from '@testing-library/react';
@@ -243,12 +243,12 @@ describe('Group Stage 3: Transaction Guard & Rollback Integration Tests', () => 
 
     // 1. NHẬP KHO (IN)
     await act(async () => {
-      await actionRef.current.importStock(testProd.id, 10, 200000, 'Nháº­p hÃ ng ca sÃ¡ng');
+      await actionRef.current.importStock(testProd.id, 10, 200000, 'Nháº­p hÃ ng ca sÃ¡ng');
     });
 
     // Kiểm tra transaction IN có accountId và workSessionId
     const inTxRes = await inventoryApi.getAllTransactions({ type: 'IN' });
-    const matchingInTx = inTxRes.data.find(t => t.note === 'Nháº­p hÃ ng ca sÃ¡ng');
+    const matchingInTx = inTxRes.data.find(t => t.note === 'Nháº­p hÃ ng ca sÃ¡ng');
     expect(matchingInTx).toBeDefined();
     expect(matchingInTx.accountId).toBe('acc-importer-1');
     expect(matchingInTx.workSessionId).toBe('ws-active-200');

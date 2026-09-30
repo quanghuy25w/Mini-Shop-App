@@ -1,4 +1,4 @@
-﻿import { initSeedData } from './mockApi';
+ import { initSeedData } from './mockApi';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { reportApi } from '../api/reportApi';
@@ -30,7 +30,7 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
     id: 'acc-staff-rep',
     employeeId: 'st-staff-rep',
     role: ROLES.STAFF,
-    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
+    name: 'Quáº£n lÃ½ Cá»­a HÃ ng',
     employeeCode: 'NVSTAFF',
     isActive: true,
   };
@@ -562,13 +562,13 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/BÃ¡o cÃ¡o & Kiá»ƒm toÃ¡n Ca lÃ m viá»‡c/i)).toBeTruthy();
+        expect(screen.getByText(/BÃ¡o cÃ¡o & Kiá»ƒm toÃ¡n Ca lÃ m viá»‡c/i)).toBeTruthy();
       });
 
-      expect(screen.getByText(/BÃ¡o cÃ¡o NgÃ y/i)).toBeTruthy();
+      expect(screen.getByText(/BÃ¡o cÃ¡o NgÃ y/i)).toBeTruthy();
       expect(screen.getByText(/BÃ¡o cÃ¡o ThÃ¡ng/i)).toBeTruthy();
       // Audit tab must NOT be visible to employee
-      expect(screen.queryByText(/Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i)).toBeNull();
+      expect(screen.queryByText(/Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i)).toBeNull();
     });
 
     it('Renders ReportPage for Admin/Staff with full access including End-of-Day Audit tab', async () => {
@@ -588,15 +588,15 @@ describe('WorkSession Reporting & End-of-Day Audit Test Suite (Items 1 to 36)', 
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/BÃ¡o cÃ¡o & Kiá»ƒm toÃ¡n Ca lÃ m viá»‡c/i)).toBeTruthy();
+        expect(screen.getByText(/BÃ¡o cÃ¡o & Kiá»ƒm toÃ¡n Ca lÃ m viá»‡c/i)).toBeTruthy();
       }, { timeout: 4000 });
 
-      expect(screen.getByText(/BÃ¡o cÃ¡o NgÃ y/i)).toBeTruthy();
+      expect(screen.getByText(/BÃ¡o cÃ¡o NgÃ y/i)).toBeTruthy();
       expect(screen.getByText(/BÃ¡o cÃ¡o ThÃ¡ng/i)).toBeTruthy();
-      expect(screen.getByText(/Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i)).toBeTruthy();
+      expect(screen.getByText(/Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i)).toBeTruthy();
 
       // Click on Audit tab
-      const auditBtn = screen.getByRole('button', { name: /Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i });
+      const auditBtn = screen.getByRole('button', { name: /Kiá»ƒm toÃ¡n Cuá»‘i ngÃ y/i });
       await act(async () => {
         fireEvent.click(auditBtn);
       });

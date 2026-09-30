@@ -160,15 +160,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         )}
       </nav>
 
-      <div className="sidebar-quick-guide">
-        <div className="guide-title">
-          <span className="guide-icon">💡</span>
-          <span>Hướng dẫn nhanh</span>
-        </div>
-        <p className="guide-desc">
-          Chọn sản phẩm, nhập số lượng và giá nhập để cập nhật tồn kho.
-        </p>
-      </div>
+
     </aside>
   );
 };
